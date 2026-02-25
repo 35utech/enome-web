@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { centralConfig, companyProfile } from "@/lib/db/schema";
+import { centralConfig, companyProfile, cargo } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import logger from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
@@ -45,6 +45,17 @@ export async function POST(request: NextRequest) {
 
         const origin = company?.kota || CONFIG.DEFAULT_ORIGIN_CITY;
 
+        // 3. Ambil daftar kurir aktif dari DB
+        const activeCouriers = await db.select()
+            .from(cargo)
+            .where(eq(cargo.isAktif, 1));
+
+        const excludedCodes = ["jtr", "cod", "instantkurir", "pickup", "cashless", "gratis"];
+        const courierCodes = activeCouriers
+            .map(c => c.code?.toLowerCase())
+            .filter(code => code && !excludedCodes.includes(code))
+            .join(':') || 'jne:sicepat:jnt';
+
         // Override manual untuk kurir internal/khusus yang biayanya 0 atau fixed
         if (["jtr", "cod", "instantkurir", "pickup", "cashless", "gratis"].includes(courier.toLowerCase())) {
             logger.debug("Shipping Calc: Manual override applied", { courier });
@@ -60,9 +71,9 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // 3. Panggil API RajaOngkir Pro
-        logger.debug("Shipping Calc: Calling RajaOngkir API", { origin, destination, weight, courier });
-        const response = await fetch("https://pro.rajaongkir.com/api/cost", {
+        // 4. Panggil API Komerce untuk SEMUA kurir aktif
+        logger.debug("Shipping Calc: Calling Komerce API", { origin, destination, weight, courierCodes });
+        const response = await fetch("https://rajaongkir.komerce.id/api/v1/calculate/district/domestic-cost", {
             method: "POST",
             headers: {
                 "content-type": "application/x-www-form-urlencoded",
@@ -70,23 +81,42 @@ export async function POST(request: NextRequest) {
             },
             body: new URLSearchParams({
                 origin: origin,
-                originType: "city",
                 destination: destination.toString(),
-                destinationType: "subdistrict",
                 weight: weight.toString(),
-                courier: courier.toLowerCase()
+                courier: courierCodes,
+                price: "lowest"
             })
         });
+
+        // C4N2U3s71af1878ea724a8d6X5PpcQpb
 
         const data = await response.json();
 
         if (response.ok) {
-            logger.info("Shipping Calc: Success", { courier });
-        } else {
-            logger.error("Shipping Calc: RajaOngkir API Failure", { status: response.status, data });
-        }
+            logger.info("Shipping Calc: Success", { data });
 
-        return NextResponse.json(data);
+            // Transform Komerce to RajaOngkir structure for frontend compatibility
+            const transformedData = {
+                rajaongkir: {
+                    results: [{
+                        costs: data?.data?.map((item: any) => ({
+                            service: `${item.name} - ${item.service}`,
+                            courierCode: item.code,
+                            courierName: item.name,
+                            cost: [{
+                                value: item.cost,
+                                etd: item.etd,
+                                note: item.description || ""
+                            }]
+                        })) || []
+                    }]
+                }
+            };
+            return NextResponse.json(transformedData);
+        } else {
+            logger.error("Shipping Calc: Komerce API Failure", { status: response.status, data });
+            return NextResponse.json(data, { status: response.status });
+        }
 
     } catch (error: any) {
         logger.error("API Error: /api/shipping", { error: error.message });

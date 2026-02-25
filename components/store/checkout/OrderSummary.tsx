@@ -69,7 +69,7 @@ export default function OrderSummary({
                         <span className="text-neutral-base-900">{formatPrice(totalAmount)}</span>
                     </div>
                     <div className="flex justify-between items-center text-[11px] font-black text-neutral-base-400 uppercase tracking-widest">
-                        <span>Pengiriman ({shippingForm.courier?.toUpperCase()}{shippingForm.service ? ` - ${shippingForm.service}` : ''})</span>
+                        <span>Pengiriman ({shippingForm.courier?.toUpperCase()})</span>
                         <span className="text-neutral-base-900 font-bold flex items-center gap-2">
                             {isLoadingShipping ? (
                                 <Loader2 className="w-3 h-3 animate-spin text-sky-600" />
@@ -152,20 +152,23 @@ export default function OrderSummary({
                             </button>
                         </motion.div>
                     ) : (
-                        <div className="mt-2 bg-neutral-base-50/50 border border-neutral-base-100 rounded-[24px] p-4 flex flex-col gap-3">
-                            <span className="text-[10px] font-black text-neutral-base-900 uppercase tracking-widest ml-1">Punya Kode Promo?</span>
+                        <div className={`mt-2 border border-neutral-base-100 rounded-[24px] p-4 flex flex-col gap-3 transition-all duration-300 ${remainingBill === 0 ? "bg-neutral-base-50/30 opacity-60 grayscale" : "bg-neutral-base-50/50"}`}>
+                            <span className="text-[10px] font-black text-neutral-base-900 uppercase tracking-widest ml-1">
+                                {remainingBill === 0 ? "Promo Code Tidak Tersedia" : "Punya Kode Promo?"}
+                            </span>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
                                     value={voucherCode}
+                                    disabled={remainingBill === 0}
                                     onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                                    className="flex-1 h-12 bg-white border border-neutral-base-100 rounded-xl px-4 text-[12px] font-bold outline-none focus:border-amber-800 focus:ring-2 focus:ring-amber-50 transition-all placeholder:text-neutral-base-200 uppercase"
-                                    placeholder="CONTOH: ENOME10"
+                                    className="flex-1 h-12 bg-white border border-neutral-base-100 rounded-xl px-4 text-[12px] font-bold outline-none focus:border-amber-800 focus:ring-2 focus:ring-amber-50 transition-all placeholder:text-neutral-base-200 uppercase disabled:bg-neutral-base-50 disabled:cursor-not-allowed"
+                                    placeholder={remainingBill === 0 ? "---" : "CONTOH: ENOME10"}
                                 />
                                 <button
                                     onClick={applyVoucher}
-                                    disabled={!voucherCode || isVoucherLoading}
-                                    className="px-6 h-12 rounded-xl bg-neutral-base-900 text-white text-[11px] font-black uppercase tracking-widest hover:bg-neutral-base-800 disabled:opacity-50 transition-all active:scale-95"
+                                    disabled={!voucherCode || isVoucherLoading || remainingBill === 0}
+                                    className="px-6 h-12 rounded-xl bg-neutral-base-900 text-white text-[11px] font-black uppercase tracking-widest hover:bg-neutral-base-800 disabled:opacity-50 transition-all active:scale-95 disabled:cursor-not-allowed"
                                 >
                                     {isVoucherLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Pakai"}
                                 </button>
@@ -178,17 +181,29 @@ export default function OrderSummary({
                     <div className="flex justify-between items-center py-2">
                         <div className="flex flex-col gap-0.5">
                             <span className="text-[11px] font-black uppercase tracking-widest text-neutral-base-400">Total Tagihan</span>
-                            {useWallet && appliedWalletAmount > 0 && (
-                                <div className="flex items-center gap-1.5 ">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Sisa: {formatPrice(remainingBill)}</span>
-                                </div>
-                            )}
+                            <span className="text-[9px] font-black text-neutral-base-900 uppercase tracking-widest">Grand Total</span>
                         </div>
                         <span className="text-[28px] font-black text-neutral-base-900 tracking-tighter">
-                            {formatPrice(remainingBill)}
+                            {formatPrice(totalAmount + shippingPrice + packingFee - voucherDiscount)}
                         </span>
                     </div>
+
+                    {useWallet && appliedWalletAmount > 0 && (
+                        <div className="flex justify-between items-center py-3 px-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[9px] font-bold text-emerald-800 uppercase tracking-widest">Sisa Pembayaran</span>
+                                <div className="flex items-center gap-1.5 ">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">
+                                        {remainingBill === 0 ? "Sudah Tercover Wallet" : "Bayar via Rekening"}
+                                    </span>
+                                </div>
+                            </div>
+                            <span className="text-[18px] font-black text-emerald-700 tracking-tight">
+                                {formatPrice(remainingBill)}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 <button

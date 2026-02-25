@@ -1,0 +1,43 @@
+import { apiClient } from "./api-client";
+
+export interface ShippingRequest {
+    destination: string;
+    weight: number;
+    courier: string;
+}
+
+export interface OrderRequest {
+    shipping: any;
+    payment: string;
+    totalAmount: number;
+    specialNotes?: string;
+    resi?: string;
+    catatan?: string;
+    isDropshipper: boolean;
+    dropshipper?: any;
+    voucherCode?: string | null;
+    voucherDiscount?: number;
+    walletAmount?: number;
+    addressId: number;
+    shippingPrice: number;
+}
+
+export const checkoutApi = {
+    getPaymentMethods: () => apiClient<any[]>("/api/payment-methods"),
+    getCouriers: () => apiClient<any[]>("/api/couriers"),
+    getShippingCost: (data: ShippingRequest) =>
+        apiClient<any>("/api/shipping", {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
+    validateVoucher: (data: { kode: string; subtotal: number; order_tipe: number }) =>
+        apiClient<any>("/api/vouchers/validate", {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
+    submitOrder: (data: OrderRequest) =>
+        apiClient<any>("/api/orders", {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
+};

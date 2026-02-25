@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { wallet, customer } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
+import { CustomerService } from "@/lib/services/customer-service";
+import { UserService } from "@/lib/services/user-service";
 
 /**
  * Handler untuk mendapatkan saldo wallet terakhir milik user.
@@ -21,24 +20,14 @@ export async function GET() {
         const userId = session.user.id;
 
         // Mencari custId yang berelasi dengan userId ini
-        const [customerData]: any = await db.select({ custId: customer.custId })
-            .from(customer)
-            .where(eq(customer.userId, userId))
-            .limit(1);
+        const custId = await CustomerService.getCustId(userId);
 
-        if (!customerData) {
+        if (!custId) {
             logger.info("Wallet Check: Customer profile not found, returning 0 balance");
             return NextResponse.json({ balance: 0 });
         }
 
-        // Mengambil transaksi wallet terakhir untuk mendapatkan saldo terkini
-        const [lastWallet]: any = await db.select()
-            .from(wallet)
-            .where(eq(wallet.custId, customerData.custId))
-            .orderBy(desc(wallet.id))
-            .limit(1);
-
-        const balance = lastWallet?.saldo || 0;
+        const balance = await UserService.getWalletBalance(custId);
 
         logger.info("Wallet Check: Balance fetched successfully", { userId, balance });
         return NextResponse.json({ balance });

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { keranjang } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
+import { getJakartaDate } from "@/lib/date-utils";
+import { CartService } from "@/lib/services/cart-service";
 
 /**
  * Handler untuk mengubah isi (PATCH) atau menghapus (DELETE) item dari keranjang.
@@ -30,14 +29,12 @@ export async function PATCH(
             return NextResponse.json({ message: "bad_request" }, { status: 400 });
         }
 
-        const updateData: any = { updatedAt: new Date() };
+        const updateData: any = { updatedAt: getJakartaDate() };
         if (typeof qty === 'number' && qty >= 1) updateData.qtyProduk = qty;
         if (typeof notes === 'string') updateData.keterangan = notes;
 
         // Melakukan update pada item keranjang milik user tersebut
-        await db.update(keranjang)
-            .set(updateData)
-            .where(and(eq(keranjang.id, id), eq(keranjang.custId, session.user.id)));
+        await CartService.updateCartItem(id, session.user.id, updateData);
 
         logger.info("Cart Update: Success", { id, qty, notes });
         return NextResponse.json({ message: "success" });
@@ -69,9 +66,7 @@ export async function DELETE(
         }
 
         // Soft delete dengan mengubah flag isDeleted menjadi 1
-        await db.update(keranjang)
-            .set({ isDeleted: 1, updatedAt: new Date() })
-            .where(and(eq(keranjang.id, id), eq(keranjang.custId, session.user.id)));
+        await CartService.deleteCartItem(id, session.user.id, getJakartaDate());
 
         logger.info("Cart Delete: Success", { id });
         return NextResponse.json({ message: "success" });

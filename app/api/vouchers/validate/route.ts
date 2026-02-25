@@ -4,6 +4,7 @@ import { voucher, customer } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
+import { getJakartaDate } from "@/lib/date-utils";
 
 /**
  * Handler untuk validasi kode voucher.
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
         }
 
         const userId = session.user.id;
-        const now = new Date();
+        const now = getJakartaDate();
 
         // Ambil data customer untuk validasi eligibilitas voucher
         const [customerData]: any = await db.select({

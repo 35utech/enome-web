@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import logger from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
+import { getJakartaDate, nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull } from "@/lib/date-utils";
 
 /**
  * Handler untuk menambahkan produk ke keranjang belanja.
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 4. Cek apakah produk sedang dalam periode Flash Sale aktif
-        const now = new Date();
+        const now = getJakartaDate();
         const activeFlashSale = await db.select({
             flashSaleId: flashSale.id,
             waktuSelesai: flashSale.waktuSelesai,
@@ -168,11 +169,12 @@ export async function POST(request: NextRequest) {
         const totalItems = Number(cartCount[0]?.total || 0);
 
         // SYNC LOGGING: Menulis log aktivitas manual ke file teks khusus (Legacy Yii2 behavior)
-        const logDate = now.toISOString().slice(0, 7).replace('-', '');
+        const logDate = nowJakartaYYMMDD().slice(0, 4); // YYMM
+        const nowFull = nowJakartaFull();
         const logContent = `==================================================================================================================== \n` +
-            `Scc [${now.toISOString().replace('T', ' ').slice(0, 19)}][${userId}]: activity : ${session.user.name} Menambahkan ${id_produk} - ${color_sylla} - ${size_sylla} ke dalam keranjang [nextjs] \n` +
-            `Scc [${now.toISOString().replace('T', ' ').slice(0, 19)}][${userId}]: activity_description : ${session.user.name} Menambahkan ${id_produk} - ${color_sylla} - ${size_sylla} ke dalam keranjang [nextjs] \n` +
-            `Scc [${now.toISOString().replace('T', ' ').slice(0, 19)}][${userId}]: created_by : ${userId} \n`;
+            `Scc [${nowFull}][${userId}]: activity : ${session.user.name} Menambahkan ${id_produk} - ${color_sylla} - ${size_sylla} ke dalam keranjang [nextjs] \n` +
+            `Scc [${nowFull}][${userId}]: activity_description : ${session.user.name} Menambahkan ${id_produk} - ${color_sylla} - ${size_sylla} ke dalam keranjang [nextjs] \n` +
+            `Scc [${nowFull}][${userId}]: created_by : ${userId} \n`;
 
         try {
             const logDir = "/var/www/html/enome/frontend/web/theme/log";

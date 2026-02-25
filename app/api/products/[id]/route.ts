@@ -5,6 +5,7 @@ import { eq, and, sql, not, min, max } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
+import { getJakartaDate } from "@/lib/date-utils";
 
 /**
  * Handler untuk mengambil data detail satu produk berdasarkan ID.
@@ -37,7 +38,7 @@ export async function GET(
         // Map kategori ke kolom harga menggunakan CONFIG
         const priceColumnName = CONFIG.PRICE_COLUMNS[kategoriId] || CONFIG.PRICE_COLUMNS[CONFIG.DEFAULT_KATEGORI_CUSTOMER_ID];
         const priceColumn = (produkDetail as any)[priceColumnName] || sql.raw(priceColumnName);
-        const now = new Date();
+        const now = getJakartaDate();
 
         // 1. Ambil detail utama produk
         const productData = await db

@@ -8,13 +8,13 @@ import ProductCard from "@/components/store/ProductCard";
 import Pagination from "@/components/store/Pagination";
 import Navbar from "@/components/store/Navbar";
 import Footer from "@/components/store/Footer";
-import HeroSection from "@/components/store/HeroSection";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { SlidersHorizontal, Loader2 } from "lucide-react";
 import { useProducts, useCategories } from "@/hooks/use-products";
 import { ASSET_URL } from "@/config/config";
 import type { Category } from "@/hooks/use-products";
 
+import HeroSection from "@/components/store/HeroSection";
 
 export default function ProductsPage() {
     const { data: rawProducts = [], isLoading: productsLoading } = useProducts();
@@ -83,9 +83,14 @@ export default function ProductsPage() {
 
                 <HeroSection />
 
-                <section className="pt-12 md:pt-24 pb-24">
+                <div className="sticky top-[80px] z-30 bg-white/90 backdrop-blur-md border-b border-neutral-base-50">
                     <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
+                        <ProductListHeader />
+                    </div>
+                </div>
 
+                <section className="py-12">
+                    <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
                         {/* Mobile Filter Trigger */}
                         <div className="flex lg:hidden justify-between items-center mb-6">
                             <h2 className="font-serif text-[24px] font-bold text-neutral-base-900">Products</h2>
@@ -96,7 +101,7 @@ export default function ProductsPage() {
                                         Filters
                                     </button>
                                 </SheetTrigger>
-                                <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto px-6 pt-16 border-r border-neutral-base-200">
+                                <SheetContent side="right" className="w-[300px] sm:w-[350px] overflow-y-auto px-6 pt-16 border-l border-neutral-base-200">
                                     <SheetTitle className="sr-only">Product Filters</SheetTitle>
                                     <SheetDescription className="sr-only">Filter products by size, color, collection, and more.</SheetDescription>
                                     <div className="pb-10">
@@ -111,8 +116,8 @@ export default function ProductsPage() {
                         </div>
 
                         <div className="flex flex-col lg:flex-row gap-16">
-                            {/* Desktop Sidebar */}
-                            <div className="hidden lg:block w-64 shrink-0">
+                            {/* Desktop Sidebar (Left) */}
+                            <div className="hidden lg:block w-80 shrink-0 sticky top-[180px] h-[calc(100vh-200px)] overflow-y-auto scrollbar-hide pb-20">
                                 <FilterSidebar
                                     activeFilters={activeFilters}
                                     onFilterChange={handleFilterChange}
@@ -122,10 +127,8 @@ export default function ProductsPage() {
 
                             {/* Main Content */}
                             <div className="flex-1">
-                                <ProductListHeader />
-
                                 {filteredProducts.length === 0 ? (
-                                    <div className="w-full py-20 text-center flex flex-col items-center justify-center border border-dashed border-neutral-base-200">
+                                    <div className="w-full py-20 text-center flex flex-col items-center justify-center border border-dashed border-neutral-base-200 rounded-3xl">
                                         <p className="font-serif text-[24px] text-neutral-base-400 mb-2">No products found</p>
                                         <p className="text-neutral-base-300 text-sm">Try adjusting your filters to see more results.</p>
                                         <button
@@ -136,7 +139,7 @@ export default function ProductsPage() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-12">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-x-6 gap-y-12">
                                         {filteredProducts.map((p: any, idx) => {
                                             const colorArray = p.colors
                                                 ? p.colors.split(",").map((c: string) => {
@@ -173,12 +176,13 @@ export default function ProductsPage() {
                                     </div>
                                 )}
 
-                                <Pagination />
+                                <div className="mt-20">
+                                    <Pagination />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
-
                 <Footer />
             </main>
         </TooltipProvider>

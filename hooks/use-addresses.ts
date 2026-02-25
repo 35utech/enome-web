@@ -1,52 +1,22 @@
-"use client";
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { userApi, Address } from "@/lib/api/user-api";
+import { queryKeys } from "@/lib/query-keys";
 
-export interface Address {
-    id: number;
-    label: string;
-    receiverName: string;
-    phoneNumber: string;
-    fullAddress: string;
-    city: string;
-    province: string;
-    district: string;
-    postalCode: string;
-    shopName: string;
-    isPrimary: number;
-    type?: string;
-    customerId?: string;
-}
+export type { Address };
 
 export function useAddresses() {
     const queryClient = useQueryClient();
 
     const { data: addresses = [], isLoading } = useQuery<Address[]>({
-        queryKey: ["user-addresses"],
-        queryFn: async () => {
-            const res = await fetch("/api/user/addresses");
-            if (!res.ok) throw new Error("Failed to fetch addresses");
-            const data = await res.json();
-            return data.addresses;
-        }
+        queryKey: queryKeys.user.addresses,
+        queryFn: userApi.getAddresses,
     });
 
     const createMutation = useMutation({
-        mutationFn: async (newAddress: any) => {
-            const res = await fetch("/api/user/addresses", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newAddress),
-            });
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || "Failed to add address");
-            }
-            return res.json();
-        },
+        mutationFn: userApi.createAddress,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user.addresses });
             toast.success("Alamat berhasil ditambahkan");
         },
         onError: (error: Error) => {
@@ -55,20 +25,9 @@ export function useAddresses() {
     });
 
     const updateMutation = useMutation({
-        mutationFn: async ({ id, ...data }: any) => {
-            const res = await fetch("/api/user/addresses", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, ...data }),
-            });
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || "Failed to update address");
-            }
-            return res.json();
-        },
+        mutationFn: userApi.updateAddress,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user.addresses });
             toast.success("Alamat berhasil diperbarui");
         },
         onError: (error: Error) => {
@@ -77,17 +36,9 @@ export function useAddresses() {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            const res = await fetch("/api/user/addresses", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id }),
-            });
-            if (!res.ok) throw new Error("Failed to delete address");
-            return res.json();
-        },
+        mutationFn: userApi.deleteAddress,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user.addresses });
             toast.success("Alamat berhasil dihapus");
         },
         onError: (error: Error) => {
@@ -96,17 +47,9 @@ export function useAddresses() {
     });
 
     const setPrimaryMutation = useMutation({
-        mutationFn: async (id: number) => {
-            const res = await fetch("/api/user/addresses", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, isPrimary: 1 }),
-            });
-            if (!res.ok) throw new Error("Failed to update address");
-            return res.json();
-        },
+        mutationFn: (id: number) => userApi.updateAddress({ id, isPrimary: 1 }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user.addresses });
             toast.success("Alamat utama berhasil diperbarui");
         },
         onError: (error: Error) => {

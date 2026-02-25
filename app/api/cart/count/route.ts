@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { keranjang } from "@/lib/db/schema";
-import { eq, and, sql } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
+import { CartService } from "@/lib/services/cart-service";
 
 /**
  * Handler sederhana untuk mendapatkan jumlah total item (unique baris) di keranjang user.
@@ -18,13 +16,7 @@ export async function GET(request: NextRequest) {
         }
 
         const userId = session.user.id;
-
-        // Hitung total baris keranjang aktif
-        const cartCount = await db.select({ total: sql<number>`count(*)` })
-            .from(keranjang)
-            .where(and(eq(keranjang.custId, userId), eq(keranjang.isDeleted, 0)));
-
-        const totalItems = Number(cartCount[0]?.total || 0);
+        const totalItems = await CartService.getCartCount(userId);
 
         return NextResponse.json({
             total: totalItems

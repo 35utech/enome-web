@@ -3,8 +3,14 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCart } from "@/hooks/use-cart";
 import { useAddresses, Address } from "@/hooks/use-addresses";
+import { cartApi } from "@/lib/api/cart-api";
+import { userApi } from "@/lib/api/user-api";
+import { checkoutApi } from "@/lib/api/checkout-api";
+import { queryKeys } from "@/lib/query-keys";
+import CONFIG from "@/lib/config";
 
 export function useCheckout() {
     const searchParams = useSearchParams();
@@ -14,7 +20,6 @@ export function useCheckout() {
     );
 
     const [cartItems, setCartItems] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [totalAmount, setTotalAmount] = useState(0);
     const { refreshCart } = useCart();
 
@@ -81,7 +86,7 @@ export function useCheckout() {
     const [isLoadingShipping, setIsLoadingShipping] = useState(false);
     const [shippingPrice, setShippingPrice] = useState(0);
 
-    const packingFee = 2000;
+    const packingFee = CONFIG.PACKING_FEE;
 
     // Derived State
     const voucherDiscount = useMemo(() => {
@@ -101,12 +106,31 @@ export function useCheckout() {
     const appliedWalletAmount = useWallet ? Math.min(walletBalance, grandTotal) : 0;
     const remainingBill = Math.max(0, grandTotal - appliedWalletAmount);
 
-    const fetchCart = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch("/api/cart");
-            const data = await response.json();
-            let items = data.items || [];
+    const fetchCartQuery = useQuery({
+        queryKey: queryKeys.cart.all,
+        queryFn: cartApi.getCart,
+    });
+
+    const isLoading = fetchCartQuery.isLoading;
+
+    const fetchWalletQuery = useQuery({
+        queryKey: queryKeys.user.wallet,
+        queryFn: userApi.getWalletBalance,
+    });
+
+    const fetchPaymentMethodsQuery = useQuery({
+        queryKey: queryKeys.payments.methods,
+        queryFn: checkoutApi.getPaymentMethods,
+    });
+
+    const fetchCouriersQuery = useQuery({
+        queryKey: queryKeys.shipping.couriers,
+        queryFn: checkoutApi.getCouriers,
+    });
+
+    useEffect(() => {
+        if (fetchCartQuery.data) {
+            let items = fetchCartQuery.data.items || [];
             if (selectedIds.length > 0) {
                 items = items.filter((item: any) => selectedIds.includes(item.id));
             }
@@ -115,71 +139,75 @@ export function useCheckout() {
             const weight = items.reduce((acc: number, item: any) => acc + (Number(item.berat || 0) * Number(item.qty || 0)), 0);
             setTotalAmount(total);
             setTotalWeight(weight);
-        } catch (error) {
-            toast.error("Gagal mengambil data keranjang");
-        } finally {
-            setIsLoading(false);
         }
-    }, [selectedIds]);
+    }, [fetchCartQuery.data, selectedIds]);
 
-    const fetchWallet = async () => {
-        try {
-            const response = await fetch("/api/user/wallet");
-            const data = await response.json();
-            setWalletBalance(data.balance || 0);
-        } catch (error) {
-            console.error("Fetch Wallet Error:", error);
+    useEffect(() => {
+        if (fetchWalletQuery.data !== undefined) {
+            setWalletBalance(fetchWalletQuery.data);
         }
-    };
+    }, [fetchWalletQuery.data]);
 
-    const fetchPaymentMethods = async () => {
-        setIsLoadingPayments(true);
-        try {
-            const response = await fetch("/api/payment-methods");
-            const data = await response.json();
-            setPaymentMethods(data || []);
-        } catch (error) {
-            console.error("Fetch Payment Methods Error:", error);
-        } finally {
-            setIsLoadingPayments(false);
+    useEffect(() => {
+        if (fetchPaymentMethodsQuery.data) {
+            setPaymentMethods(fetchPaymentMethodsQuery.data);
         }
-    };
+    }, [fetchPaymentMethodsQuery.data]);
 
-    const fetchCouriers = async () => {
-        setIsLoadingCouriers(true);
-        try {
-            const response = await fetch("/api/couriers");
-            const data = await response.json();
-            setCouriers(data || []);
-        } catch (error) {
-            console.error("Fetch Couriers Error:", error);
-        } finally {
-            setIsLoadingCouriers(false);
+    useEffect(() => {
+        if (fetchCouriersQuery.data) {
+            setCouriers(fetchCouriersQuery.data);
         }
-    };
+    }, [fetchCouriersQuery.data]);
 
     const fetchShippingCost = useCallback(async () => {
-        if (!shippingForm.courier || !shippingForm.kecamatan || totalWeight === 0) return;
+        if (!shippingForm.kecamatan || totalWeight === 0) return;
+
+        const cacheKey = `shippingCost_${shippingForm.kecamatan}_${totalWeight}`;
+        const cachedStr = sessionStorage.getItem(cacheKey);
+
+        const handleCosts = (costs: any[]) => {
+            setShippingOptions(costs);
+            if (costs.length > 0) {
+                setShippingForm(prev => {
+                    const exists = prev.service ? costs.find((c: any) => c.service === prev.service) : null;
+                    if (exists) {
+                        setShippingPrice(exists.cost[0].value);
+                        return prev;
+                    } else {
+                        const firstService = costs[0];
+                        setShippingPrice(firstService.cost[0].value);
+                        return {
+                            ...prev,
+                            service: firstService.service,
+                            courier: firstService.courierCode || prev.courier
+                        };
+                    }
+                });
+            }
+        };
+
+        if (cachedStr) {
+            try {
+                const costs = JSON.parse(cachedStr);
+                handleCosts(costs);
+                return; // Gunakan cache
+            } catch (e) {
+                console.error("Failed to parse cached shipping cost");
+            }
+        }
+
         setIsLoadingShipping(true);
         try {
-            const response = await fetch("/api/shipping", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    destination: shippingForm.kecamatan,
-                    weight: totalWeight,
-                    courier: shippingForm.courier
-                })
+            const data = await checkoutApi.getShippingCost({
+                destination: shippingForm.kecamatan,
+                weight: totalWeight,
+                courier: "ALL"
             });
-            const data = await response.json();
             if (data.rajaongkir?.results?.[0]?.costs) {
                 const costs = data.rajaongkir.results[0].costs;
-                setShippingOptions(costs);
-                if (costs.length > 0) {
-                    const firstService = costs[0];
-                    setShippingPrice(firstService.cost[0].value);
-                    setShippingForm(prev => ({ ...prev, service: firstService.service }));
-                }
+                sessionStorage.setItem(cacheKey, JSON.stringify(costs));
+                handleCosts(costs);
             }
         } catch (error) {
             console.error("Fetch Shipping Error:", error);
@@ -187,18 +215,22 @@ export function useCheckout() {
         } finally {
             setIsLoadingShipping(false);
         }
-    }, [shippingForm.courier, shippingForm.kecamatan, totalWeight]);
+    }, [shippingForm.kecamatan, totalWeight]);
 
     useEffect(() => {
         fetchShippingCost();
     }, [fetchShippingCost]);
 
+    const refreshAll = useCallback(() => {
+        fetchCartQuery.refetch();
+        fetchWalletQuery.refetch();
+        fetchPaymentMethodsQuery.refetch();
+        fetchCouriersQuery.refetch();
+    }, [fetchCartQuery, fetchWalletQuery, fetchPaymentMethodsQuery, fetchCouriersQuery]);
+
     useEffect(() => {
-        fetchCart();
-        fetchWallet();
-        fetchPaymentMethods();
-        fetchCouriers();
-    }, [fetchCart]);
+        // Initial fetch is handled by react-query, but we might need manual refresh logic
+    }, []);
 
     // Auto-fill form when addresses are loaded
     useEffect(() => {
@@ -268,7 +300,7 @@ export function useCheckout() {
                 body: JSON.stringify({ qty: newQty })
             });
             if (!response.ok) throw new Error("Failed to update");
-            await fetchCart();
+            await fetchCartQuery.refetch();
             refreshCart();
         } catch (error) {
             setCartItems(previousItems);
@@ -281,7 +313,7 @@ export function useCheckout() {
             const response = await fetch(`/api/cart/${id}`, { method: "DELETE" });
             if (response.ok) {
                 toast.success("Barang dihapus dari keranjang");
-                await fetchCart();
+                await fetchCartQuery.refetch();
                 refreshCart();
             }
         } catch (error) {

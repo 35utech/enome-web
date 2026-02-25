@@ -6,13 +6,13 @@ import {
 import { eq, and, sql, desc, like } from "drizzle-orm";
 import { CONFIG } from "@/lib/config";
 import logger from "@/lib/logger";
+import { nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull } from "@/lib/date-utils";
 
 export class OrderService {
     static async generateOrderId() {
         logger.info("OrderService: Generating Order ID");
         // ...
-        const now = new Date();
-        const yymmdd = now.toISOString().slice(2, 10).replace(/-/g, "");
+        const yymmdd = nowJakartaYYMMDD();
         const prefix = `PO#N${yymmdd}`;
 
         const [lastOrder]: any = await db.select({ orderId: orders.orderId })
@@ -65,9 +65,8 @@ export class OrderService {
 
     static async createOrder(orderData: any, verifiedItems: any[], walletAdjustment: number) {
         logger.info("OrderService: Creating Order", { orderId: orderData.orderId, userId: orderData.userId });
-        const now = new Date();
-        const ymd = now.toISOString().split('T')[0];
-        const dhms = now.toISOString().slice(0, 19).replace('T', ' ');
+        const ymd = nowJakartaDate();
+        const dhms = nowJakartaFull();
 
         const { orderId, userId, customerData, totalAmount, shipping, payment, costs, meta } = orderData;
         const { totalWeight, totalHpp } = costs;

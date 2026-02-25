@@ -44,7 +44,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100"
+            className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-neutral-base-50/50"
         >
             <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
                 <div className="flex items-center justify-between h-[80px]">
@@ -81,7 +81,7 @@ export default function Navbar() {
                                         key={link.name}
                                         href={link.path}
                                         className={cn(
-                                            "text-[12px] font-bold tracking-[0.1em] uppercase transition-all duration-300 relative",
+                                            "text-[12px] font-bold tracking-widest uppercase transition-all duration-300 relative",
                                             isActive ? "text-neutral-base-900" : "text-neutral-base-500 hover:text-amber-800"
                                         )}
                                     >

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { user, customer, customerAlamat, orders, provinsi, kota, kecamatan } from "@/lib/db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { customer, customerAlamat } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
+import { getJakartaDate } from "@/lib/date-utils";
+import { CustomerService } from "@/lib/services/customer-service";
+import { UserService } from "@/lib/services/user-service";
 
 /**
  * Handler untuk mengambil daftar alamat pengiriman customer.
@@ -19,55 +22,14 @@ export async function GET(request: NextRequest) {
         }
 
         const userId = session.user.id;
+        const custId = await CustomerService.getCustId(userId);
 
-        // Mendapatkan informasi customer berdasarkan userId
-        const customerInfo = await db.select({ custId: customer.custId })
-            .from(customer)
-            .where(eq(customer.userId, userId))
-            .limit(1);
-
-        if (customerInfo.length === 0) {
+        if (!custId) {
             logger.info("API Response: 200 /api/user/addresses", { count: 0 });
             return NextResponse.json({ addresses: [] });
         }
 
-        const custId = customerInfo[0].custId;
-
-        // Mengambil data alamat dari tabel customerAlamat
-        const legacyAddresses = await db.select({
-            id: customerAlamat.id,
-            customerId: customerAlamat.custId,
-            name: customerAlamat.namaPenerima,
-            address: customerAlamat.alamatLengkap,
-            phone: customerAlamat.noHandphone,
-            label: customerAlamat.labelAlamat,
-            kelurahan: customerAlamat.kelurahan,
-            kecamatan: customerAlamat.kecamatan,
-            kota: customerAlamat.kota,
-            provinsi: customerAlamat.provinsi,
-            kodePos: customerAlamat.kodePos,
-            namaToko: customerAlamat.namaToko,
-            isPrimary: customerAlamat.isPrimary,
-        })
-            .from(customerAlamat)
-            .where(eq(customerAlamat.custId, custId))
-            .orderBy(desc(customerAlamat.id));
-
-        // Memetakan data alamat ke format yang lebih bersih untuk frontend
-        const addresses = legacyAddresses.map(addr => ({
-            id: addr.id,
-            label: addr.label || "Alamat",
-            receiverName: addr.name || "",
-            phoneNumber: addr.phone || "",
-            fullAddress: addr.address || "",
-            city: addr.kota || "",
-            province: addr.provinsi || "",
-            district: addr.kecamatan || "",
-            postalCode: addr.kodePos || "",
-            shopName: addr.namaToko || "",
-            isPrimary: addr.isPrimary,
-            type: addr.isPrimary === 1 ? "Utama" : "Alamat Tersimpan"
-        }));
+        const addresses = await UserService.getAddresses(custId);
 
         logger.info("API Response: 200 /api/user/addresses", { count: addresses.length });
         return NextResponse.json({ addresses });
@@ -144,7 +106,7 @@ export async function POST(req: NextRequest) {
             kodePos,
             isPrimary: isPrimary === 1 ? 1 : 0,
             createdBy: 1, // Sistem ID default
-            createdAt: new Date(),
+            createdAt: getJakartaDate(),
         });
 
         logger.info("API Response: 200 /api/user/addresses (POST)", { addressId: result.insertId });

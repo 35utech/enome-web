@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { customer, keranjang } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import logger from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { OrderService } from "@/lib/services/order-service";
+import { CustomerService } from "@/lib/services/customer-service";
+import { CartService } from "@/lib/services/cart-service";
 
 export async function POST(request: NextRequest) {
     try {
@@ -29,25 +28,15 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user.id;
-        const [customerData]: any = await db.select().from(customer).where(eq(customer.userId, userId)).limit(1);
+        const customerData = await CustomerService.getCustomerData(userId);
 
         if (!customerData) {
             logger.warn("Order Error: Customer not found", { userId });
             return NextResponse.json({ error: "Profil customer tidak ditemukan" }, { status: 404 });
         }
 
-        // 1. Fetch Cart Items with mapping
-        const cartItems = await db.select({
-            id: keranjang.id,
-            produkId: keranjang.produkId,
-            warna: keranjang.warna,
-            size: keranjang.size,
-            qty: keranjang.qtyProduk,
-            harga: keranjang.hargaPoduk,
-            keterangan: keranjang.keterangan,
-        })
-            .from(keranjang)
-            .where(and(eq(keranjang.custId, userId), eq(keranjang.isDeleted, 0)));
+        // 1. Fetch Cart Items using CartService
+        const { items: cartItems } = await CartService.getCartItems(userId);
 
         if (cartItems.length === 0) {
             logger.warn("Order Error: Cart is empty", { userId });
