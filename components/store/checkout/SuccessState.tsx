@@ -87,10 +87,6 @@ export default function SuccessState({ orderResult, lastOrderedItems, formatPric
                                         </div>
                                         <span className="text-[12px] font-black uppercase tracking-widest text-neutral-base-900">Transfer Bank</span>
                                     </div>
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 rounded-full border border-amber-100">
-                                        <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                                        <span className="text-[12px] font-black text-amber-600 tabular-nums">{formatTime(timeLeft)}</span>
-                                    </div>
                                 </div>
 
                                 <div className="space-y-8">
@@ -119,6 +115,14 @@ export default function SuccessState({ orderResult, lastOrderedItems, formatPric
                                         <p className="mt-4 text-[13px] font-bold text-neutral-base-400 italic">
                                             ⚠️ <span className="text-neutral-base-900">Mohon transfer nominal tepat</span> agar sistem otomatis mendeteksi pesanan Anda.
                                         </p>
+                                        <div className="mt-4 p-4 bg-emerald-50/50 border border-emerald-100/50 rounded-2xl flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                            </div>
+                                            <p className="text-[12px] font-medium text-emerald-800">
+                                                Pesanan akan <span className="font-bold">diverifikasi secara otomatis</span> dalam <span className="font-bold">{formatTime(timeLeft)}</span> menit setelah transfer diterima.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div className="h-px bg-neutral-base-50" />

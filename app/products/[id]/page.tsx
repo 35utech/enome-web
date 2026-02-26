@@ -10,17 +10,14 @@ import ProductCard from "@/components/store/ProductCard";
 import { useProduct } from "@/hooks/use-products";
 import { ASSET_URL } from "@/config/config";
 import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
     const { data: productData, isLoading, error } = useProduct(params.id);
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-base-900" />
-            </div>
-        );
+        return <ProductDetailSkeleton />;
     }
 
     if (error || !productData) {
@@ -136,5 +133,46 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
                 <Footer />
             </main>
         </TooltipProvider>
+    );
+}
+function ProductDetailSkeleton() {
+    return (
+        <main className="min-h-screen bg-white">
+            <Navbar />
+            <div className="border-b border-neutral-base-100 bg-neutral-base-50/50 py-4">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
+                    <Skeleton className="h-4 w-64" />
+                </div>
+            </div>
+            <section className="py-12 md:py-20 lg:py-24">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
+                    <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                        <div className="lg:col-span-7">
+                            <Skeleton className="aspect-4/5 w-full rounded-3xl" />
+                        </div>
+                        <div className="lg:col-span-5 space-y-8">
+                            <div className="space-y-4">
+                                <Skeleton className="h-6 w-32" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-8 w-48" />
+                            </div>
+                            <div className="space-y-4">
+                                <Skeleton className="h-6 w-24" />
+                                <div className="flex gap-3">
+                                    {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-12 w-12 rounded-full" />)}
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <Skeleton className="h-6 w-24" />
+                                <div className="flex gap-3">
+                                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-20 rounded-xl" />)}
+                                </div>
+                            </div>
+                            <Skeleton className="h-16 w-full rounded-2xl" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     );
 }

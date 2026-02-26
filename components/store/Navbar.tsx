@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ShoppingBag, User, Settings, LogOut, Package, Wallet, ChevronDown, Menu, X, MapPin } from "lucide-react";
+import { Search, ShoppingBag, User, Settings, LogOut, Package, Wallet, ChevronDown, Menu, X, MapPin, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "./AuthModal";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { cn } from "@/lib/utils";
 import {
     DropdownMenu,
@@ -24,6 +25,8 @@ export default function Navbar() {
     const pathname = usePathname();
     const { user, isAuthenticated, logout } = useAuth();
     const { count: cartCount } = useCart();
+    const { data: wishlistData } = useWishlist();
+    const wishlistCount = wishlistData?.items?.length || 0;
 
     useEffect(() => {
         const handleOpenAuth = (e: any) => {
@@ -101,6 +104,32 @@ export default function Navbar() {
                         {/* Separator */}
                         <div className="w-px h-5 bg-gray-200" />
 
+                        {/* Wishlist Action */}
+                        <div className="flex items-center">
+                            <Link
+                                href="/account/wishlist"
+                                className="text-neutral-base-500 hover:text-neutral-base-900 transition-colors p-1 relative"
+                                aria-label="Wishlist"
+                            >
+                                <Heart className="w-[18px] h-[18px]" strokeWidth={1.2} />
+                                <AnimatePresence>
+                                    {wishlistCount > 0 && (
+                                        <motion.span
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            exit={{ scale: 0 }}
+                                            className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+                                        >
+                                            {wishlistCount}
+                                        </motion.span>
+                                    )}
+                                </AnimatePresence>
+                            </Link>
+                        </div>
+
+                        {/* Separator */}
+                        {/* <div className="w-px h-5 bg-gray-200" /> */}
+
                         {/* Cart Action */}
                         <div className="flex items-center gap-5">
                             <Link
@@ -155,36 +184,27 @@ export default function Navbar() {
                                                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                                                     <Settings className="w-4 h-4 text-blue-600" />
                                                 </div>
-                                                <span className="text-[13px] font-bold">Pengaturan Profil</span>
+                                                <span className="text-[13px] font-bold">Kelola akun</span>
                                             </Link>
                                         </DropdownMenuItem>
 
-                                        <Link href="/account/addresses">
+                                        {/* <Link href="/account/addresses">
                                             <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-xl cursor-pointer focus:bg-emerald-50/50">
                                                 <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
                                                     <MapPin className="w-4 h-4 text-emerald-600" />
                                                 </div>
                                                 <span className="text-[13px] font-bold">Daftar Alamat</span>
                                             </DropdownMenuItem>
-                                        </Link>
+                                        </Link> */}
 
-                                        <Link href="/account/orders">
+                                        {/* <Link href="/account/orders">
                                             <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-xl cursor-pointer focus:bg-amber-50/50">
                                                 <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
                                                     <Package className="w-4 h-4 text-amber-800" />
                                                 </div>
                                                 <span className="text-[13px] font-bold">Riwayat Pesanan</span>
                                             </DropdownMenuItem>
-                                        </Link>
-
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/account/wallet" className="flex items-center gap-3 p-3 rounded-xl cursor-not-allowed opacity-50">
-                                                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                                                    <Wallet className="w-4 h-4 text-indigo-600" />
-                                                </div>
-                                                <span className="text-[13px] font-bold">Dompet Saya</span>
-                                            </Link>
-                                        </DropdownMenuItem>
+                                        </Link> */}
 
                                         <DropdownMenuSeparator className="my-2 bg-neutral-base-100/60" />
 
@@ -221,6 +241,14 @@ export default function Navbar() {
 
                     {/* Mobile section */}
                     <div className="flex md:hidden items-center gap-4">
+                        <Link href="/account/wishlist" className="p-1 hover:text-neutral-base-900 transition-colors relative">
+                            <Heart className="w-5 h-5" strokeWidth={1.5} />
+                            {wishlistCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-neutral-base-900 text-white text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow-sm px-1">
+                                    {wishlistCount}
+                                </span>
+                            )}
+                        </Link>
                         <Link href="/cart" className="p-1 hover:text-neutral-base-900 transition-colors relative">
                             <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
                             {cartCount > 0 && (

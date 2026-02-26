@@ -325,7 +325,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     ) : (
                         <ShoppingBag className="w-4 h-4" />
                     )}
-                    {isSoldOut || currentStock === 0 ? "Sold Out" : isAdding ? "Adding..." : "Add to Cart"}
+                    {isSoldOut || currentStock === 0 ? "Stok Habis" : isAdding ? "Adding..." : "Add to Cart"}
                 </motion.button>
             </div>
 

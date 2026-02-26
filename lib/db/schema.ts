@@ -71,6 +71,27 @@ export const size = mysqlTable("size", {
     size: varchar("size", { length: 20 }),
 });
 
+export const keranjangLove = mysqlTable("keranjang_love", {
+    id: serial("id").primaryKey(),
+    produkId: varchar("produk_id", { length: 20 }),
+    warna: varchar("warna", { length: 20 }),
+    size: varchar("size", { length: 20 }),
+    qtyProduk: int("qty_produk"),
+    hargaPoduk: int("harga_poduk"),
+    gambarProduk: text("gambar_produk"),
+    status: int("status"),
+    custId: int("cust_id"),
+    keterangan: text("keterangan"),
+    itemDiskon: varchar("item_diskon", { length: 10 }),
+    tipeDiskon: varchar("tipe_diskon", { length: 20 }),
+    persenDiskon: double("persen_diskon"),
+    createdAt: timestamp("created_at"),
+    updatedAt: timestamp("updated_at"),
+    createdBy: int("created_by"),
+    updatedBy: int("updated_by"),
+    isDeleted: int("is_deleted").default(0),
+});
+
 export const user = mysqlTable("user", {
     id: serial("id").primaryKey(),
     username: varchar("username", { length: 255 }).notNull().unique(),

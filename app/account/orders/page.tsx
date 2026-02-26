@@ -30,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
+import ResultsInfo from "@/components/store/ResultsInfo";
 
 interface Order {
     orderId: string;
@@ -271,14 +272,13 @@ export default function OrderHistoryPage() {
 
                         {/* Total Info */}
                         {!isLoading && orders.length > 0 && (
-                            <div className="flex items-center justify-between mb-4 px-2">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-neutral-base-900" />
-                                    <p className="text-[13px] font-bold text-neutral-base-900">
-                                        Total <span className="text-neutral-base-400 ml-1">{totalOrders} Pesanan</span>
-                                    </p>
-                                </div>
-                            </div>
+                            <ResultsInfo
+                                currentPage={currentPage}
+                                itemsPerPage={limit}
+                                totalItems={totalOrders}
+                                label="pesanan"
+                                className="mb-4 px-1"
+                            />
                         )}
 
                         {/* Order Cards List */}

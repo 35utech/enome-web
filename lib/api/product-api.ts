@@ -5,6 +5,17 @@ export interface Category {
     kategori: string;
 }
 
+export interface Color {
+    warnaId: string;
+    warna: string;
+    kodeWarna: string | null;
+}
+
+export interface Size {
+    sizeId: number;
+    size: string | null;
+}
+
 export interface Product {
     produkId: string;
     kategori: string;
@@ -28,8 +39,18 @@ export interface Product {
     highlightedAt?: string | null;
     highlightOrder?: number | null;
     minPrice: string | null;
+    maxPrice: string | null;
+    baseMinPrice: string | null;
+    baseMaxPrice: string | null;
+    finalMinPrice?: string | number | null;
+    finalMaxPrice?: string | number | null;
     colors: string | null;
     totalStock?: number | null;
+    isOnFlashSale?: boolean;
+    isOnPreOrder?: boolean;
+    hasCommission?: boolean;
+    commissionMin?: string | number | null;
+    commissionMax?: string | number | null;
 }
 
 export interface ProductDetailResponse {
@@ -49,8 +70,22 @@ export interface ProductDetailResponse {
 }
 
 export const productApi = {
-    getAll: () => apiClient<Product[]>("/api/products"),
+    getAll: (filters?: any) => {
+        let url = "/api/products";
+        if (filters) {
+            const params = new URLSearchParams();
+            if (filters.collection?.length) params.append("categories", filters.collection.join(","));
+            if (filters.price?.length) params.append("priceRanges", filters.price.join(","));
+            if (filters.color?.length) params.append("colors", filters.color.join(","));
+            if (filters.size?.length) params.append("sizes", filters.size.join(","));
+            const qs = params.toString();
+            if (qs) url += `?${qs}`;
+        }
+        return apiClient<Product[]>(url);
+    },
     getNewArrivals: () => apiClient<Product[]>("/api/products/new-arrivals"),
     getById: (id: string) => apiClient<ProductDetailResponse>(`/api/products/${id}`),
-    getCategories: () => apiClient<Category[]>("/api/categories"),
+    getCategories: (limit?: number) => apiClient<Category[]>(`/api/categories${limit ? `?limit=${limit}` : ""}`),
+    getColors: () => apiClient<Color[]>("/api/colors"),
+    getSizes: () => apiClient<Size[]>("/api/sizes"),
 };

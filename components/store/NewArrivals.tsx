@@ -10,7 +10,7 @@ import ProductCard from "./ProductCard";
 
 export default function NewArrivals() {
     const { data: rawProducts = [], isLoading: productsLoading } = useNewArrivals();
-    const { data: categoriesData = [], isLoading: categoriesLoading } = useCategories();
+    const { data: categoriesData = [], isLoading: categoriesLoading } = useCategories(4);
     const [activeCategory, setActiveCategory] = useState("");
     const headerRef = useRef(null);
     const headerInView = useInView(headerRef, { once: true });

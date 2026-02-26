@@ -9,6 +9,10 @@ export interface ProductQueryOptions {
     limit?: number;
     where?: any;
     orderBy?: any;
+    categories?: string[];
+    priceRanges?: string[];
+    colors?: string[];
+    sizes?: string[];
 }
 
 export class ProductService {
@@ -47,6 +51,40 @@ export class ProductService {
 
         if (where) {
             query = query.where(where) as any;
+        }
+
+        if (options.categories && options.categories.length > 0) {
+            const categoryFilter = sql`${produk.kategori} IN ${options.categories}`;
+            query = query.where(and(where, categoryFilter)) as any;
+        }
+
+        if (options.colors && options.colors.length > 0) {
+            const colorFilter = sql`${warna.warna} IN ${options.colors}`;
+            query = query.where(and(where, colorFilter)) as any;
+        }
+
+        if (options.sizes && options.sizes.length > 0) {
+            const sizeFilter = sql`${produkDetail.size} IN ${options.sizes}`;
+            query = query.where(and(where, sizeFilter)) as any;
+        }
+
+        // Price range filtering is complex because of final price calculations.
+        // For simplicity and to match the previous in-memory logic, 
+        // we'll filter based on the base min price in the DB layer if possible, 
+        // or refine it in the processProductData.
+        // But the user wants database integration, so we'll use WHERE on minPrice.
+        if (options.priceRanges && options.priceRanges.length > 0) {
+            const conditions = options.priceRanges.map(range => {
+                if (range === "Under Rp 500k") return sql`${priceColumn} < 500000`;
+                if (range === "Rp 500k - Rp 1.5M") return sql`${priceColumn} BETWEEN 500000 AND 1500000`;
+                if (range === "Above Rp 1.5M") return sql`${priceColumn} > 1500000`;
+                return null;
+            }).filter((c): c is any => c !== null);
+
+            if (conditions.length > 0) {
+                const priceFilter = sql`(${sql.join(conditions, sql` OR `)})`;
+                query = query.where(and(where, priceFilter)) as any;
+            }
         }
 
         if (orderBy) {

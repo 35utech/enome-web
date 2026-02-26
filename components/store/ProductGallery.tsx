@@ -60,9 +60,9 @@ export default function ProductGallery({ images, isSoldOut }: ProductGalleryProp
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="rounded-sm px-8 py-3 bg-red-400 text-white text-[14px] font-black uppercase tracking-[0.3em] shadow-2xl"
+                                    className="text-white text-[14px] font-bold uppercase tracking-[0.3em]"
                                 >
-                                    Sold Out
+                                    Habis
                                 </motion.div>
                             </div>
                         )}

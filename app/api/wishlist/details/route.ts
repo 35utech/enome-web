@@ -1,0 +1,53 @@
+import { db } from "@/lib/db";
+import { keranjangLove, produk } from "@/lib/db/schema";
+import { eq, and, sql } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/auth-utils";
+import logger from "@/lib/logger";
+
+/**
+ * GET /api/wishlist/details — Ambil wishlist items dengan detail produk lengkap.
+ * Returns: items array with product name, image, price, category, colors, stock info.
+ */
+export async function GET(request: NextRequest) {
+    logger.info("API Request: GET /api/wishlist/details");
+    try {
+        const session = await getSession();
+        if (!session) {
+            return NextResponse.json({ items: [] });
+        }
+
+        const custId = Number(session.user.id);
+
+        const items = await db.execute(sql`
+            SELECT 
+                MAX(kl.id) as wishlist_id,
+                kl.produk_id,
+                MAX(kl.created_at) as created_at,
+                p.nama_produk,
+                p.kategori,
+                p.gambar,
+                p.isaktif,
+                p.is_online,
+                (SELECT MIN(pd.harga_jual) FROM produkdetail pd WHERE pd.produk_id = p.produk_id AND pd.stok_normal > 0) as min_price,
+                (SELECT MAX(pd.harga_jual) FROM produkdetail pd WHERE pd.produk_id = p.produk_id AND pd.stok_normal > 0) as max_price,
+                (SELECT SUM(pd.stok_normal) FROM produkdetail pd WHERE pd.produk_id = p.produk_id) as total_stock,
+                (SELECT GROUP_CONCAT(DISTINCT CONCAT(w.warna, '|', COALESCE(w.kode_warna, '#CCCCCC')) SEPARATOR ',')
+                 FROM produkdetail pd 
+                 LEFT JOIN warna w ON pd.warna = w.warna_id 
+                 WHERE pd.produk_id = p.produk_id AND pd.stok_normal > 0) as colors
+            FROM keranjang_love kl
+            INNER JOIN produk p ON kl.produk_id = p.produk_id
+            WHERE kl.cust_id = ${custId}
+              AND kl.is_deleted = 0
+            GROUP BY kl.produk_id, p.nama_produk, p.kategori, p.gambar, p.isaktif, p.is_online
+            ORDER BY MAX(kl.created_at) DESC
+        `);
+
+        logger.info("API Response: 200 /api/wishlist/details", { count: (items as any[])[0]?.length || 0 });
+        return NextResponse.json({ items: (items as any[])[0] || [] });
+    } catch (error: any) {
+        logger.error("API Error: 500 /api/wishlist/details", { error: error.message });
+        return NextResponse.json({ error: "Gagal mengambil wishlist" }, { status: 500 });
+    }
+}

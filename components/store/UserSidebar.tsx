@@ -2,21 +2,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-    User,
+    User as UserIcon,
     ShoppingBag,
     Heart,
     Bell,
     MapPin,
     LogOut,
     ChevronRight,
-    Wallet
+    Wallet,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
     {
         title: "Profil Saya",
-        icon: User,
+        icon: UserIcon,
         href: "/account/profile",
     },
     {
@@ -34,15 +37,11 @@ const menuItems = [
         icon: Heart,
         href: "/account/wishlist",
     },
-    // {
-    //     title: "Notifikasi",
-    //     icon: Bell,
-    //     href: "/account/notifications",
-    // },
 ];
 
 export default function UserSidebar() {
     const pathname = usePathname();
+    const { user, isLoading, logout, isLoggingOut } = useAuth();
 
     return (
         <aside className="w-full md:w-[280px] shrink-0">
@@ -58,11 +57,29 @@ export default function UserSidebar() {
                 {/* User Profile Summary - Mockup Style */}
                 <div className="flex items-center gap-4 px-4 py-2">
                     <div className="w-12 h-12 bg-neutral-base-900 rounded-full flex items-center justify-center text-white shrink-0 shadow-lg shadow-neutral-base-900/10">
-                        <User className="w-6 h-6" />
+                        {isLoading ? (
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : (
+                            <UserIcon className="w-6 h-6" />
+                        )}
                     </div>
-                    <div className="min-w-0">
-                        <h3 className="text-[14px] font-bold text-neutral-base-900 truncate">Budi Santoso</h3>
-                        <p className="text-[11px] text-neutral-base-400 font-medium truncate">budi.s@enome.com</p>
+                    <div className="min-w-0 flex-1">
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-3 w-1/2" />
+                            </div>
+                        ) : user ? (
+                            <>
+                                <h3 className="text-[14px] font-bold text-neutral-base-900 truncate">{user.name}</h3>
+                                <p className="text-[11px] text-neutral-base-400 font-medium truncate">{user.email}</p>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className="text-[14px] font-bold text-neutral-base-900 truncate">Tamu</h3>
+                                <p className="text-[11px] text-neutral-base-400 font-medium truncate">Silakan login</p>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -93,7 +110,7 @@ export default function UserSidebar() {
                                     </div>
 
                                     <span className={cn(
-                                        "text-[13px] font-bold",
+                                        "text-[14px] font-bold",
                                         isActive ? "text-neutral-base-900" : "text-neutral-base-500"
                                     )}>
                                         {item.title}
@@ -105,8 +122,16 @@ export default function UserSidebar() {
                 </nav>
 
                 <div className="pt-6 mt-6 border-t border-neutral-base-100/50 pl-4">
-                    <button className="flex items-center gap-4 p-2 text-neutral-base-400 hover:text-red-500 transition-colors group">
-                        <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <button
+                        onClick={() => logout()}
+                        disabled={isLoggingOut}
+                        className="flex items-center gap-4 p-2 text-neutral-base-400 hover:text-red-500 transition-colors group disabled:opacity-50"
+                    >
+                        {isLoggingOut ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        )}
                         <span className="text-[13px] font-bold">Keluar</span>
                     </button>
                 </div>
