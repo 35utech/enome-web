@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { rekeningPembayaran } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mendapatkan daftar metode pembayaran (rekening bank/E-Wallet) yang aktif.
+ * Mengambil daftar metode pembayaran (rekening bank/E-Wallet) yang aktif.
+ *
+ * @auth none
+ * @method GET
+ * @response 200 — RekeningPembayaran[] (array of active payment method objects)
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function GET() {
     logger.debug("API Request: GET /api/payment-methods");
@@ -16,8 +21,8 @@ export async function GET() {
 
         return NextResponse.json(methods);
     } catch (error: any) {
-        logger.error("API Error: /api/payment-methods", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(null, error, { route: "/api/payment-methods" });
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

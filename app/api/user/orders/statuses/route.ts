@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { statusOrder, statusTagihan } from "@/lib/db/schema";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mendapatkan daftar master status order dan status tagihan.
- * Digunakan untuk mengisi opsi dropdown filter di halaman riwayat pesanan.
+ * Mengambil daftar master status order dan status tagihan.
+ * Digunakan untuk dropdown filter di halaman riwayat pesanan.
+ *
+ * @auth none
+ * @method GET
+ * @response 200 — { orderStatuses: StatusOrder[], tagihanStatuses: StatusTagihan[] }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function GET(request: NextRequest) {
     logger.debug("API Request: GET /api/user/orders/statuses");
@@ -18,8 +23,8 @@ export async function GET(request: NextRequest) {
             tagihanStatuses
         });
     } catch (error: any) {
-        logger.error("API Error: /api/user/orders/statuses", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

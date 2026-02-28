@@ -3,14 +3,20 @@ import { db } from "@/lib/db";
 import { orders, statusOrder as statusOrderSchema } from "@/lib/db/schema";
 import { eq, desc, sql, and, gte, lte, or, ne, notInArray, inArray } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { CustomerService } from "@/lib/services/customer-service";
 
 /**
- * Handler untuk mengambil daftar pesanan (order history) milik user.
- * Mendukung filter berdasarkan rentang tanggal, status order, status tagihan, dan pencarian Order ID.
- * Menggunakan pagination (page & limit).
+ * Mengambil daftar pesanan (order history) milik user.
+ * Mendukung filter (tanggal, status, pencarian) dan pagination.
+ *
+ * @auth required
+ * @method GET
+ * @query {{ page?, limit?, startDate?, endDate?, statusOrder?, statusTagihan?, search? }}
+ * @response 200 — { orders: Order[], total: number, page: number, limit: number, tabs: Tab[] }
+ * @response 401 — { message: "login" }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/user/orders");
@@ -124,8 +130,8 @@ export async function GET(request: NextRequest) {
             tabs: dynamicTabs
         });
     } catch (error: any) {
-        logger.error("API Error: /api/user/orders", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

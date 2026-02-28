@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { getJakartaDate } from "@/lib/date-utils";
 import { CartService } from "@/lib/services/cart-service";
 import { db } from "@/lib/db";
@@ -8,7 +8,18 @@ import { keranjang, produkDetail, produk } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 
 /**
- * Handler untuk mengubah isi (PATCH) atau menghapus (DELETE) item dari keranjang.
+ * Update item keranjang (qty / catatan).
+ * Melakukan validasi stok real-time sebelum update.
+ *
+ * @auth required
+ * @method PATCH
+ * @params {{ id: string }} (keranjang ID)
+ * @body {{ qty?: number, notes?: string }}
+ * @response 200 (success) — { message: "success" }
+ * @response 200 (error)   — { message: "stok_empty"|"offline", desc: string }
+ * @response 401 — { message: "login" }
+ * @response 404 — { message: "not_found" }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function PATCH(
     request: NextRequest,
@@ -100,11 +111,22 @@ export async function PATCH(
         return NextResponse.json({ message: "success" });
 
     } catch (error: any) {
-        logger.error("API Error: /api/cart/[id] (PATCH)", { error: error.message, id });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(request, error, { cartItemId: id });
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 
+/**
+ * Hapus item dari keranjang (soft delete).
+ *
+ * @auth required
+ * @method DELETE
+ * @params {{ id: string }} (keranjang ID)
+ * @response 200 — { message: "success" }
+ * @response 401 — { message: "login" }
+ * @response 400 — { message: "bad_request" }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
+ */
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -132,8 +154,8 @@ export async function DELETE(
         return NextResponse.json({ message: "success" });
 
     } catch (error: any) {
-        logger.error("API Error: /api/cart/[id] (DELETE)", { error: error.message, id });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(request, error, { cartItemId: id });
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

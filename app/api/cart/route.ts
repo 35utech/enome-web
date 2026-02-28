@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CartService } from "@/lib/services/cart-service";
 
 /**
- * Handler untuk mengambil isi keranjang belanja user.
- * Melakukan join dengan produk, warna, dan detail produk untuk mendapatkan data lengkap (stok, harga, gambar).
- * Menghitung total nominal dan total kuantitas barang di keranjang.
+ * Mengambil isi keranjang belanja user yang sedang login.
+ * Melakukan join dengan produk untuk data lengkap (stok, harga, gambar).
+ *
+ * @auth optional (anonymous → keranjang kosong)
+ * @method GET
+ * @response 200 — { items: CartItem[], totalAmount: number, totalQty: number }
+ * @response 500 — { items: [], totalAmount: 0, totalQty: 0, error: "Terjadi kesalahan sistem" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/cart");
@@ -24,8 +28,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(result);
 
     } catch (error: any) {
-        logger.error("API Error: /api/cart", { error: error.message });
-        return NextResponse.json({ items: [], totalAmount: 0, totalQty: 0, error: error.message }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ items: [], totalAmount: 0, totalQty: 0, error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

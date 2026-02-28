@@ -210,12 +210,8 @@ export default function OrderDetailPage() {
 
     if (!data) return null;
 
-    const { order, items, paymentInfo, voucherInfo } = data;
+    const { order, items, paymentInfo, voucherInfo, uniqueCode: uniqueCodeValue } = data as any;
     const currentStatusIndex = statusSteps.findIndex(s => s.status === order.statusOrder);
-
-    // Ekstrak kode unik dari keterangan jika ada
-    const uniqueCodeMatch = order.keterangan?.match(/\(Kode Unik:\s*(\d+)\)/i);
-    const uniqueCodeValue = uniqueCodeMatch ? parseInt(uniqueCodeMatch[1]) : 0;
 
     return (
         <div className="min-h-screen bg-[#F9FAFB] font-sans text-neutral-base-900">
@@ -309,7 +305,7 @@ export default function OrderDetailPage() {
                                             <p className="text-[11px] font-black text-amber-800/60 uppercase tracking-widest mb-2">PENTING: Transfer Tepat Hingga 3 Digit Terakhir</p>
                                             <p className="text-[14px] font-medium text-rose-900/80 leading-relaxed">
                                                 Pastikan Anda mentransfer tepat sejumlah tagihan yakni <b className="text-neutral-base-900 text-[16px]">{formatPrice(order.totalTagihan)}</b>.
-                                                Perhatikan 3 digit kode unik (<b className="text-rose-600 font-black bg-white px-2.5 py-1 rounded-lg border border-rose-200 ml-1 text-[16px] shadow-sm">{order.totalTagihan.toString().slice(-3).padStart(3, '0')}</b>) agar sistem dapat memverifikasi pembayaran Anda secara otomatis.
+                                                Perhatikan kode unik (<b className="text-rose-600 font-black bg-white px-2.5 py-1 rounded-lg border border-rose-200 ml-1 text-[16px] shadow-sm">{uniqueCodeValue}</b>) agar sistem dapat memverifikasi pembayaran Anda secara otomatis.
                                             </p>
                                         </div>
                                     )}
@@ -327,7 +323,7 @@ export default function OrderDetailPage() {
                                         <span className="text-[11px] font-black uppercase tracking-widest text-neutral-base-400">{items.length} Barang</span>
                                     </div>
                                     <div className="divide-y divide-neutral-base-50">
-                                        {items.map((item) => (
+                                        {items.map((item: any) => (
                                             <div key={item.id} className="p-8 flex items-center gap-6 group">
                                                 <div className="w-24 h-32 bg-neutral-base-50 rounded-2xl overflow-hidden relative border border-neutral-base-50 shrink-0">
                                                     <Image

@@ -5,20 +5,21 @@ import { eq, and, sql } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
 import fs from "fs";
 import path from "path";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { getJakartaDate, nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull } from "@/lib/date-utils";
 
 /**
- * Handler untuk menambahkan produk ke keranjang belanja.
- * Alur:
- * 1. Cek sesi user.
- * 2. Cek kategori customer untuk penentuan harga.
- * 3. Validasi keberadaan produk dan stok varian (warna/size).
- * 4. Cek apakah produk sedang Flash Sale atau Pre-Order.
- * 5. Cek apakah item yang sama sudah ada di keranjang untuk update Qty.
- * 6. Jika belum ada, insert record baru.
- * 7. Logging aktivitas ke file log legacy (untuk sinkronisasi PHP) dan Winston.
+ * Menambahkan produk ke keranjang belanja.
+ * Alur: cek sesi → cek kategori harga → validasi produk & stok → cek flash sale → insert/update keranjang.
+ *
+ * @auth required
+ * @method POST
+ * @body {{ id_produk: string, color_sylla: string, size_sylla: string, qty_produk: number, data_pre_order_id?: string }}
+ * @response 200 (success) — { message: "success", totalinlove: number }
+ * @response 200 (login)   — { message: "login" }
+ * @response 200 (error)   — { message: "not_available"|"stok_empty", detail: string }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function POST(request: NextRequest) {
     try {
@@ -214,8 +215,8 @@ export async function POST(request: NextRequest) {
         });
 
     } catch (error: any) {
-        logger.error("API Error: /api/cart/add", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(request, error, { route: "/api/cart/add" });
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

@@ -3,13 +3,19 @@ import { db } from "@/lib/db";
 import { customer, customerAlamat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { getJakartaDate } from "@/lib/date-utils";
 import { CustomerService } from "@/lib/services/customer-service";
 import { UserService } from "@/lib/services/user-service";
 
 /**
- * Handler untuk mengambil daftar alamat pengiriman customer.
+ * Mengambil daftar alamat pengiriman customer yang login.
+ *
+ * @auth required
+ * @method GET
+ * @response 200 — { addresses: Address[] }
+ * @response 401 — { message: "Unauthorized" }
+ * @response 500 — { message: "Terjadi kesalahan sistem" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/user/addresses");
@@ -35,17 +41,25 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ addresses });
 
     } catch (error: any) {
-        // Penanganan error jika gagal mengambil data alamat
-        logger.error("API Error: 500 /api/user/addresses", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json(
-            { message: "Gagal mengambil data alamat", error: error.message },
+            { message: "Terjadi kesalahan sistem" },
             { status: 500 }
         );
     }
 }
 
 /**
- * Handler untuk menambahkan alamat pengiriman baru.
+ * Menambahkan alamat pengiriman baru.
+ * Jika isPrimary=1, alamat lain akan di-reset menjadi non-primary.
+ *
+ * @auth required
+ * @method POST
+ * @body {{ labelAlamat, namaPenerima, namaToko?, noHandphone, provinsi, kota, kecamatan, kodePos, alamatLengkap, isPrimary? }}
+ * @response 200 — { success: true, message: string, addressId: number }
+ * @response 401 — { error: "Sesi tidak valid" }
+ * @response 404 — { error: "Profil customer tidak ditemukan" }
+ * @response 500 — { error: "Gagal menyimpan alamat" }
  */
 export async function POST(req: NextRequest) {
     try {
@@ -116,13 +130,20 @@ export async function POST(req: NextRequest) {
             addressId: result.insertId
         });
     } catch (error: any) {
-        logger.error("API Error: 500 /api/user/addresses (POST)", { error: error.message });
+        apiLogger.error(req, error);
         return NextResponse.json({ error: "Gagal menyimpan alamat" }, { status: 500 });
     }
 }
 
 /**
- * Handler untuk menghapus alamat pengiriman.
+ * Menghapus alamat pengiriman berdasarkan ID.
+ *
+ * @auth required
+ * @method DELETE
+ * @body {{ id: number }}
+ * @response 200 — { success: true, message: "Alamat berhasil dihapus" }
+ * @response 401 — { error: "Sesi tidak valid" }
+ * @response 500 — { error: "Gagal menghapus alamat" }
  */
 export async function DELETE(req: NextRequest) {
     try {
@@ -143,13 +164,21 @@ export async function DELETE(req: NextRequest) {
         logger.info("API Response: 200 /api/user/addresses (DELETE)", { addressId: id });
         return NextResponse.json({ success: true, message: "Alamat berhasil dihapus" });
     } catch (error: any) {
-        logger.error("API Error: 500 /api/user/addresses (DELETE)", { error: error.message });
+        apiLogger.error(req, error);
         return NextResponse.json({ error: "Gagal menghapus alamat" }, { status: 500 });
     }
 }
 
 /**
- * Handler untuk memperbarui data alamat atau mengubah status Alamat Utama.
+ * Memperbarui data alamat atau mengubah status Alamat Utama.
+ *
+ * @auth required
+ * @method PATCH
+ * @body {{ id: number, isPrimary?: 1, labelAlamat?, namaPenerima?, namaToko?, alamatLengkap?, noHandphone?, provinsi?, kota?, kecamatan?, kodePos? }}
+ * @response 200 — { success: true, message: "Alamat berhasil diperbarui" }
+ * @response 401 — { error: "Sesi tidak valid" }
+ * @response 404 — { error: "Alamat tidak ditemukan" }
+ * @response 500 — { error: "Gagal memperbarui alamat" }
  */
 export async function PATCH(req: NextRequest) {
     try {
@@ -213,7 +242,7 @@ export async function PATCH(req: NextRequest) {
         logger.info("API Response: 200 /api/user/addresses (PATCH)", { addressId: id });
         return NextResponse.json({ success: true, message: "Alamat berhasil diperbarui" });
     } catch (error: any) {
-        logger.error("API Error: 500 /api/user/addresses (PATCH)", { error: error.message });
+        apiLogger.error(req, error);
         return NextResponse.json({ error: "Gagal memperbarui alamat" }, { status: 500 });
     }
 }

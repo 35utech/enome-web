@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { ProductService } from "@/lib/services/product-service";
 import { produk } from "@/lib/db/schema";
 import { eq, asc, and } from "drizzle-orm";
 import { CONFIG } from "@/lib/config";
 
 /**
- * Handler untuk mengambil daftar produk highlight (Deal of the Month).
- * Diurutkan berdasarkan highlightOrder.
- * Tidak memerlukan login (public).
+ * Mengambil produk highlight (Deal of the Month).
+ * Diurutkan berdasarkan highlightOrder. Harga menggunakan kategori retail default.
+ *
+ * @auth none
+ * @method GET
+ * @response 200 — Product[] (max 5 highlighted products)
+ * @response 500 — { error: "Internal Server Error" }
  */
 export async function GET() {
     logger.info("API Request: GET /api/products/highlights");
@@ -29,7 +33,7 @@ export async function GET() {
         logger.info("Highlights Fetch: Success", { count: processData.length });
         return NextResponse.json(processData);
     } catch (error: any) {
-        logger.error("API Error: /api/products/highlights", { error: error.message });
+        apiLogger.error(null, error, { route: "/api/products/highlights" });
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }

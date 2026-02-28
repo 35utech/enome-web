@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CartService } from "@/lib/services/cart-service";
 
 /**
- * Handler sederhana untuk mendapatkan jumlah total item (unique baris) di keranjang user.
- * Digunakan untuk menampilkan badge jumlah keranjang di Navbar.
+ * Mengambil jumlah total item (baris unik) di keranjang user.
+ * Digunakan untuk badge angka di ikon keranjang pada Navbar.
+ *
+ * @auth optional (anonymous → total: 0)
+ * @method GET
+ * @response 200 — { total: number }
  */
 export async function GET(request: NextRequest) {
     logger.debug("API Request: GET /api/cart/count");
@@ -23,8 +27,8 @@ export async function GET(request: NextRequest) {
         });
 
     } catch (error: any) {
-        logger.error("API Error: /api/cart/count", { error: error.message });
-        return NextResponse.json({ total: 0, error: error.message }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ total: 0 }, { status: 500 });
     }
 }
 

@@ -3,7 +3,19 @@ import { db } from "@/lib/db";
 import { user } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { execSync } from "child_process";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
+
+/**
+ * Reset password user menggunakan token dari email.
+ * Password di-hash via PHP bcrypt untuk kompatibilitas dengan Yii2.
+ *
+ * @auth none
+ * @method POST
+ * @body {{ token: string, password: string }}
+ * @response 200 — { success: true, message: "Kata sandi berhasil diperbarui" }
+ * @response 400 — { error: string } (token invalid / password terlalu pendek)
+ * @response 500 — { error: "Terjadi kesalahan sistem" }
+ */
 
 export async function POST(request: NextRequest) {
     try {
@@ -50,7 +62,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, message: "Kata sandi berhasil diperbarui" });
 
     } catch (error: any) {
-        logger.error("API Error: /api/auth/reset-password", { error: error.message });
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }

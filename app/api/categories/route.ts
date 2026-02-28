@@ -1,13 +1,19 @@
 import { db } from "@/lib/db";
 import { kategoriProduk } from "@/lib/db/schema";
 import { NextRequest, NextResponse } from "next/server";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mengambil kategori produk.
- * Mendukung query param `limit` untuk membatasi jumlah hasil.
- * Tanpa limit → semua kategori (untuk filter sidebar).
- * Dengan ?limit=4 → 4 kategori (untuk home page).
+ * Mengambil daftar kategori produk.
+ * Tanpa limit → semua kategori (filter sidebar).
+ * Dengan ?limit=4 → 4 kategori (home page).
+ *
+ * @auth none
+ * @method GET
+ * @query {{ limit?: number }}
+ * @response 200 — Array of kategori objects
+ *   { id, namaKategori, ... }[]
+ * @response 500 — { error: "Gagal mengambil data kategori" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/categories");
@@ -29,7 +35,7 @@ export async function GET(request: NextRequest) {
         logger.info("API Response: 200 /api/categories", { count: data.length });
         return NextResponse.json(data);
     } catch (error: any) {
-        logger.error("API Error: 500 /api/categories", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json(
             { error: "Gagal mengambil data kategori" },
             { status: 500 }

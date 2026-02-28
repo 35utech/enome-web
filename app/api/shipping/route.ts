@@ -2,16 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { centralConfig, companyProfile, cargo } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 
 /**
- * Handler untuk menghitung ongkos kirim menggunakan API RajaOngkir.
- * Alur:
- * 1. Ambil API Key RajaOngkir dari tabel konfigurasi.
- * 2. Ambil kota asal pengiriman dari profil perusahaan.
- * 3. Kirim request ke API RajaOngkir Pro.
- * 4. Berikan data ongkir ke frontend.
+ * Menghitung ongkos kirim menggunakan API Komerce (RajaOngkir).
+ * Alur: ambil API Key dari DB → ambil kota asal → ambil kurir aktif → panggil API.
+ *
+ * @auth none
+ * @method POST
+ * @body {{ destination: string, weight: number, courier: string }}
+ * @response 200 — { rajaongkir: { results: [{ costs: [{ service, courierCode, cost: [{ value, etd, note }] }] }] } }
+ * @response 400 — { message: "missing_params" }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function POST(request: NextRequest) {
     logger.info("API Request: POST /api/shipping");
@@ -119,8 +122,8 @@ export async function POST(request: NextRequest) {
         }
 
     } catch (error: any) {
-        logger.error("API Error: /api/shipping", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

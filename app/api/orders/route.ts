@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { OrderService } from "@/lib/services/order-service";
 import { CustomerService } from "@/lib/services/customer-service";
 import { CartService } from "@/lib/services/cart-service";
 
+/**
+ * Membuat order baru dari isi keranjang.
+ * Alur: validasi session → ambil cart → verifikasi stok → generate order ID → hitung biaya → simpan order.
+ *
+ * @auth required
+ * @method POST
+ * @body {{ shipping, payment, totalAmount, voucherCode?, voucherDiscount?, walletAmount?, shippingPrice?, specialNotes?, resi?, catatan?, isDropshipper?, dropshipper? }}
+ * @response 200 — { orderId, message: "success", meta: { totalTagihan, ... }, uniqueCode?, paymentMethod?, ... }
+ * @response 400 — { message: string } (validasi gagal / stok habis)
+ * @response 401 — { message: "Silakan login terlebih dahulu" }
+ * @response 404 — { error: "Profil customer tidak ditemukan" }
+ * @response 500 — { message: "error", desc: "Terjadi kesalahan sistem" }
+ */
 export async function POST(request: NextRequest) {
     try {
         const session = await getSession();
@@ -59,11 +72,20 @@ export async function POST(request: NextRequest) {
         const discountAmount = voucherDiscount || 0;
         let totalTagihan = totalAmount + shippingCost + packingFee - discountAmount;
 
-        // 5. Generate Unique Code for BCA Transfer if applicable and add it to totalTagihan natively
+        // 5. Generate Unique Code for BCA Transfer
+        //    targetCode = 3 digit terakhir total (displayed to user)
+        //    adjustment = amount added to base to achieve those 3 digits
         const isBcaTransfer = payment.toUpperCase().includes("BCA") && !payment.toUpperCase().includes("VIRTUAL");
-        const uniqueCode = isBcaTransfer ? await OrderService.generateUniqueCode() : 0;
+        let uniqueCode = 0;
+        let uniqueAdjustment = 0;
 
-        totalTagihan += uniqueCode;
+        if (isBcaTransfer) {
+            const result = await OrderService.generateUniqueCode(totalTagihan);
+            uniqueCode = result.targetCode;       // 3 digit terakhir (100-999)
+            uniqueAdjustment = result.adjustment;  // actual charge (100-999)
+        }
+
+        totalTagihan += uniqueAdjustment;
 
         const finalWalletAmount = Math.min(walletAmount || 0, totalTagihan);
         const finalBankAmount = totalTagihan - finalWalletAmount;
@@ -90,7 +112,7 @@ export async function POST(request: NextRequest) {
             service: serviceName
         };
 
-        // 6. Create Order
+        // 6. Create Order — pass targetCode as uniqueCode for display in keterangan
         const result: any = await OrderService.createOrder(orderData, stockResult.verifiedItems || [], finalWalletAmount, uniqueCode);
 
         // Add unique code and bank info to result for frontend
@@ -109,7 +131,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(result);
 
     } catch (error: any) {
-        logger.error("API Error: 500 /api/orders", { error: error.message, stack: error.stack });
-        return NextResponse.json({ message: "error", desc: error.message }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ message: "error", desc: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }

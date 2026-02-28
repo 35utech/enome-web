@@ -4,9 +4,20 @@ import { activityLogin, user } from "@/lib/db/schema";
 import { or, eq } from "drizzle-orm";
 import { login } from "@/lib/auth-utils";
 import { execSync } from "child_process";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import CONFIG from "@/lib/config";
 
+/**
+ * Login user dengan email/username dan password.
+ * Password diverifikasi menggunakan PHP password_verify() untuk kompatibilitas Yii2.
+ *
+ * @auth none
+ * @method POST
+ * @body {{ email: string, password: string }}
+ * @response 200 (success) — { msg: "success", pesan: "success", url: "Back" }
+ * @response 200 (failed)  — { msg: "error", pesan: string, url: "Back" }
+ * @response 500 (error)   — { msg: "error", pesan: "Terjadi kesalahan sistem", url: "Back" }
+ */
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -105,7 +116,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ msg: "success", pesan: "success", url: "Back" });
         }
     } catch (error: any) {
-        logger.error("Auth Error: Unexpected failure during login", { error: error.message });
+        apiLogger.error(request, error, { route: "/api/auth/login" });
         return NextResponse.json({ msg: "error", pesan: "Terjadi kesalahan sistem", url: "Back" }, { status: 500 });
     }
 }

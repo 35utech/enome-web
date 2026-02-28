@@ -2,7 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
+
+/**
+ * Aktivasi akun user berdasarkan verification token dari email.
+ * Mengubah status `isDeleted` dari 2 (pending) menjadi 0 (aktif).
+ *
+ * @auth none
+ * @method GET
+ * @query {{ token: string }}
+ * @response 200 — { message: "Akun berhasil diaktifkan. Silakan login." }
+ * @response 400 — { error: "Token tidak valid atau sudah kedaluwarsa" }
+ * @response 500 — { error: "Terjadi kesalahan sistem saat aktivasi" }
+ */
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -36,7 +48,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ message: "Akun berhasil diaktifkan. Silakan login." });
     } catch (error: any) {
-        logger.error("API Error: /api/auth/activate", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json({ error: "Terjadi kesalahan sistem saat aktivasi" }, { status: 500 });
     }
 }

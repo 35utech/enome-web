@@ -3,12 +3,20 @@ import { db } from "@/lib/db";
 import { user, customer, customerKategori, customerAlamat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { promises as fs } from "fs";
 import { join } from "path";
 
 /**
- * Handler untuk mengambil data profil lengkap user.
+ * Mengambil data profil lengkap user yang sedang login.
+ * Join dengan tabel customer dan customer_kategori untuk data member.
+ *
+ * @auth required
+ * @method GET
+ * @response 200 — { id, username, email, nama, kodeCustomer, namaTipeCustomer, noHandphone, gender, brithdate, photo, vouchers }
+ * @response 401 — { error: "Unauthorized" }
+ * @response 404 — { error: "User not found" }
+ * @response 500 — { error: "Terjadi kesalahan sistem" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/user/profile");
@@ -56,13 +64,21 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(response);
 
     } catch (error: any) {
-        logger.error("API Error: GET /api/user/profile", { error: error.message });
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 
 /**
- * Handler untuk memperbarui data profil user.
+ * Memperbarui data profil user (nama, gender, tanggal lahir, no HP, foto).
+ * Mendukung upload foto via FormData.
+ *
+ * @auth required
+ * @method POST
+ * @body FormData {{ nama, gender, brithdate?, noHandphone?, photo?: File }}
+ * @response 200 — { success: true, message: "Profil berhasil diperbarui" }
+ * @response 401 — { error: "Unauthorized" }
+ * @response 500 — { error: "Terjadi kesalahan sistem" }
  */
 export async function POST(request: NextRequest) {
     logger.info("API Request: POST /api/user/profile");
@@ -139,7 +155,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, message: "Profil berhasil diperbarui" });
 
     } catch (error: any) {
-        logger.error("API Error: POST /api/user/profile", { error: error.message });
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }

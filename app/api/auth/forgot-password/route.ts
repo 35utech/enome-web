@@ -4,7 +4,19 @@ import { user } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { sendResetPasswordEmail } from "@/lib/mail";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
+
+/**
+ * Request reset password — mengirim email berisi link reset.
+ * Tidak mengungkapkan apakah email terdaftar atau tidak (security best practice).
+ *
+ * @auth none
+ * @method POST
+ * @body {{ email: string }}
+ * @response 200 — { success: true, message?: string }
+ * @response 400 — { error: "Email is required" }
+ * @response 500 — { error: "Terjadi kesalahan sistem" }
+ */
 
 export async function POST(request: NextRequest) {
     try {
@@ -39,7 +51,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
 
     } catch (error: any) {
-        logger.error("API Error: /api/auth/forgot-password", { error: error.message });
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }

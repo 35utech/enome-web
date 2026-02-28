@@ -10,34 +10,50 @@ import logger from "@/lib/logger";
 import { nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull } from "@/lib/date-utils";
 
 export class OrderService {
-    static async generateUniqueCode() {
-        // Generate a random 3-digit number between 100 and 999
-        let code = Math.floor(Math.random() * 900) + 100;
+    /**
+     * Generate kode unik untuk transfer BCA.
+     * Kode unik = 3 digit terakhir totalTagihan (100-999).
+     * Adjustment = jumlah yang ditambahkan ke base agar 3 digit terakhir = targetCode.
+     *
+     * @param baseAmount - Total sebelum kode unik
+     * @returns {{ targetCode: number, adjustment: number }}
+     */
+    static async generateUniqueCode(baseAmount: number): Promise<{ targetCode: number, adjustment: number }> {
+        let adjustment: number;
+        let targetCode: number;
         let isUnique = false;
         let attempts = 0;
 
-        while (!isUnique && attempts < 10) {
-            // Check if this code is currently used by a pending order 
-            // We use simple like filter as unique code is usually appended at the end of the total price
-            const [recentCode] = await db.select({ orderId: orders.orderId })
+        do {
+            // Generate adjustment kecil (100-999) agar charge reasonable
+            adjustment = Math.floor(Math.random() * 900) + 100;
+            targetCode = (baseAmount + adjustment) % 1000;
+
+            // Pastikan targetCode >= 100 (3 digit)
+            if (targetCode < 100) {
+                adjustment += (100 - targetCode);
+                targetCode = (baseAmount + adjustment) % 1000;
+            }
+
+            // Cek apakah ada order pending dengan 3 digit terakhir sama
+            const [existing] = await db.select({ orderId: orders.orderId })
                 .from(orders)
                 .where(
                     and(
-                        eq(orders.statusOrder, "Menunggu Pembayaran"),
-                        sql`MOD(${orders.totalTagihan}, 1000) = ${code}`
+                        eq(orders.statusOrder, "OPEN"),
+                        sql`MOD(${orders.totalTagihan}, 1000) = ${targetCode}`
                     )
                 )
                 .limit(1);
 
-            if (!recentCode) {
+            if (!existing) {
                 isUnique = true;
             } else {
-                code = Math.floor(Math.random() * 900) + 100;
                 attempts++;
             }
-        }
+        } while (!isUnique && attempts < 10);
 
-        return code;
+        return { targetCode, adjustment };
     }
 
     static async generateOrderId() {

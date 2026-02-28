@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CustomerService } from "@/lib/services/customer-service";
 import { ProductService } from "@/lib/services/product-service";
 import { produk, produkDetail } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 /**
- * Handler untuk mengambil daftar produk (highlighted/online).
- * Menyesuaikan harga berdasarkan kategori customer (distributor, agen, reseller, dll).
- * Mengecek status Flash Sale dan Pre-Order untuk setiap produk.
+ * Mengambil daftar produk yang online/highlight.
+ * Harga disesuaikan berdasarkan kategori customer (distributor, agen, reseller, dll).
+ * Mengecek status Flash Sale dan Pre-Order.
+ *
+ * @auth optional (untuk harga customer-specific)
+ * @method GET
+ * @query {{ categories?: string, priceRanges?: string, colors?: string, sizes?: string }} (comma-separated)
+ * @response 200 — Array of processed product objects
+ *   { produkId, namaProduk, gambar, kategori, finalMinPrice, finalMaxPrice, totalStock, colors, ... }[]
+ * @response 500 — { error: "Internal Server Error" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/products");
@@ -40,7 +47,7 @@ export async function GET(request: NextRequest) {
         logger.info("Products Fetch: Success", { count: processData.length });
         return NextResponse.json(processData);
     } catch (error: any) {
-        logger.error("API Error: /api/products", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }

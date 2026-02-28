@@ -1,10 +1,15 @@
 import { db } from "@/lib/db";
 import { warna } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mengambil semua data warna dari database.
+ * Mengambil semua data warna dari database.
+ *
+ * @auth none
+ * @method GET
+ * @response 200 — { warnaId: string, warna: string, kodeWarna: string }[]
+ * @response 500 — { error: "Gagal mengambil data warna" }
  */
 export async function GET() {
     logger.info("API Request: GET /api/colors");
@@ -14,7 +19,7 @@ export async function GET() {
         logger.info("API Response: 200 /api/colors", { count: data.length });
         return NextResponse.json(data);
     } catch (error: any) {
-        logger.error("API Error: 500 /api/colors", { error: error.message });
+        apiLogger.error(null, error, { route: "/api/colors" });
         return NextResponse.json(
             { error: "Gagal mengambil data warna" },
             { status: 500 }

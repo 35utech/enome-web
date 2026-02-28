@@ -3,10 +3,15 @@ import { keranjangLove } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * GET /api/wishlist — Ambil daftar produk_id yang di-wishlist oleh customer.
+ * Mengambil daftar produk_id yang ada di wishlist user.
+ *
+ * @auth optional (anonymous → items kosong)
+ * @method GET
+ * @response 200 — { items: string[] } (array of produkId)
+ * @response 500 — { error: "Gagal mengambil wishlist" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/wishlist");
@@ -33,14 +38,22 @@ export async function GET(request: NextRequest) {
         logger.info("API Response: 200 /api/wishlist", { count: produkIds.length });
         return NextResponse.json({ items: produkIds });
     } catch (error: any) {
-        logger.error("API Error: 500 /api/wishlist", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json({ error: "Gagal mengambil wishlist" }, { status: 500 });
     }
 }
 
 /**
- * POST /api/wishlist — Toggle wishlist item (add/remove) berdasarkan produk_id.
- * Body: { produkId: string }
+ * Toggle wishlist item (add/remove) berdasarkan produk_id.
+ *
+ * @auth required
+ * @method POST
+ * @body {{ produkId: string }}
+ * @response 200 (added)   — { action: "added", produkId: string }
+ * @response 200 (removed) — { action: "removed", produkId: string }
+ * @response 401 — { error: "Unauthorized" }
+ * @response 400 — { error: "produkId is required" }
+ * @response 500 — { error: "Gagal update wishlist" }
  */
 export async function POST(request: NextRequest) {
     logger.info("API Request: POST /api/wishlist");
@@ -104,7 +117,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ action: "added", produkId });
         }
     } catch (error: any) {
-        logger.error("API Error: 500 /api/wishlist", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json({ error: "Gagal update wishlist" }, { status: 500 });
     }
 }

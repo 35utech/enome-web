@@ -3,13 +3,20 @@ import { db } from "@/lib/db";
 import { voucher, customer } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { getJakartaDate } from "@/lib/date-utils";
 
 /**
- * Handler untuk validasi kode voucher.
- * Mengecek ketersediaan, masa berlaku, kuota, minimal transaksi, 
- * tipe order (ORDER/PRE-ORDER), dan eligibilitas customer/kategori level.
+ * Validasi kode voucher.
+ * Mengecek ketersediaan, masa berlaku, kuota, minimal transaksi,
+ * tipe order (ORDER/PRE-ORDER), dan eligibilitas customer/kategori.
+ *
+ * @auth required
+ * @method POST
+ * @body {{ kode: string, subtotal: number, order_tipe?: number|string }}
+ * @response 200 (valid)   — { success: 1, message: string, nilai_voucher, tipe_voucher, maksimal_nominal_voucher_persen }
+ * @response 200 (invalid) — { success: 0, message: string }
+ * @response 500 — { success: 0, message: "Terjadi kesalahan sistem saat validasi voucher" }
  */
 export async function POST(req: Request) {
     try {
@@ -136,7 +143,7 @@ export async function POST(req: Request) {
         });
 
     } catch (error: any) {
-        logger.error("API Error: /api/vouchers/validate", { error: error.message });
+        apiLogger.error(null, error, { route: "/api/vouchers/validate" });
         return NextResponse.json({ success: 0, message: "Terjadi kesalahan sistem saat validasi voucher" }, { status: 500 });
     }
 }

@@ -11,8 +11,21 @@ import {
 } from "@/lib/db/schema";
 import { eq, and, or, sql, like } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CustomerService } from "@/lib/services/customer-service";
+
+/**
+ * Mengambil detail lengkap satu pesanan berdasarkan Order ID.
+ * Mencakup data order, item produk, info pembayaran, dan info voucher.
+ *
+ * @auth required
+ * @method GET
+ * @params {{ id: string }} (order ID)
+ * @response 200 — { order: Order, items: OrderItem[], paymentInfo?: BankInfo, voucherInfo?: VoucherInfo }
+ * @response 401 — { message: "unauthorized" }
+ * @response 404 — { message: "order not found" }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
+ */
 
 export async function GET(
     req: NextRequest,
@@ -105,9 +118,11 @@ export async function GET(
 
         // 4. Fetch Voucher Info from payment table
         let voucherInfo = null;
+        let uniqueCode = 0;
         const [paymentRow]: any = await db.select({
             voucherKode: paymentTable.voucherKode,
             voucherNominal: paymentTable.voucherNominal,
+            uniqueCode: paymentTable.uniqueCode,
         })
             .from(paymentTable)
             .where(like(paymentTable.paymentTransactionId, `%${orderId}%`))
@@ -120,16 +135,21 @@ export async function GET(
             };
         }
 
+        if (paymentRow && paymentRow.uniqueCode && paymentRow.uniqueCode !== "0") {
+            uniqueCode = parseInt(paymentRow.uniqueCode) || 0;
+        }
+
         logger.info("Order Detail: Fetch success", { userId, orderId });
         return NextResponse.json({
             order,
             items,
             paymentInfo,
-            voucherInfo
+            voucherInfo,
+            uniqueCode,
         });
 
     } catch (error: any) {
-        logger.error("API Error: /api/user/orders/[id]", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(req, error);
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }

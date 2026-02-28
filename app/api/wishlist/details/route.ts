@@ -3,11 +3,17 @@ import { keranjangLove, produk } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * GET /api/wishlist/details — Ambil wishlist items dengan detail produk lengkap.
- * Returns: items array with product name, image, price, category, colors, stock info.
+ * Mengambil wishlist items beserta detail produk lengkap.
+ * Termasuk nama produk, gambar, harga, kategori, warna, dan stok.
+ *
+ * @auth optional (anonymous → items kosong)
+ * @method GET
+ * @response 200 — { items: WishlistItem[] }
+ *   WishlistItem: { wishlist_id, produk_id, nama_produk, kategori, gambar, min_price, max_price, total_stock, colors }
+ * @response 500 — { error: "Gagal mengambil wishlist" }
  */
 export async function GET(request: NextRequest) {
     logger.info("API Request: GET /api/wishlist/details");
@@ -47,7 +53,7 @@ export async function GET(request: NextRequest) {
         logger.info("API Response: 200 /api/wishlist/details", { count: (items as any[])[0]?.length || 0 });
         return NextResponse.json({ items: (items as any[])[0] || [] });
     } catch (error: any) {
-        logger.error("API Error: 500 /api/wishlist/details", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json({ error: "Gagal mengambil wishlist" }, { status: 500 });
     }
 }

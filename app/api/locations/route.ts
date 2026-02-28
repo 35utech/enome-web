@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { provinsi, kota, kecamatan } from "@/lib/db/schema";
 import { eq, or, like } from "drizzle-orm";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk pencarian lokasi (Provinsi, Kota, Kecamatan).
- * Menerima parameter query 'q' dengan minimal 2 karakter.
+ * Pencarian lokasi (Provinsi, Kota, Kecamatan).
+ * Minimal 2 karakter untuk memulai pencarian.
+ *
+ * @auth none
+ * @method GET
+ * @query {{ q: string }} (min 2 chars)
+ * @response 200 — { locations: { label, province, provinceId, city, cityId, subdistrict, subdistrictId }[] }
+ * @response 500 — { error: "Gagal memproses pencarian lokasi" }
  */
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -56,8 +62,7 @@ export async function GET(request: NextRequest) {
         logger.info("API Response: 200 /api/locations", { results: locations.length });
         return NextResponse.json({ locations });
     } catch (error: any) {
-        // Menangani error jika terjadi kegagalan saat pencarian
-        logger.error("API Error: 500 /api/locations", { error: error.message, query });
+        apiLogger.error(request, error, { query });
         return NextResponse.json(
             { error: "Gagal memproses pencarian lokasi" },
             { status: 500 }

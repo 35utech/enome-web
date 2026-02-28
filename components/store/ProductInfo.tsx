@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check, Ruler, Truck, ShieldCheck, ShoppingBag, Plus, Minus, Loader2, Heart, Package } from "lucide-react";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     const [isAdding, setIsAdding] = useState(false);
     const [openAccordion, setOpenAccordion] = useState<string | null>("details");
     const { isAuthenticated } = useAuth();
+    const router = useRouter();
 
     // Wishlist
     const { data: wishlistData } = useWishlist();
@@ -39,6 +41,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     const isWishlisted = wishlistData?.items?.includes(product.id) ?? false;
 
     const handleWishlist = () => {
+        if (!isAuthenticated) {
+            router.push('/login');
+            return;
+        }
         if (product.id) {
             toggleWishlist.mutate(product.id);
         }
@@ -98,7 +104,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
             if (data.message === "login") {
                 toast.error("Silakan login terlebih dahulu untuk menambah ke keranjang");
-                window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { tab: "login" } }));
+                router.push('/login');
             } else if (data.message === "success") {
                 toast.success("Barang berhasil ditambahkan ke keranjang", {
                     icon: <Check className="w-4 h-4 text-emerald-500" />

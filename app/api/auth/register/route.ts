@@ -5,7 +5,7 @@ import { randomBytes } from "crypto";
 import { eq, or, sql, and, desc, like, notLike } from "drizzle-orm";
 import { execSync } from "child_process";
 import { sendActivationEmail } from "@/lib/mail";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
  * Logika generate cust_id sesuai dengan fungsi buatkode di PHP legacy
@@ -40,8 +40,16 @@ async function getNextCustId() {
 }
 
 /**
- * Handler untuk registrasi pengguna baru.
+ * Registrasi pengguna baru.
  * Mencakup validasi input, pengecekan email, hashing password via PHP, dan penyimpanan database.
+ * Otomatis membuat record di tabel `user`, `customer`, dan `customer_alamat`.
+ *
+ * @auth none
+ * @method POST
+ * @body {{ username, email, password, nama_lengkap, no_hp, provinsi, kota, kecamatan, kode_pos, alamat_lengkap }}
+ * @response 201 — { message: "Registrasi berhasil. Silakan cek email Anda untuk aktivasi akun." }
+ * @response 400 — { error: string } (validasi gagal / email sudah terdaftar)
+ * @response 500 — { error: "Terjadi kesalahan sistem saat mendaftar" }
  */
 export async function POST(request: NextRequest) {
     try {
@@ -182,7 +190,7 @@ export async function POST(request: NextRequest) {
         }, { status: 201 });
 
     } catch (error: any) {
-        logger.error("API Error: /api/auth/register", { error: error.message });
+        apiLogger.error(request, error, { route: "/api/auth/register" });
         return NextResponse.json({ error: "Terjadi kesalahan sistem saat mendaftar" }, { status: 500 });
     }
 }

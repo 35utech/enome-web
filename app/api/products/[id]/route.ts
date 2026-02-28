@@ -3,14 +3,27 @@ import { db } from "@/lib/db";
 import { produk, produkDetail, warna, size, customer, flashSale, flashSaleDetail, customerKategori } from "@/lib/db/schema";
 import { eq, and, sql, not, min, max } from "drizzle-orm";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { getJakartaDate } from "@/lib/date-utils";
 
 /**
- * Handler untuk mengambil data detail satu produk berdasarkan ID.
- * Mencakup data varian (warna, size), stok per varian, matrix harga,
- * status diskon Flash Sale/Pre-Order, dan daftar produk terkait.
+ * Mengambil data detail satu produk berdasarkan ID.
+ * Mencakup varian (warna, size), stok per varian, matrix harga,
+ * status diskon Flash Sale/Pre-Order, dan produk terkait.
+ *
+ * @auth optional (untuk harga customer-specific)
+ * @method GET
+ * @params {{ id: string }} (produk ID)
+ * @response 200 — {
+ *   product: { produkId, namaProduk, deskripsi, detail, gambar, kategori, ... },
+ *   stats: { finalMinPrice, finalMaxPrice, totalStock, isOnFlashSale, isOnPreOrder, ... },
+ *   variants: { colors: Color[], sizes: string[], matrix: Variant[] },
+ *   images: string[],
+ *   relatedProducts: Product[]
+ * }
+ * @response 404 — { error: "Product not found" }
+ * @response 500 — { error: "Internal Server Error" }
  */
 export async function GET(
     request: NextRequest,
@@ -218,7 +231,7 @@ export async function GET(
         });
 
     } catch (error: any) {
-        logger.error("API Error: /api/products/[id]", { error: error.message, productId: id });
+        apiLogger.error(request, error, { productId: id });
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

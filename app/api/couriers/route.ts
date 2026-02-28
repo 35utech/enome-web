@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cargo } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mendapatkan daftar kurir/cargo yang aktif.
+ * Mengambil daftar kurir/cargo yang aktif.
  * Digunakan untuk opsi pengiriman di halaman checkout.
+ *
+ * @auth none
+ * @method GET
+ * @response 200 — Cargo[] (array of active courier objects)
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function GET() {
     logger.debug("API Request: GET /api/couriers");
@@ -17,8 +22,8 @@ export async function GET() {
 
         return NextResponse.json(couriers);
     } catch (error: any) {
-        logger.error("API Error: /api/couriers", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(null, error, { route: "/api/couriers" });
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

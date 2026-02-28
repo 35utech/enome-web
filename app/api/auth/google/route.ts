@@ -5,11 +5,21 @@ import { eq } from "drizzle-orm";
 import { login } from "@/lib/auth-utils";
 import { randomBytes } from "crypto";
 import { execSync } from "child_process";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler for Google OAuth login.
- * Verifies the ID token from Google and creates or logs in the user.
+ * Login/Register via Google OAuth.
+ * Memverifikasi ID token Google, membuat akun baru jika belum ada,
+ * atau login jika user sudah terdaftar.
+ *
+ * @auth none
+ * @method POST
+ * @body {{ credential: string }} (Google ID Token)
+ * @response 200 — { success: true }
+ * @response 302 — Redirect ke homepage (jika Google Redirect Mode)
+ * @response 400 — { error: "Credential is required" }
+ * @response 401 — { error: "Invalid Google token" }
+ * @response 500 — { error: "Internal server error" }
  */
 export async function POST(request: NextRequest) {
     try {
@@ -125,7 +135,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
 
     } catch (error: any) {
-        logger.error("API Error: /api/auth/google", { error: error.message });
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        apiLogger.error(request, error);
+        return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }

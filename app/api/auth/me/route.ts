@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mendapatkan data sesi user yang sedang login.
- * Digunakan oleh frontend untuk memverifikasi status autentikasi.
+ * Mengecek status autentikasi user saat ini.
+ * Digunakan frontend (useAuth hook) untuk verifikasi session.
+ *
+ * @auth optional
+ * @method GET
+ * @response 200 (authenticated)   — { authenticated: true, user: { id, email, name } }
+ * @response 401 (unauthenticated) — { authenticated: false }
  */
 export async function GET(request: NextRequest) {
     logger.debug("API Request: GET /api/auth/me");
@@ -23,7 +28,7 @@ export async function GET(request: NextRequest) {
         });
 
     } catch (error: any) {
-        logger.error("API Error: /api/auth/me", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 }

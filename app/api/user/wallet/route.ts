@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 import { CustomerService } from "@/lib/services/customer-service";
 import { UserService } from "@/lib/services/user-service";
 
 /**
- * Handler untuk mendapatkan saldo wallet terakhir milik user.
- * Mencari custId terlebih dahulu lalu mengambil record saldo terbaru dari tabel wallet.
+ * Mengambil saldo wallet terakhir milik user.
+ * Mencari custId lalu mengambil record saldo terbaru dari tabel wallet.
+ *
+ * @auth required
+ * @method GET
+ * @response 200 — { balance: number }
+ * @response 401 — { message: "login" }
+ * @response 500 — { message: "error", error: "Terjadi kesalahan sistem" }
  */
 export async function GET() {
     logger.info("API Request: GET /api/user/wallet");
@@ -32,8 +38,8 @@ export async function GET() {
         logger.info("Wallet Check: Balance fetched successfully", { userId, balance });
         return NextResponse.json({ balance });
     } catch (error: any) {
-        logger.error("API Error: /api/user/wallet", { error: error.message });
-        return NextResponse.json({ message: "error", error: error.message }, { status: 500 });
+        apiLogger.error(null, error, { route: "/api/user/wallet" });
+        return NextResponse.json({ message: "error", error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
 

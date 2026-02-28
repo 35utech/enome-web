@@ -2,11 +2,16 @@ import { db } from "@/lib/db";
 import { slide } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk mengambil daftar gambar slide (carousel) untuk homepage.
- * Mengambil slide kategori 'main_image' yang aktif (publish=1) dan bukan untuk mobile.
+ * Mengambil daftar slide (carousel) untuk homepage.
+ * Hanya slide kategori 'main_image' yang aktif (publish=1), bukan mobile.
+ *
+ * @auth none
+ * @method GET
+ * @response 200 — Slide[] (array of active slide objects)
+ * @response 500 — { error: "Internal Server Error" }
  */
 export async function GET() {
     logger.debug("API Request: GET /api/slides");
@@ -25,7 +30,7 @@ export async function GET() {
 
         return NextResponse.json(data);
     } catch (error: any) {
-        logger.error("API Error: /api/slides", { error: error.message });
+        apiLogger.error(null, error, { route: "/api/slides" });
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }

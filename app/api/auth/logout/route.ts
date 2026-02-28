@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logout } from "@/lib/auth-utils";
-import logger from "@/lib/logger";
+import logger, { apiLogger } from "@/lib/logger";
 
 /**
- * Handler untuk proses logout user.
- * Menghapus sesi atau token yang tersimpan.
+ * Logout user — menghapus session/cookie.
+ *
+ * @auth required
+ * @method POST
+ * @response 200 — { message: "Logout berhasil" }
+ * @response 500 — { error: "Terjadi kesalahan sistem" }
  */
 export async function POST(request: NextRequest) {
     logger.info("API Request: POST /api/auth/logout");
@@ -13,7 +17,7 @@ export async function POST(request: NextRequest) {
         logger.info("Auth Success: User logged out");
         return NextResponse.json({ message: "Logout berhasil" });
     } catch (error: any) {
-        logger.error("API Error: /api/auth/logout", { error: error.message });
+        apiLogger.error(request, error);
         return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
     }
 }
