@@ -35,7 +35,7 @@ const WishlistFilters = ({
     sortOptions
 }: WishlistFiltersProps) => {
     return (
-        <div className="space-y-4 mb-8">
+        <div className="space-y-4 mb-4 md:mb-8">
             {/* Search + Sort Row */}
             <div className="flex flex-col sm:flex-row gap-3">
                 {/* Search */}

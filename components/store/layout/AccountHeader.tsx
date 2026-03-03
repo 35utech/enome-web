@@ -13,7 +13,7 @@ interface AccountHeaderProps {
 
 const AccountHeader = ({ title, description, children, className }: AccountHeaderProps) => {
     return (
-        <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8", className)}>
+        <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-4 md:mb-8", className)}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-[26px] md:text-[32px] font-black text-neutral-base-900 tracking-tight leading-tight">
@@ -23,9 +23,7 @@ const AccountHeader = ({ title, description, children, className }: AccountHeade
                         {description}
                     </p>
                 </div>
-                <div className="flex items-center gap-3 self-end sm:self-auto">
-                    <AccountSidebarMobile />
-                </div>
+                <AccountSidebarMobile />
             </div>
             {children}
         </div>

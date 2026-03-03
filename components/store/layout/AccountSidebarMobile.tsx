@@ -10,11 +10,13 @@ export default function AccountSidebarMobile() {
         <Sheet>
             <SheetTrigger asChild>
                 <Button
-                    variant="outline"
-                    className="lg:hidden h-10 px-4 rounded-xl border-neutral-base-100 bg-white gap-2 text-[12px] font-bold text-neutral-base-900 shadow-sm"
+                    variant="default"
+                    size="icon"
+                    className="lg:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-neutral-base-900 border-none text-white shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:bg-neutral-base-800 active:scale-95 transition-all z-50 group overflow-hidden"
                 >
-                    <User className="w-4 h-4" />
-                    <span>Menu Akun</span>
+                    <div className="absolute inset-0 bg-neutral-base-900 group-hover:bg-neutral-base-800 transition-colors" />
+                    <User className="w-6 h-6 relative z-10 transition-transform group-hover:scale-110" />
+                    <span className="sr-only">Menu Akun</span>
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 border-r-0 w-[300px]">

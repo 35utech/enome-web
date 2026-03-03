@@ -42,19 +42,21 @@ export default function WalletPage() {
                         <UserSidebar />
                     </div>
 
-                    <div className="flex-1 min-w-0 space-y-6 md:space-y-8">
+                    <div className="flex-1 min-w-0 space-y-4 md:space-y-8">
                         <AccountHeader
                             title="Wallet"
                             description="Kelola saldo dan pantau riwayat transaksi Anda."
                         />
 
-                        {/* Balance Card Section */}
-                        <WalletBalanceCard
-                            balance={balance}
-                            isLoading={isLoading}
-                            onTopUpClick={() => setIsTopUpOpen(true)}
-                            mounted={mounted}
-                        />
+                        {/* Balance Card Section - Sticky */}
+                        <div className="sticky top-[80px] z-30 -mx-3 sm:-mx-4 md:-mx-8 px-3 sm:px-4 md:px-8 py-2 md:py-4 bg-[#F9FAFB]/80 backdrop-blur-md border-b border-transparent transition-all mb-4 md:mb-6">
+                            <WalletBalanceCard
+                                balance={balance}
+                                isLoading={isLoading}
+                                onTopUpClick={() => setIsTopUpOpen(true)}
+                                mounted={mounted}
+                            />
+                        </div>
 
                         {/* Transactions Section */}
                         <div className="space-y-5 md:space-y-6">

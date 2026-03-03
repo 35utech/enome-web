@@ -57,27 +57,29 @@ export default function AddressesPage() {
                         <AccountHeader
                             title="Daftar Alamat"
                             description="Kelola alamat pengiriman kamu untuk proses checkout yang lebih cepat."
-                            className="mb-10"
+                            className="mb-4 md:mb-10"
                         >
                             <Button
                                 onClick={handleAdd}
-                                className="h-12 md:h-14 px-6 md:px-8 rounded-xl md:rounded-2xl bg-neutral-base-900 text-white font-bold tracking-widest uppercase hover:bg-neutral-base-800 transition-all shadow-xl shadow-neutral-base-900/10 gap-3 group shrink-0 w-full sm:w-auto text-[11px] md:text-[13px]"
+                                className="hidden md:flex h-12 md:h-14 px-6 md:px-8 rounded-xl md:rounded-2xl bg-neutral-base-900 text-white font-bold tracking-widest uppercase hover:bg-neutral-base-800 transition-all shadow-xl shadow-neutral-base-900/10 gap-3 group shrink-0 w-full sm:w-auto text-[11px] md:text-[13px]"
                             >
                                 <Plus className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-300" />
                                 Tambah Alamat
                             </Button>
                         </AccountHeader>
 
-                        {/* Search & Stats Bar */}
-                        <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-                            <SearchInput
-                                placeholder="Cari alamat atau nama penerima..."
-                                value={searchQuery}
-                                onChange={setSearchQuery}
-                                className="bg-white/60 backdrop-blur-md"
-                            />
-                            <div className="px-6 py-3 bg-white/60 backdrop-blur-md border border-neutral-base-100/60 rounded-[20px] shadow-sm hidden md:block shrink-0">
-                                <span className="text-[11px] font-black uppercase tracking-widest text-neutral-base-400">Total: {addresses.length} Alamat</span>
+                        {/* Search & Stats Bar - Sticky */}
+                        <div className="sticky top-[80px] z-30 -mx-4 px-4 py-2 md:py-4 bg-[#F9FAFB]/80 backdrop-blur-md border-b border-transparent transition-all mb-4 md:mb-8">
+                            <div className="flex flex-col md:flex-row items-center gap-4">
+                                <SearchInput
+                                    placeholder="Cari alamat atau nama penerima..."
+                                    value={searchQuery}
+                                    onChange={setSearchQuery}
+                                    className="bg-white/60 backdrop-blur-md"
+                                />
+                                <div className="px-6 py-3 bg-white/60 backdrop-blur-md border border-neutral-base-100/60 rounded-[20px] shadow-sm hidden md:block shrink-0">
+                                    <span className="text-[11px] font-black uppercase tracking-widest text-neutral-base-400">Total: {addresses.length} Alamat</span>
+                                </div>
                             </div>
                         </div>
 
@@ -138,6 +140,19 @@ export default function AddressesPage() {
                 onOpenChange={setIsAddModalOpen}
                 initialData={selectedAddress}
             />
+
+            {/* Floating Action Button for Add Address */}
+            <motion.button
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleAdd}
+                className="fixed bottom-[100px] right-6 w-14 h-14 rounded-full bg-neutral-base-900 text-white shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:bg-neutral-base-800 transition-all z-40 flex items-center justify-center group md:hidden"
+            >
+                <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+                <span className="sr-only">Tambah Alamat</span>
+            </motion.button>
         </div>
     );
 }
