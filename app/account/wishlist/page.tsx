@@ -157,25 +157,27 @@ export default function WishlistPage() {
                             <AccountHeader
                                 title="Wishlist"
                                 description="Produk favorit yang ingin Anda beli nanti."
-                                className="mb-6"
+                                className="mb-4 md:mb-6"
                             />
 
-                            {/* Filters & Controls */}
+                            {/* Filters & Controls - Sticky */}
                             {!isLoading && items.length > 0 && (
-                                <WishlistFilters
-                                    searchQuery={searchQuery}
-                                    setSearchQuery={setSearchQuery}
-                                    sortBy={sortBy}
-                                    setSortBy={setSortBy}
-                                    stockFilter={stockFilter}
-                                    setStockFilter={setStockFilter}
-                                    selectedCategory={selectedCategory}
-                                    setSelectedCategory={setSelectedCategory}
-                                    categories={categories}
-                                    activeFilterCount={activeFilterCount}
-                                    clearFilters={clearFilters}
-                                    sortOptions={SORT_OPTIONS}
-                                />
+                                <div className="sticky top-[80px] z-30 -mx-3 sm:-mx-4 md:-mx-8 px-3 sm:px-4 md:px-8 py-2 md:py-4 bg-[#F9FAFB]/80 backdrop-blur-md border-b border-transparent transition-all mb-4 md:mb-8">
+                                    <WishlistFilters
+                                        searchQuery={searchQuery}
+                                        setSearchQuery={setSearchQuery}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                        stockFilter={stockFilter}
+                                        setStockFilter={setStockFilter}
+                                        selectedCategory={selectedCategory}
+                                        setSelectedCategory={setSelectedCategory}
+                                        categories={categories}
+                                        activeFilterCount={activeFilterCount}
+                                        clearFilters={clearFilters}
+                                        sortOptions={SORT_OPTIONS}
+                                    />
+                                </div>
                             )}
 
                             {/* Results count */}
