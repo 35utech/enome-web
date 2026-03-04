@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import {
     keranjang, orders, orderdetail, produk, produkDetail,
-    preOrder, wallet, voucher, voucherHistory, payment as paymentTable, flashSale
+    preOrder, wallet, voucher, voucherHistory, payment as paymentTable, flashSale, centralConfig
 } from "@/lib/db/schema";
 
 import { eq, and, sql, desc, like } from "drizzle-orm";
@@ -394,10 +394,19 @@ export class OrderService {
 
             // F. Payment Insertion
             logger.info("OrderService: Step F - Payment Insertion");
+
+            // Ambil batas pembayaran dari central_config
+            const [payConfig]: any = await tx.select()
+                .from(centralConfig)
+                .where(eq(centralConfig.variable, "batas_pembayaran"))
+                .limit(1);
+
+            const paymentInterval = payConfig?.value || "1 DAY";
+
             const paymentValues: any = {
                 isPaid: finalBankAmount <= 0 ? 1 : 0,
                 paidTime: finalBankAmount <= 0 ? sql`${dhms}` : null,
-                expiredTime: finalBankAmount > 0 ? sql`DATE_ADD(${dhms}, INTERVAL 1 DAY)` : null,
+                expiredTime: finalBankAmount > 0 ? sql`DATE_ADD(${dhms}, INTERVAL ${sql.raw(paymentInterval)})` : null,
                 subtotal: Math.round(totalAmount),
                 otherFee: Math.round(packingFee),
                 postFee: Math.round(shippingCost),
@@ -413,7 +422,7 @@ export class OrderService {
                 tujuanAtasNama: payment === "Transfer Bank BCA" ? "TRY Setyo0603" : "-",
                 tujuanNamaBank: payment === "Transfer Bank BCA" ? "BCA" : (payment || "-"),
                 tujuanLogoBank: "-",
-                tujuanNoRekening: payment === "Transfer Bank BCABCA" ? "2810377740" : "-",
+                tujuanNoRekening: payment === "Transfer Bank BCA" ? "2810377740" : "-",
                 paymentType: finalWalletAmount > 0 && finalBankAmount > 0 ? "SPLIT" : (finalWalletAmount > 0 ? "WALLET" : payment),
                 isDp: 0,
                 voucherKode: orderData.voucherCode || "",

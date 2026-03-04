@@ -1,5 +1,6 @@
 "use client";
 
+import { ASSET_URL } from "@/config/config";
 import { Landmark, Loader2, ShieldCheck } from "lucide-react";
 
 interface PaymentSectionProps {
@@ -78,7 +79,7 @@ export default function PaymentSection({
                                                 <div className="flex items-center gap-3 md:gap-4">
                                                     <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 transition-all font-black text-[10px] ${paymentMethod === method.namaBank ? "bg-white text-amber-800" : "bg-neutral-base-50 text-neutral-base-400 group-hover:bg-amber-50 group-hover:text-amber-800"}`}>
                                                         {method.logoBank ? (
-                                                            <img src={`https://syllahijab.com/frontend/web/img/rekening_pembayaran/${method.logoBank}`} alt={method.namaBank} className="w-6 h-6 md:w-8 md:h-8 object-contain" />
+                                                            <img src={`${ASSET_URL}/img/rekening_pembayaran/${method.logoBank}`} alt={method.namaBank} className="w-6 h-6 md:w-8 md:h-8 object-contain" />
                                                         ) : (
                                                             <Landmark className="w-3.5 h-3.5 md:w-5 md:h-5 opacity-50" />
                                                         )}
