@@ -48,7 +48,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
 
             // 3. RE-CHECK: Pastikan produk tersedia secara online (Fresh Fetch + LOCK)
             const [freshProductRows]: any = await tx.execute(sql`
-                SELECT produk_id as produkId, is_online as isOnline 
+                SELECT produk_id as produkId, is_online as isOnline, gambar
                 FROM produk 
                 WHERE produk_id = ${id_produk} AND is_online = 1 
                 FOR UPDATE
@@ -69,7 +69,8 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                     harga_jual as hargaJual,
                     harga_super_gold,
                     harga_sub_agen,
-                    harga_marketer
+                    harga_marketer,
+                    gambar
                 FROM produkdetail 
                 WHERE produk_id = ${id_produk} AND warna = ${color_sylla} AND size = ${size_sylla} 
                 FOR UPDATE

@@ -79,6 +79,7 @@ export const productApi = {
             if (filters.price?.length) params.append("priceRanges", filters.price.join(","));
             if (filters.color?.length) params.append("colors", filters.color.join(","));
             if (filters.size?.length) params.append("sizes", filters.size.join(","));
+            if (filters.search) params.append("search", filters.search);
             const qs = params.toString();
             if (qs) url += `?${qs}`;
         }

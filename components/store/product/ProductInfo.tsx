@@ -28,10 +28,11 @@ interface ProductInfoProps {
         flashSaleEndTime?: string;
         discountPercentage?: number;
     };
+    selectedColor: string;
+    setSelectedColor: (color: string) => void;
 }
 
-export default function ProductInfo({ product }: ProductInfoProps) {
-    const [selectedColor, setSelectedColor] = useState(product.colors.find(c => c.totalStock > 0)?.name || product.colors[0]?.name || "");
+export default function ProductInfo({ product, selectedColor, setSelectedColor }: ProductInfoProps) {
     const [selectedSize, setSelectedSize] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [isAdding, setIsAdding] = useState(false);
@@ -422,7 +423,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     ) : (
                         <ShoppingBag className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     )}
-                    {!selectedSize ? "Pilih Ukuran" : (isSoldOut || rawStock === 0) ? "Stok Habis" : currentStock === 0 ? "Stok Maksimal" : isAdding ? "Adding..." : "Keranjang"}
+                    {!selectedColor ? "Pilih Warna" : !selectedSize ? "Pilih Ukuran" : (isSoldOut || rawStock === 0) ? "Stok Habis" : currentStock === 0 ? "Stok Maksimal" : isAdding ? "Adding..." : "Keranjang"}
                 </motion.button>
 
                 {/* Wishlist Button */}

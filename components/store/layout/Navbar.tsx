@@ -19,6 +19,7 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import router from "next/router";
+import Image from "next/image";
 
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -52,25 +53,16 @@ export default function Navbar() {
         >
             <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
                 <div className="flex items-center justify-between h-[80px]">
-                    {/* Left - Logo with original decorative frame */}
-                    <Link href="/" className="relative flex items-center">
-                        <div className="relative px-6 py-2">
-                            <svg
-                                viewBox="0 0 180 64"
-                                className="absolute inset-0 w-full h-full"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <ellipse cx="90" cy="32" rx="86" ry="28" stroke="#8B6914" strokeWidth="1.5" fill="none" />
-                                <ellipse cx="90" cy="32" rx="80" ry="24" stroke="#8B6914" strokeWidth="0.5" fill="none" />
-                                <path d="M72 5 Q80 1 90 4 Q100 1 108 5" stroke="#8B6914" strokeWidth="1" fill="none" />
-                                <circle cx="90" cy="2" r="1.5" fill="#8B6914" />
-                                <path d="M72 59 Q80 63 90 60 Q100 63 108 59" stroke="#8B6914" strokeWidth="1" fill="none" />
-                                <circle cx="90" cy="62" r="1.5" fill="#8B6914" />
-                            </svg>
-                            <span className="font-heading text-xl md:text-2xl font-bold tracking-[0.2em] text-neutral-base-900 relative z-10">
-                                ÉNOMÉ
-                            </span>
+                    <Link href="/" className="relative flex items-center h-full">
+                        <div className="relative w-14 h-14 md:w-20 md:h-20 transition-all duration-500 hover:scale-105 active:scale-95 group">
+                            <Image
+                                src="/logo-enome.png"
+                                alt="Logo Enome"
+                                fill
+                                className="object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.12)] group-hover:drop-shadow-[0_5px_15px_rgba(0,0,0,0.18)] transition-all duration-500"
+                                priority
+                                quality={100}
+                            />
                         </div>
                     </Link>
 

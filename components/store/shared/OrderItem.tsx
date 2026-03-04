@@ -134,9 +134,9 @@ export default function OrderItem({
                     {isCheckout && (
                         <button
                             onClick={() => onRemove(item.id)}
-                            className="p-1 text-neutral-base-300 hover:text-red-500 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100 transition-all shrink-0"
+                            className="p-2 md:p-2.5 text-neutral-base-300 hover:text-red-500 hover:bg-red-50 rounded-xl border border-transparent hover:border-red-100 transition-all shrink-0 -mt-1 -mr-1"
                         >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                     )}
                 </div>
@@ -163,7 +163,7 @@ export default function OrderItem({
                                     </span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onUpdateQuantity(item.id, item.stock ?? 1, item.stock ?? 1); }}
-                                        className="text-[8px] md:text-[9px] font-black uppercase tracking-widest bg-white text-neutral-base-900 px-1.5 py-0.5 rounded border border-neutral-base-200 hover:bg-neutral-base-900 hover:text-white transition-all shadow-sm"
+                                        className="text-[8px] md:text-[9px] font-black uppercase tracking-widest bg-white text-neutral-base-900 px-2 py-1 rounded border border-neutral-base-200 hover:bg-neutral-base-900 hover:text-white transition-all shadow-sm"
                                     >
                                         Sesuaikan
                                     </button>

@@ -1,0 +1,40 @@
+import { ASSET_URL } from "@/config/config";
+import { db } from "@/lib/db";
+import { slide } from "@/lib/db/schema";
+import { and, eq, asc } from "drizzle-orm";
+
+export class SlideService {
+    static async getBatikCollections() {
+        const slides = await db.select()
+            .from(slide)
+            .where(and(
+                eq(slide.kategori, "main_image"),
+                eq(slide.isMobile, 0),
+                eq(slide.publish, 1),
+                eq(slide.isDeleted, 0)
+            ))
+            .orderBy(asc(slide.orderSlide), asc(slide.orderImage));
+
+        // Group by order_slide
+        const collectionsMap = new Map<number, any>();
+
+        slides.forEach(s => {
+            const os = Number(s.orderSlide) || 0;
+            if (!collectionsMap.has(os)) {
+                collectionsMap.set(os, {
+                    id: os.toString(),
+                    title: `Batik Collection ${os}`,
+                    images: []
+                });
+            }
+            collectionsMap.get(os).images.push({
+                url: `${ASSET_URL}/img/slide/${s.image}`,
+                link: s.link,
+                aspect: "1/1"
+            });
+        });
+
+        // Filter out empty collections if any
+        return Array.from(collectionsMap.values()).filter(c => c.images.length > 0);
+    }
+}

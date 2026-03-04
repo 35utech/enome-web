@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
@@ -13,6 +13,8 @@ import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Breadcrumb from "@/components/store/shared/Breadcrumb";
 import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function ProductDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
@@ -31,10 +33,14 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
         );
     }
 
-    const { product, stats, variants, images, relatedProducts } = productData as any;
+    return <ProductDetailContent productData={productData} />;
+}
 
-    // Map images to full URLs
-    const galleryImages = images.map((img: string) => `${ASSET_URL}/img/produk/${img}`);
+function ProductDetailContent({ productData }: { productData: any }) {
+    const { product, stats, variants, images, relatedProducts } = productData;
+
+    // Deferred Initial Selection: Start with no color selected
+    const [selectedColor, setSelectedColor] = useState("");
 
     const formatPriceRange = (min: any, max: any) => {
         const nMin = parseInt(min);
@@ -42,6 +48,27 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
         if (!nMax || nMin === nMax) return `Rp ${nMin.toLocaleString()}`;
         return `Rp ${nMin.toLocaleString()} - Rp ${nMax.toLocaleString()}`;
     };
+
+    // Map images to full URLs
+    let galleryImages: string[] = [];
+
+    if (selectedColor === "") {
+        // Initial state: Top image from produk_utama, others from produk
+        galleryImages = [
+            `${ASSET_URL}/img/produk_utama/${images[0]}`,
+            ...images.slice(1).map((img: string) => `${ASSET_URL}/img/produk/${img}`)
+        ];
+    } else {
+        // Color selected: Everything from produk, with color-specific image prioritized
+        const colorObj = variants.colors.find((c: any) => c.name === selectedColor);
+        const colorImage = colorObj?.image;
+
+        let processedImages = [...images];
+        if (colorImage && processedImages.includes(colorImage)) {
+            processedImages = [colorImage, ...processedImages.filter(img => img !== colorImage)];
+        }
+        galleryImages = processedImages.map((img: string) => `${ASSET_URL}/img/produk/${img}`);
+    }
 
     // Map product for ProductInfo
     const infoProduct = {
@@ -82,26 +109,80 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
                     </div>
                 </div>
 
-                <section className="py-8 md:py-16 lg:py-20">
+                <section className="py-8 md:py-16">
                     <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-12 lg:gap-16 items-start">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 items-start">
 
-                            {/* Left Side - Image Gallery */}
+                            {/* Left Side - Image Gallery (Top Image) */}
                             <div className="lg:col-span-7 min-w-0">
                                 <ProductGallery
-                                    images={galleryImages}
+                                    images={galleryImages.slice(0, 1)}
                                     isSoldOut={parseInt(stats.totalStock) === 0}
                                     isOnFlashSale={stats.isOnFlashSale}
-                                    flashSaleEndTime={stats.flashSaleEndTime}
                                 />
                             </div>
 
                             {/* Right Side - Product Info */}
-                            <div className="lg:col-span-5 min-w-0">
-                                <ProductInfo product={{ ...infoProduct, id: product.produkId } as any} />
+                            <div className="lg:col-span-5 min-w-0 lg:sticky lg:top-36">
+                                <ProductInfo
+                                    product={{ ...infoProduct, id: product.produkId } as any}
+                                    selectedColor={selectedColor}
+                                    setSelectedColor={setSelectedColor}
+                                />
                             </div>
 
                         </div>
+
+                        {/* Remaining Images Section - Dynamic Masonry Grid */}
+                        {galleryImages.length > 1 && (
+                            <div className="mt-8 md:mt-16">
+                                <motion.div
+                                    initial="hidden"
+                                    whileInView="show"
+                                    viewport={{ once: true, margin: "-100px" }}
+                                    variants={{
+                                        hidden: { opacity: 0 },
+                                        show: {
+                                            opacity: 1,
+                                            transition: {
+                                                staggerChildren: 0.15
+                                            }
+                                        }
+                                    }}
+                                    className="columns-1 md:columns-2 gap-4 md:gap-8 space-y-4 md:space-y-8"
+                                >
+                                    {galleryImages.slice(1).map((img: string, idx: number) => {
+                                        // Varied heights/ratios for a true dynamic masonry look
+                                        const ratios = ["aspect-[4/5]", "aspect-[3/4]", "aspect-[2/3]", "aspect-[3/5]"];
+                                        const ratioClass = ratios[idx % ratios.length];
+
+                                        return (
+                                            <motion.div
+                                                key={idx}
+                                                variants={{
+                                                    hidden: { opacity: 0, y: 30 },
+                                                    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+                                                }}
+                                                className={`relative bg-neutral-base-50 overflow-hidden break-inside-avoid group shadow-sm hover:shadow-2xl transition-all duration-700 rounded-lg ${ratioClass}`}
+                                            >
+                                                <Image
+                                                    src={img}
+                                                    alt={`Product detail image ${idx + 2}`}
+                                                    width={2000}
+                                                    height={3000}
+                                                    quality={100}
+                                                    unoptimized={true}
+                                                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                                    style={{ imageRendering: "high-quality" } as any}
+                                                />
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+                                            </motion.div>
+                                        );
+                                    })}
+                                </motion.div>
+                            </div>
+                        )}
                     </div>
                 </section>
 
