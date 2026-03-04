@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { produk, produkDetail, warna } from "@/lib/db/schema";
-import { and, eq, sql, min, max } from "drizzle-orm";
+import { and, eq, sql, min, max, or, like } from "drizzle-orm";
 import { getJakartaDate } from "@/lib/date-utils";
 import { CustomerService } from "./customer-service";
 
@@ -13,6 +13,7 @@ export interface ProductQueryOptions {
     priceRanges?: string[];
     colors?: string[];
     sizes?: string[];
+    search?: string;
 }
 
 export class ProductService {
@@ -86,6 +87,15 @@ export class ProductService {
                 const priceFilter = sql`(${sql.join(conditions, sql` OR `)})`;
                 query = query.where(and(where, priceFilter)) as any;
             }
+        }
+
+        if (options.search) {
+            const searchTerm = `%${options.search}%`;
+            const searchFilter = or(
+                like(produk.namaProduk, searchTerm),
+                like(produk.produkId, searchTerm)
+            );
+            query = query.where(and(where, searchFilter as any)) as any;
         }
 
         if (orderBy) {

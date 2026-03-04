@@ -11,6 +11,8 @@ export const slide = mysqlTable("slide", {
     link: text("link"),
     isMobile: int("is_mobile").notNull().default(0),
     isDeleted: int("is_deleted").notNull().default(0),
+    orderSlide: tinyint("order_slide"),
+    orderImage: tinyint("order_image"),
 });
 
 export const produk = mysqlTable("produk", {

@@ -50,3 +50,5 @@ test_api_call.ts
 test_order.ts
 test_route.ts
 debug*
+
+public/img/*

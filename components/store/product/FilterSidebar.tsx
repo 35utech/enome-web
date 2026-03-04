@@ -38,6 +38,7 @@ export interface FilterState {
     price: string[];
     collection: string[];
     tag: string[];
+    search?: string;
 }
 
 interface FilterSidebarProps {
@@ -67,13 +68,20 @@ export default function FilterSidebar({ activeFilters, onFilterChange, className
         setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
-    const hasActiveFilters = Object.values(activeFilters).some(arr => arr.length > 0);
+    const hasActiveFilters = Object.values(activeFilters).some(val =>
+        Array.isArray(val) ? val.length > 0 : !!val
+    );
 
     const clearAllFilters = () => {
         Object.entries(activeFilters).forEach(([category, values]) => {
-            values.forEach((value: string) => {
-                onFilterChange(category as keyof FilterState, value);
-            });
+            if (Array.isArray(values)) {
+                values.forEach((value: string) => {
+                    onFilterChange(category as keyof FilterState, value);
+                });
+            } else if (values) {
+                // Handle non-array values like 'search'
+                onFilterChange(category as keyof FilterState, values as string);
+            }
         });
     };
 
@@ -248,7 +256,7 @@ export default function FilterSidebar({ activeFilters, onFilterChange, className
                                             const isActive = activeFilters.color.includes(color.name);
                                             return (
                                                 <button
-                                                    key={color.name}
+                                                    key={color.value}
                                                     onClick={() => onFilterChange("color", color.name)}
                                                     className={cn(
                                                         "relative w-9 h-9 rounded-full border-2 transition-all group ring-offset-2",

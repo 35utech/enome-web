@@ -4,6 +4,9 @@ import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import FilterSidebar, { FilterState } from "@/components/store/product/FilterSidebar";
+export interface FilterStateWithSearch extends FilterState {
+    search?: string;
+}
 import ProductListHeader, { SortOption } from "@/components/store/product/ProductListHeader";
 import ProductCard from "@/components/store/product/ProductCard";
 import Navbar from "@/components/store/layout/Navbar";
@@ -24,13 +27,15 @@ import CONFIG from "@/lib/config";
 function ProductsContent() {
     const searchParams = useSearchParams();
     const categoryFromUrl = searchParams.get("category");
+    const searchFromUrl = searchParams.get("search");
 
-    const [activeFilters, setActiveFilters] = useState<FilterState>({
+    const [activeFilters, setActiveFilters] = useState<FilterStateWithSearch>({
         size: [],
         color: [],
         price: [],
         collection: categoryFromUrl ? [categoryFromUrl] : [],
-        tag: []
+        tag: [],
+        search: searchFromUrl || undefined
     });
     const [sortBy, setSortBy] = useState<SortOption>("newest");
     const { data: rawProducts = [], isLoading: productsLoading } = useProducts(activeFilters);
@@ -52,14 +57,21 @@ function ProductsContent() {
         return sizesData.map((s: Size) => s.size).filter(Boolean) as string[];
     }, [sizesData]);
 
-    const handleFilterChange = (category: keyof FilterState, value: string) => {
+    const handleFilterChange = (category: keyof FilterStateWithSearch, value: string) => {
         setActiveFilters(prev => {
             const current = prev[category];
-            const updated = current.includes(value)
-                ? current.filter(item => item !== value)
-                : [...current, value];
 
-            return { ...prev, [category]: updated };
+            if (Array.isArray(current)) {
+                const updated = current.includes(value)
+                    ? current.filter(item => item !== value)
+                    : [...current, value];
+                return { ...prev, [category]: updated };
+            } else {
+                // Handle string values (like 'search')
+                // If the same value is passed, clear it; otherwise set it
+                const updated = current === value ? undefined : value;
+                return { ...prev, [category]: updated };
+            }
         });
     };
 
@@ -180,8 +192,8 @@ function ProductsContent() {
                                         <p className="font-serif text-[24px] text-neutral-base-400 mb-2">No products found</p>
                                         <p className="text-neutral-base-300 text-sm">Try adjusting your filters to see more results.</p>
                                         <button
-                                            onClick={() => setActiveFilters({ size: [], color: [], price: [], collection: [], tag: [] })}
-                                            className="mt-6 text-[12px] font-bold tracking-[0.1em] uppercase border-b border-neutral-base-900 pb-1"
+                                            onClick={() => setActiveFilters({ size: [], color: [], price: [], collection: [], tag: [], search: undefined })}
+                                            className="mt-6 text-[12px] font-bold tracking-widest uppercase border-b border-neutral-base-900 pb-1"
                                         >
                                             Clear Filters
                                         </button>

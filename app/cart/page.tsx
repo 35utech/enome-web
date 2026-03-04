@@ -74,14 +74,6 @@ export default function CartPage() {
         router.push(`/checkout?ids=${selectedIds.join(",")}`);
     };
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
-
     return (
         <div className="min-h-screen bg-white text-neutral-base-900 font-sans selection:bg-amber-100 selection:text-amber-900">
             <Navbar />

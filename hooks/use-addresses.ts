@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAuth } from "./use-auth";
 import { userApi, Address } from "@/lib/api/user-api";
 import { queryKeys } from "@/lib/query-keys";
 
@@ -7,10 +8,12 @@ export type { Address };
 
 export function useAddresses() {
     const queryClient = useQueryClient();
+    const { isAuthenticated } = useAuth();
 
     const { data: addresses = [], isLoading } = useQuery<Address[]>({
         queryKey: queryKeys.user.addresses,
         queryFn: userApi.getAddresses,
+        enabled: isAuthenticated,
     });
 
     const createMutation = useMutation({

@@ -72,26 +72,26 @@ export default function CartReview({ items, isLoading, updateQuantity, removeIte
                         exit={{ opacity: 0, y: -20, height: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="bg-red-50/50 border border-red-100 rounded-[24px] p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
-                                    <AlertCircle className="w-5 h-5 text-red-600" />
+                        <div className="bg-red-50 border border-red-100/50 rounded-[28px] p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8">
+                            <div className="flex items-start gap-3 md:gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-red-100 flex items-center justify-center shrink-0 shadow-sm shadow-red-500/10">
+                                    <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-red-600" />
                                 </div>
-                                <div>
-                                    <h4 className="text-[13px] md:text-[14px] font-black text-red-900 leading-none">Beberapa barang bermasalah</h4>
-                                    <p className="text-[11px] md:text-[12px] font-bold text-red-600 mt-1.5 leading-relaxed">
-                                        Ada {unavailableItems.length + insufficientStockItems.length} barang yang tidak tersedia atau stoknya kurang. Bereskan untuk lanjut checkout.
+                                <div className="flex-1">
+                                    <h4 className="text-[13px] md:text-[15px] font-black text-red-900 border-b border-red-200/50 pb-1 mb-1.5 inline-block">Beberapa barang bermasalah</h4>
+                                    <p className="text-[11px] md:text-[12px] font-bold text-red-600/80 leading-relaxed max-w-md">
+                                        Ada {unavailableItems.length + insufficientStockItems.length} produk yang stoknya habis atau offline. Bereskan dulu ya sebelum bayar.
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
                                 {unavailableItems.length > 0 && (
                                     <button
                                         disabled={isFixing}
                                         onClick={handleClearUnavailable}
-                                        className="h-9 md:h-10 bg-red-600 hover:bg-red-700 text-white px-4 rounded-full font-black text-[10px] md:text-[11px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/10 flex items-center gap-2 disabled:opacity-50"
+                                        className="h-11 md:h-12 bg-red-600 hover:bg-red-700 text-white px-6 rounded-2xl md:rounded-full font-black text-[10px] md:text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
-                                        {isFixing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                                        {isFixing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                                         Hapus Item
                                     </button>
                                 )}
@@ -99,9 +99,9 @@ export default function CartReview({ items, isLoading, updateQuantity, removeIte
                                     <button
                                         disabled={isFixing}
                                         onClick={handleFixQuantities}
-                                        className="h-9 md:h-10 bg-neutral-base-900 hover:bg-neutral-base-800 text-white px-4 rounded-full font-black text-[10px] md:text-[11px] uppercase tracking-widest transition-all shadow-lg shadow-neutral-base-900/10 flex items-center gap-2 disabled:opacity-50"
+                                        className="h-11 md:h-12 bg-neutral-base-900 hover:bg-neutral-base-800 text-white px-6 rounded-2xl md:rounded-full font-black text-[10px] md:text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-neutral-base-900/20 flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
-                                        {isFixing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                                        {isFixing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                                         Sesuaikan Stok
                                     </button>
                                 )}
@@ -137,10 +137,8 @@ export default function CartReview({ items, isLoading, updateQuantity, removeIte
                         onRemove={removeItem}
                     />
                 </div>
-            )}
-
-            {removeAllItems && items.length > 0 && (
-                <div className="flex justify-center pt-0.5 md:pt-4">
+            )}            {removeAllItems && items.length > 0 && (
+                <div className="flex justify-center pt-0.5 md:pt-4 pb-2">
                     <button
                         onClick={() => setIsConfirmOpen(true)}
                         className="flex items-center gap-2 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-neutral-base-300 hover:text-red-600 transition-colors group"
@@ -150,7 +148,6 @@ export default function CartReview({ items, isLoading, updateQuantity, removeIte
                     </button>
                 </div>
             )}
-
             {removeAllItems && (
                 <ConfirmDialog
                     open={isConfirmOpen}

@@ -16,6 +16,7 @@ import DropshipperSection from "@/components/store/checkout/DropshipperSection";
 import PaymentSection from "@/components/store/checkout/PaymentSection";
 import OrderSummary from "@/components/store/checkout/OrderSummary";
 import SuccessState from "@/components/store/checkout/SuccessState";
+import { formatCurrency } from "@/lib/utils";
 
 function CheckoutContent() {
     const {
@@ -30,7 +31,7 @@ function CheckoutContent() {
         orderResult, lastOrderedItems, isSubmitting,
         couriers, isLoadingCouriers, shippingOptions, isLoadingShipping, shippingPrice, setShippingPrice,
         packingFee, grandTotal, remainingBill,
-        handleSelectAddress, updateQuantity, removeItem, removeAllItems, applyVoucher, submitOrder, formatPrice,
+        handleSelectAddress, updateQuantity, removeItem, removeAllItems, applyVoucher, submitOrder,
         setShippingOptions, setVoucherData,
         errors, setErrors
     } = useCheckout();
@@ -64,7 +65,7 @@ function CheckoutContent() {
                 <SuccessState
                     orderResult={orderResult}
                     lastOrderedItems={lastOrderedItems}
-                    formatPrice={formatPrice}
+                    formatPrice={formatCurrency}
                 />
             </div>
         );
@@ -142,7 +143,7 @@ function CheckoutContent() {
                                     updateQuantity={updateQuantity}
                                     removeItem={removeItem}
                                     removeAllItems={removeAllItems}
-                                    formatPrice={formatPrice}
+                                    formatPrice={formatCurrency}
                                 />
                             </motion.div>
 
@@ -177,7 +178,7 @@ function CheckoutContent() {
                                         shippingOptions={shippingOptions}
                                         isLoadingShipping={isLoadingShipping}
                                         totalWeight={totalWeight}
-                                        formatPrice={formatPrice}
+                                        formatPrice={formatCurrency}
                                         hasError={errors?.shipping}
                                         onFieldChange={() => setErrors(prev => ({ ...prev, shipping: false }))}
                                     />
@@ -254,7 +255,7 @@ function CheckoutContent() {
                                 (item.stock !== undefined && (item.stock <= 0 || Number(item.qty) > item.stock))
                             )}
                             submitOrder={submitOrder}
-                            formatPrice={formatPrice}
+                            formatPrice={formatCurrency}
                         />
                     </div>
                 </AnimatePresence>

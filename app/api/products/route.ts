@@ -26,10 +26,11 @@ export const GET = withOptionalAuth(async (request: NextRequest, context: any, s
         const priceRanges = searchParams.get("priceRanges")?.split(",").filter(Boolean);
         const colors = searchParams.get("colors")?.split(",").filter(Boolean);
         const sizes = searchParams.get("sizes")?.split(",").filter(Boolean);
+        const search = searchParams.get("search") || undefined;
 
         const kategoriId = await CustomerService.getKategoriId(session?.user?.id);
 
-        logger.debug("Products Fetch: Using kategoriId", { kategoriId, categories, priceRanges, colors, sizes });
+        logger.debug("Products Fetch: Using kategoriId", { kategoriId, categories, priceRanges, colors, sizes, search });
 
         const processData = await ProductService.getProducts({
             kategoriId,
@@ -38,6 +39,7 @@ export const GET = withOptionalAuth(async (request: NextRequest, context: any, s
             priceRanges,
             colors,
             sizes,
+            search,
             where: eq(produk.isOnline, 1),
             // Urutkan berdasarkan stok terbanyak (sesuai logika legacy)
             orderBy: sql`SUM(${produkDetail.stokNormal}) DESC`

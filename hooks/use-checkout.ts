@@ -405,8 +405,6 @@ export function useCheckout() {
     };
 
     const removeAllItems = async () => {
-        if (!confirm("Apakah Anda yakin ingin menghapus semua produk di keranjang?")) return;
-
         try {
             const response = await fetch("/api/cart", { method: "DELETE" });
             if (response.ok) {
@@ -555,13 +553,13 @@ export function useCheckout() {
         }
     };
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
+    // const formatPrice = (price: number) => {
+    //     return new Intl.NumberFormat("id-ID", {
+    //         style: "currency",
+    //         currency: "IDR",
+    //         minimumFractionDigits: 0,
+    //     }).format(price);
+    // };
 
     return {
         cartItems, isLoading, totalAmount, totalWeight,
@@ -576,6 +574,6 @@ export function useCheckout() {
         couriers, isLoadingCouriers, shippingOptions, setShippingOptions, isLoadingShipping, shippingPrice, setShippingPrice,
         errors, validateCheckout, setErrors,
         packingFee, grandTotal, remainingBill,
-        handleSelectAddress, updateQuantity, removeItem, removeAllItems, applyVoucher, submitOrder, formatPrice, setVoucherData
+        handleSelectAddress, updateQuantity, removeItem, removeAllItems, applyVoucher, submitOrder, setVoucherData
     };
 }

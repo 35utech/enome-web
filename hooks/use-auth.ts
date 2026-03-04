@@ -43,6 +43,10 @@ export function useAuth() {
         mutationFn: authApi.login,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["auth-me"] });
+            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: ["user"] });
+            queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
+            queryClient.invalidateQueries({ queryKey: ["couriers"] });
         },
     });
 

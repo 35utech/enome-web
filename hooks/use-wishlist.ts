@@ -1,11 +1,13 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "./use-auth";
 import { userApi, WishlistItem } from "@/lib/api/user-api";
 import { queryKeys } from "@/lib/query-keys";
 import { toast } from "sonner";
 
 export function useWishlist() {
+    const { isAuthenticated } = useAuth();
     return useQuery({
         queryKey: queryKeys.user.wishlist.all,
         queryFn: async () => {
@@ -13,13 +15,16 @@ export function useWishlist() {
             if (!res.ok) throw new Error("Failed to fetch wishlist");
             return res.json() as Promise<{ items: string[] }>;
         },
+        enabled: isAuthenticated,
     });
 }
 
 export function useWishlistDetails() {
+    const { isAuthenticated } = useAuth();
     return useQuery<WishlistItem[]>({
         queryKey: queryKeys.user.wishlist.details,
         queryFn: () => userApi.getWishlistDetails(),
+        enabled: isAuthenticated,
     });
 }
 

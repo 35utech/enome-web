@@ -8,81 +8,62 @@ interface ProductGalleryProps {
     images: string[];
     isSoldOut?: boolean;
     isOnFlashSale?: boolean;
-    flashSaleEndTime?: string;
 }
 
 import { Zap } from "lucide-react";
 
-export default function ProductGallery({ images, isSoldOut, isOnFlashSale, flashSaleEndTime }: ProductGalleryProps) {
-    const [currentIndex, setCurrentIndex] = useState(0);
-
+export default function ProductGallery({ images, isSoldOut, isOnFlashSale }: ProductGalleryProps) {
     return (
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full min-w-0">
-            {/* Thumbnails - Horizontal scroll on mobile, vertical on desktop */}
-            <div className="order-2 md:order-1 flex md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-x-visible md:overflow-y-auto pb-1 md:pb-0 shrink-0 -mx-4 px-4 md:mx-0 md:px-0">
-                {images.map((img, idx) => (
-                    <button
-                        key={idx}
-                        onClick={() => setCurrentIndex(idx)}
-                        className={`relative w-[56px] h-[72px] md:w-[80px] md:h-[110px] shrink-0 overflow-hidden transition-all snap-start ${idx === currentIndex
-                            ? "ring-1 ring-neutral-base-900 border-2 border-white opacity-100"
-                            : "opacity-60 hover:opacity-100"
-                            }`}
-                    >
-                        <Image
-                            src={img}
-                            alt={`Thumbnail ${idx + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 56px, 80px"
-                        />
-                    </button>
-                ))}
-            </div>
+        <div className="flex flex-col gap-4 md:gap-6 w-full min-w-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                {images.map((img, idx) => {
+                    // Logic: First and Second images are full width (col-span-1 on mobile, col-span-2 on desktop)
+                    // Rest are in a 2-column grid (col-span-1 on desktop)
+                    const isFeatureImage = idx < 2;
 
-            {/* Main Image */}
-            <div className="order-1 md:order-2 relative w-full aspect-3/4 md:aspect-auto md:h-[600px] lg:h-[750px] bg-neutral-base-50 overflow-hidden min-w-0">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={currentIndex}
-                        initial={{ opacity: 0, scale: 1.02 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
-                        className="absolute inset-0"
-                    >
-                        <Image
-                            src={images[currentIndex]}
-                            alt="Main product representation"
-                            fill
-                            className="object-cover object-center"
-                            sizes="(max-width: 1024px) 100vw, 50vw"
-                            priority
-                        />
-                        {isSoldOut && (
-                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-white text-[14px] font-bold uppercase tracking-[0.3em]"
-                                >
-                                    Habis
-                                </motion.div>
-                            </div>
-                        )}
-                    </motion.div>
-                </AnimatePresence>
+                    return (
+                        <div
+                            key={idx}
+                            className={`relative bg-neutral-base-50 overflow-hidden min-w-0 ${isFeatureImage ? "md:col-span-2" : "col-span-1"
+                                }`}
+                        >
+                            <Image
+                                src={img}
+                                alt={`Product image ${idx + 1}`}
+                                width={2000}
+                                height={3000}
+                                quality={100}
+                                unoptimized={true}
+                                className="w-full h-auto object-contain object-center"
+                                sizes={isFeatureImage ? "(max-width: 1024px) 100vw, 80vw" : "(max-width: 1024px) 50vw, 40vw"}
+                                priority={idx === 0}
+                            />
 
-                {/* Flash Sale Top-Left Badge OVERLAY */}
-                {isOnFlashSale && (
-                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-                        <div className="bg-red-600 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-red-500/50">
-                            <Zap className="w-3.5 h-3.5 text-white fill-white animate-pulse" />
-                            <span className="text-[11px] font-bold uppercase tracking-widest text-white drop-shadow-sm">Flash Sale</span>
+                            {/* Badges only for the primary image */}
+                            {idx === 0 && (
+                                <>
+                                    {isSoldOut && (
+                                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10">
+                                            <div className="text-white text-[14px] font-bold uppercase tracking-[0.3em]">
+                                                Habis
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Flash Sale Top-Left Badge OVERLAY */}
+                                    {isOnFlashSale && (
+                                        <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                                            <div className="bg-red-600 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-red-500/50">
+                                                <Zap className="w-3.5 h-3.5 text-white fill-white animate-pulse" />
+                                                <span className="text-[11px] font-bold uppercase tracking-widest text-white drop-shadow-sm">Flash Sale</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
-                    </div>
-                )}
-
+                    );
+                })}
             </div>
         </div>
     );

@@ -4,6 +4,8 @@ import {
     orders,
     orderdetail,
     produk,
+    produkDetail,
+    warna,
     rekeningPembayaran,
     statusOrder,
     statusTagihan,
@@ -80,14 +82,14 @@ export const GET = withAuth(async (
             return NextResponse.json({ message: "order not found" }, { status: 404 });
         }
 
-        // 2. Fetch Order Items
+        // 2. Fetch Order Items with variant-specific images
         const items = await db.select({
             id: orderdetail.id,
             produkId: orderdetail.produkId,
             namaProduk: produk.namaProduk,
-            gambar: produk.gambar,
+            gambar: sql<string>`COALESCE(${produkDetail.gambar}, ${produk.gambar})`.as('gambar'),
             ukuran: orderdetail.ukuran,
-            warna: orderdetail.warna,
+            warna: sql<string>`COALESCE(${warna.warna}, ${orderdetail.warna})`.as('warna'),
             harga: orderdetail.harga,
             qty: orderdetail.qty,
             jmlHarga: orderdetail.jmlHarga,
@@ -95,6 +97,15 @@ export const GET = withAuth(async (
         })
             .from(orderdetail)
             .leftJoin(produk, eq(orderdetail.produkId, produk.produkId))
+            .leftJoin(warna, or(
+                eq(orderdetail.warna, warna.warnaId),
+                eq(orderdetail.warna, warna.warna)
+            ))
+            .leftJoin(produkDetail, and(
+                eq(orderdetail.produkId, produkDetail.produkId),
+                eq(orderdetail.ukuran, produkDetail.size),
+                eq(warna.warna, produkDetail.warnaId)
+            ))
             .where(eq(orderdetail.orderId, orderId));
 
         // 3. Fetch Payment Details if applicable (e.g., Bank Transfer info)
