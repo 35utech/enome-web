@@ -1,4 +1,5 @@
 import { BlogService } from "@/lib/services/blog-service";
+import { ConfigService } from "@/lib/services/config-service";
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
 import { ASSET_URL } from "@/config/config";
@@ -23,8 +24,8 @@ export default async function Page() {
 }
 
 async function ShippingInformasi() {
-    // Target ID for Shipping/Order Guide content is 12
-    const SHIPPING_BLOG_ID = 12;
+    // Target ID for Shipping/Order Guide content is 12 (default)
+    const SHIPPING_BLOG_ID = await ConfigService.getInt("footer_shipping", 12);
     const post = await BlogService.getPublishedBlogById(SHIPPING_BLOG_ID);
 
     if (!post) {

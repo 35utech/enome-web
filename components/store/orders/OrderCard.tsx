@@ -104,7 +104,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                         Detail
                         <ChevronRight className="w-4 h-4 text-neutral-base-300 group-hover/btn:translate-x-0.5 group-hover/btn:text-neutral-base-900 transition-all" />
                     </Link>
-                    {order.statusOrder === "KIRIM" && (
+                    {order.statusOrder === "KIRIM" && order.noResi && CONFIG.TRACKABLE_COURIERS.includes(order.ekspedisi?.toLowerCase() || "") && (
                         <Button
                             onClick={() => setIsTrackingOpen(true)}
                             className="flex-1 md:flex-none h-11 md:h-12 px-6 md:px-8 bg-neutral-base-900 text-white rounded-[14px] md:rounded-xl text-[12px] font-black uppercase tracking-widest gap-2 shadow-lg shadow-neutral-base-900/10 hover:opacity-90 transition-all active:scale-[0.98]"

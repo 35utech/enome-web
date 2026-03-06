@@ -233,9 +233,9 @@ function ProductsContent() {
                                 {filteredProducts.length === 0 ? (
                                     <EmptyState
                                         icon={Search}
-                                        title="No products found"
-                                        description="Try adjusting your filters to see more results."
-                                        actionLabel="Clear Filters"
+                                        title="Tidak ada product"
+                                        description="Coba sesuaikan filter untuk melihat lebih banyak hasil."
+                                        actionLabel="Hapus Filter"
                                         onActionClick={() => setActiveFilters({ size: [], color: [], price: [], collection: [], tag: [], search: undefined })}
                                         className="py-20 border-dashed"
                                     />

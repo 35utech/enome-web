@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Tag, CreditCard } from "lucide-react";
+import { Tag, CreditCard, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 
@@ -45,9 +45,14 @@ export default function OrderSummaryCard({
 
     return (
         <div className="bg-white border border-neutral-base-100 rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-xl shadow-neutral-base-900/5 xl:sticky xl:top-24">
-            <h2 className="text-[16px] md:text-[18px] font-bold text-neutral-base-900 mb-6 md:mb-8">
-                Ringkasan Pembayaran
-            </h2>
+            <div className="flex items-center gap-4 mb-8 md:mb-10">
+                <div className="w-10 h-10 rounded-xl bg-neutral-base-900 flex items-center justify-center shadow-lg shadow-neutral-base-900/10">
+                    <Receipt className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-[16px] md:text-[18px] font-bold text-neutral-base-900">
+                    Ringkasan Pembayaran
+                </h2>
+            </div>
 
             <div className="space-y-4 md:space-y-5 pb-6 md:pb-8 border-b border-neutral-base-50">
                 <div className="flex items-center justify-between text-[13px] md:text-[14px]">

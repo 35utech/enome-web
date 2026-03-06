@@ -39,7 +39,7 @@ export default function ProfilePage() {
         if (profile) {
             setFormData({
                 nama: profile.nama || "",
-                brithdate: profile.brithdate ? new Date(profile.brithdate).toISOString().split('T')[0] : "",
+                brithdate: profile.brithdate ? format(new Date(profile.brithdate), "yyyy-MM-dd") : "",
                 gender: profile.gender || 1,
                 noHandphone: profile.noHandphone?.replace(/^(\+62|62|0)/, "") || ""
             });
@@ -184,8 +184,7 @@ export default function ProfilePage() {
                                                 <CalendarComponent
                                                     mode="single"
                                                     selected={formData.brithdate ? new Date(formData.brithdate) : undefined}
-                                                    onSelect={(date) => setFormData({ ...formData, brithdate: date ? date.toISOString().split('T')[0] : "" })}
-                                                    initialFocus
+                                                    onSelect={(date) => setFormData({ ...formData, brithdate: date ? format(date, "yyyy-MM-dd") : "" })}
                                                     captionLayout="dropdown"
                                                     startMonth={new Date(1900, 0)}
                                                     endMonth={new Date()}

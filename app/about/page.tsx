@@ -1,4 +1,5 @@
 import { BlogService } from "@/lib/services/blog-service";
+import { ConfigService } from "@/lib/services/config-service";
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
 import { ASSET_URL } from "@/config/config";
@@ -23,8 +24,8 @@ export default async function Page() {
 }
 
 async function AboutInformasi() {
-    // Current target ID for About content is 11
-    const ABOUT_BLOG_ID = 11;
+    // Current target ID for About content is 11 (default)
+    const ABOUT_BLOG_ID = await ConfigService.getInt("footer_about", 11);
     const post = await BlogService.getPublishedBlogById(ABOUT_BLOG_ID);
 
     if (!post) {
