@@ -165,6 +165,7 @@ export default function OrderDetailPage() {
                                         ekspedisi={order.ekspedisi}
                                         service={order.service}
                                         noResi={order.noResi}
+                                        phone={order.teleponPenerima}
                                     />
 
                                     <ShippingAddressCard

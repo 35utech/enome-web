@@ -209,5 +209,11 @@ export const userApi = {
             method: "POST",
             body: JSON.stringify({ produkId, variant }),
         });
+    },
+    trackWaybill: async (awb: string, courier: string, phone: string) => {
+        return await apiClient<any>("/api/shipping/track", {
+            method: "POST",
+            body: JSON.stringify({ awb, courier, phone }),
+        });
     }
 };

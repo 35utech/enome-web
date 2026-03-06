@@ -1,20 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { Truck, Copy, Check } from "lucide-react";
+import { Truck, Copy, Check, Search } from "lucide-react";
+import TrackingModal from "./TrackingModal";
 
 interface ShippingInfoCardProps {
     ekspedisi: string;
     service: string;
     noResi: string;
+    phone: string;
 }
 
 export default function ShippingInfoCard({
     ekspedisi,
     service,
     noResi,
+    phone,
 }: ShippingInfoCardProps) {
     const [copiedResi, setCopiedResi] = useState(false);
+    const [isTrackingOpen, setIsTrackingOpen] = useState(false);
 
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
@@ -62,6 +66,26 @@ export default function ShippingInfoCard({
                     </div>
                 </div>
             </div>
+
+            {noResi && (
+                <div className="mt-8 pt-6 border-t border-neutral-base-50">
+                    <button
+                        onClick={() => setIsTrackingOpen(true)}
+                        className="w-full py-4 bg-neutral-base-900 text-white rounded-2xl text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg shadow-neutral-base-900/10 active:scale-[0.98]"
+                    >
+                        <Search className="w-4 h-4" />
+                        Lacak Pesanan
+                    </button>
+                </div>
+            )}
+
+            <TrackingModal
+                isOpen={isTrackingOpen}
+                onClose={() => setIsTrackingOpen(false)}
+                awb={noResi}
+                courier={ekspedisi}
+                phone={phone}
+            />
         </div>
     );
 }

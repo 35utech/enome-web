@@ -208,7 +208,7 @@ export class OrderService {
                     proses2: finalBankAmount <= 0 ? "Y" : "N",
                     proses3: "N",
                     proses4: "N",
-                    noResi: orderData.resi || "",
+                    noResi: "",
                     keterangan: uniqueCode > 0
                         ? `${orderData.catatan || ""} (Kode Unik: ${uniqueCode})`.trim()
                         : (orderData.catatan || ""),

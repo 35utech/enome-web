@@ -253,13 +253,6 @@ export default function ProfilePage() {
                                 {/* Footer Action Buttons */}
                                 <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 pt-10">
                                     <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="h-11 md:h-12 px-10 border-neutral-base-100 rounded-xl text-[13px] md:text-[14px] font-bold hover:bg-neutral-base-50 transition-all w-full sm:min-w-[140px] sm:w-auto"
-                                    >
-                                        Batalkan
-                                    </Button>
-                                    <Button
                                         type="submit"
                                         disabled={updateProfileMutation.isPending}
                                         className="h-11 md:h-12 px-10 bg-[#111827] text-white rounded-xl text-[13px] md:text-[14px] font-bold shadow-xl shadow-gray-900/10 hover:bg-gray-800 transition-all w-full sm:min-w-[140px] sm:w-auto flex items-center justify-center gap-2"
