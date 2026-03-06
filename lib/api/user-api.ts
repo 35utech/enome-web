@@ -87,6 +87,8 @@ export interface OrderDetail {
         nominal: number;
     } | null;
     uniqueCode?: number;
+    expiredTime?: string | number | null;
+    whatsappAdmin?: string;
 }
 
 export interface ProfileData {

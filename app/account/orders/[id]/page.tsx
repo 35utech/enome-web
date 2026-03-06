@@ -128,7 +128,7 @@ export default function OrderDetailPage() {
 
     if (!data) return null;
 
-    const { order, items, paymentInfo, voucherInfo, uniqueCode: uniqueCodeValue = 0 } = data;
+    const { order, items, paymentInfo, voucherInfo, uniqueCode: uniqueCodeValue = 0, expiredTime, whatsappAdmin } = data;
 
     return (
         <div className="min-h-screen bg-[#F9FAFB] font-sans text-neutral-base-900">
@@ -153,6 +153,7 @@ export default function OrderDetailPage() {
                             totalTagihan={order.totalTagihan}
                             paymentInfo={paymentInfo}
                             uniqueCodeValue={uniqueCodeValue}
+                            expiredTime={expiredTime}
                         />
 
                         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -179,6 +180,7 @@ export default function OrderDetailPage() {
 
                             <div className="xl:col-span-5 space-y-8">
                                 <OrderSummaryCard
+                                    orderId={order.orderId}
                                     totalHarga={order.totalHarga}
                                     ongkir={order.ongkir}
                                     biayalain={order.biayalain}
@@ -188,6 +190,7 @@ export default function OrderDetailPage() {
                                     viaWallet={order.viaWallet}
                                     uniqueCodeValue={uniqueCodeValue}
                                     voucherInfo={voucherInfo}
+                                    whatsappAdmin={whatsappAdmin}
                                 />
                             </div>
                         </div>
