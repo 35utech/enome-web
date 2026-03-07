@@ -43,15 +43,15 @@ export const GET = withOptionalAuth(async (request: NextRequest, context: any, s
                 p.gambar,
                 p.isaktif,
                 p.is_online,
-                (SELECT MIN(${priceColumn}) FROM produkdetail pd WHERE pd.produk_id = p.produk_id) as min_price,
-                (SELECT MAX(${priceColumn}) FROM produkdetail pd WHERE pd.produk_id = p.produk_id) as max_price,
-                (SELECT MIN(pd.harga_jual) FROM produkdetail pd WHERE pd.produk_id = p.produk_id) as base_min_price,
-                (SELECT MAX(pd.harga_jual) FROM produkdetail pd WHERE pd.produk_id = p.produk_id) as base_max_price,
-                (SELECT SUM(pd.stok_normal) FROM produkdetail pd WHERE pd.produk_id = p.produk_id) as total_stock,
+                (SELECT MIN(${priceColumn}) FROM produkdetail WHERE produkdetail.produk_id = p.produk_id) as min_price,
+                (SELECT MAX(${priceColumn}) FROM produkdetail WHERE produkdetail.produk_id = p.produk_id) as max_price,
+                (SELECT MIN(produkdetail.harga_jual) FROM produkdetail WHERE produkdetail.produk_id = p.produk_id) as base_min_price,
+                (SELECT MAX(produkdetail.harga_jual) FROM produkdetail WHERE produkdetail.produk_id = p.produk_id) as base_max_price,
+                (SELECT SUM(produkdetail.stok_normal) FROM produkdetail WHERE produkdetail.produk_id = p.produk_id) as total_stock,
                 (SELECT GROUP_CONCAT(DISTINCT CONCAT(w.warna, '|', COALESCE(w.kode_warna, '#CCCCCC')) SEPARATOR ',')
-                 FROM produkdetail pd 
-                 LEFT JOIN warna w ON pd.warna = w.warna_id 
-                 WHERE pd.produk_id = p.produk_id AND pd.stok_normal > 0) as colors,
+                 FROM produkdetail 
+                 LEFT JOIN warna w ON produkdetail.warna = w.warna_id 
+                 WHERE produkdetail.produk_id = p.produk_id AND produkdetail.stok_normal > 0) as colors,
                 (SELECT fs.id FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id 
                  WHERE fs.is_aktif = 1 AND fsd.produk_id = p.produk_id AND ${now} BETWEEN fs.waktu_mulai AND fs.waktu_selesai 
                  AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1) as flash_sale_id,
