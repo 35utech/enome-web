@@ -40,7 +40,18 @@ export const GET = withOptionalAuth(async (request: NextRequest, context: any, s
                 MAX(kl.harga_poduk) as harga_poduk,
                 p.nama_produk,
                 p.kategori,
-                p.gambar,
+                COALESCE(
+                    (SELECT CONCAT('produk/', pd2.gambar) 
+                     FROM produkdetail pd2 
+                     WHERE pd2.produk_id = kl.produk_id 
+                       AND (pd2.warna = kl.warna OR pd2.warna = (SELECT w2.warna_id FROM warna w2 WHERE w2.warna = kl.warna LIMIT 1))
+                       AND pd2.gambar IS NOT NULL AND pd2.gambar != '' 
+                     LIMIT 1),
+                    CONCAT('produk_utama/', p.gambar)
+                ) as gambar,
+
+
+
                 p.isaktif,
                 p.is_online,
                 (SELECT MIN(${priceColumn}) FROM produkdetail WHERE produkdetail.produk_id = p.produk_id) as min_price,

@@ -34,13 +34,16 @@ interface ProductInfoProps {
         isFuring?: number | null;
         berat?: number | null;
     };
+    selectedVariant: string;
+    setSelectedVariant: (variant: string) => void;
     selectedColor: string;
     setSelectedColor: (color: string) => void;
 }
 
-export default function ProductInfo({ product, selectedColor, setSelectedColor }: ProductInfoProps) {
+export default function ProductInfo({ product, selectedVariant, setSelectedVariant, selectedColor, setSelectedColor }: ProductInfoProps) {
     console.log("ProductInfo Debug:", { id: product.id, types: product.types, matrix: product.matrix });
-    const [selectedVariant, setSelectedVariant] = useState("");
+
+
     const [selectedSize, setSelectedSize] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [isAdding, setIsAdding] = useState(false);
@@ -51,10 +54,9 @@ export default function ProductInfo({ product, selectedColor, setSelectedColor }
 
     // Reset selections when product changes
     useEffect(() => {
-        setSelectedVariant("");
-        setSelectedColor("");
-        setSelectedSize("");
-    }, [product.id, setSelectedColor]);
+        // Don't reset if we have values or it might cause loops if parent re-renders
+    }, [product.id]);
+
 
     // Wishlist
     const { data: wishlistData } = useWishlist();
@@ -324,7 +326,18 @@ export default function ProductInfo({ product, selectedColor, setSelectedColor }
                                     key={type}
                                     onClick={() => {
                                         setSelectedVariant(type);
-                                        setSelectedColor(""); // reset subsequent choices
+
+                                        // Auto-select first available color for this motif
+                                        const firstEntry = product.matrix.find(m =>
+                                            (m.variant === type || (m.variant || "").includes(type)) && m.stock > 0
+                                        );
+
+                                        if (firstEntry) {
+                                            setSelectedColor(firstEntry.color);
+                                        } else {
+                                            setSelectedColor("");
+                                        }
+
                                         setSelectedSize("");
                                         setQuantity(1);
                                     }}
@@ -337,6 +350,7 @@ export default function ProductInfo({ product, selectedColor, setSelectedColor }
                                 </button>
                             );
                         })}
+
                     </div>
                 </div>
             )}
