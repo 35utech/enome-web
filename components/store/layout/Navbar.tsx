@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, ShoppingBag, User, Settings, LogOut, Package, Wallet, ChevronDown, Menu, X, MapPin, Heart } from "lucide-react";
+import { Search, ShoppingBag, User, Settings, LogOut, Package, Wallet, ChevronDown, Menu, X, MapPin, Heart, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "@/components/store/auth/AuthModal";
@@ -132,7 +132,7 @@ export default function Navbar() {
                                 className="text-neutral-base-500 hover:text-neutral-base-900 transition-colors p-1 relative"
                                 aria-label="Cart"
                             >
-                                <ShoppingBag className="w-[18px] h-[18px]" strokeWidth={1.2} />
+                                <ShoppingCart className="w-[18px] h-[18px]" strokeWidth={1.2} />
                                 <AnimatePresence>
                                     {cartCount > 0 && (
                                         <motion.span

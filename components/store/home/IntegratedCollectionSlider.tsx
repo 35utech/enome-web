@@ -222,7 +222,7 @@ export default function IntegratedCollectionSlider() {
                                 <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
                                 {/* Vertical Side Logo - Left Center */}
-                                <motion.div
+                                {/* <motion.div
                                     initial={{ opacity: 0, x: -30 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 1, delay: 0.3 }}
@@ -238,7 +238,7 @@ export default function IntegratedCollectionSlider() {
                                             style={{ filter: "drop-shadow(0 0 30px rgba(255,255,255,0.15))" }}
                                         />
                                     </div>
-                                </motion.div>
+                                </motion.div> */}
 
                                 {/* Collection Title - Centered on Mobile, Left on Desktop */}
                                 <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
