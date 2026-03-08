@@ -56,7 +56,7 @@ const WishlistItemCard = ({ item, idx, isRemoving, onRemove, formatPriceRange }:
                         className="absolute inset-0 z-1"
                     >
                         <FallbackImage
-                            src={item.gambar ? `${ASSET_URL}/img/produk/${item.gambar}` : "/placeholder.jpg"}
+                            src={item.gambar ? `${ASSET_URL}/img/${item.gambar}` : "/placeholder.jpg"}
                             alt={item.nama_produk}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
