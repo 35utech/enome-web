@@ -238,7 +238,7 @@ function ProductDetailContent({ productData }: { productData: any }) {
                                     const mappedRelProduct = {
                                         id: p.produkId,
                                         name: p.namaProduk,
-                                        image: p.gambar ? `${ASSET_URL}/img/produk/${p.gambar}` : "/placeholder.jpg",
+                                        image: p.gambar ? `${ASSET_URL}/img/produk_utama/${p.gambar}` : "/placeholder.jpg",
                                         colors: relColorArray,
                                         price: formatPriceRange(p.finalMinPrice, p.finalMaxPrice),
                                         originalPrice: (p.finalMinPrice !== p.baseMinPrice || p.finalMaxPrice !== p.baseMaxPrice)
