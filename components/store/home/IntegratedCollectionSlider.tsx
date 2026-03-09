@@ -154,7 +154,7 @@ export default function IntegratedCollectionSlider() {
     };
 
     return (
-        <section className="relative w-full h-screen bg-black overflow-hidden select-none text-white font-sans">
+        <section className="relative w-full h-screen bg-black overflow-hidden select-none text-white font-montserrat">
 
 
             {/* Top Navigation Overlay */}
@@ -248,7 +248,7 @@ export default function IntegratedCollectionSlider() {
                                             whileInView={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.8, delay: 0.3 }}
                                             viewport={{ once: false }}
-                                            className="font-serif text-[15px] md:text-[18px] text-center md:text-left text-white/70 tracking-[0.25em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+                                            className="font-montserrat text-[15px] md:text-[18px] text-center md:text-left text-white/70 tracking-[0.25em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
                                         >
                                             {img.title || collections[currentIndex].title}
                                         </motion.p>
