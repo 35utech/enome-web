@@ -7,7 +7,7 @@ import {
 import { eq, and, sql, desc, like } from "drizzle-orm";
 import { CONFIG } from "@/lib/config";
 import logger from "@/lib/logger";
-import { nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull } from "@/lib/date-utils";
+import { nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull, getJakartaDate } from "@/lib/date-utils";
 import { ConfigService } from "./config-service";
 import { sendNewOrderAdminNotification } from "@/lib/mail";
 
@@ -140,8 +140,10 @@ export class OrderService {
                         };
                     }
 
+                    const dhms = nowJakartaFull();
+                    const now = new Date(dhms.replace(" ", "T") + ".000Z").getTime();
                     const expiredDate = new Date(fsData.waktuSelesai || item.flashsaleExpired).getTime();
-                    const now = new Date().getTime();
+
                     if (now > expiredDate) {
                         return {
                             success: false,
@@ -150,8 +152,10 @@ export class OrderService {
                     }
                 } else if (item.flashsaleExpired) {
                     // Fallback for older cart items without flashsaleId
+                    const dhms = nowJakartaFull();
+                    const now = new Date(dhms.replace(" ", "T") + ".000Z").getTime();
                     const expiredDate = new Date(item.flashsaleExpired).getTime();
-                    const now = new Date().getTime();
+
                     if (now > expiredDate) {
                         return {
                             success: false,
@@ -389,7 +393,7 @@ export class OrderService {
                         deskripsiVoucher: voucherRow.deskripsiVoucher || "",
                         isAktif: voucherRow.isAktif ?? 1,
                         createdBy: Number(userId) || 1,
-                        updatedAt: new Date(),
+                        updatedAt: getJakartaDate(),
                         updatedBy: Number(userId) || 1,
                         syaratDanKetentuan: voucherRow.syaratDanKetentuan || "",
                     });
@@ -408,7 +412,7 @@ export class OrderService {
             // Calculate expiredTime value for frontend response
             let expiredTimeValue = null;
             if (finalBankAmount > 0) {
-                const now = new Date();
+                const now = getJakartaDate();
                 if (isDays) {
                     now.setDate(now.getDate() + parseInt(rawInterval));
                 } else if (rawInterval.toUpperCase().includes("HOUR")) {

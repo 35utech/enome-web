@@ -14,6 +14,7 @@ export interface CartItem {
     stock?: number;
     isOnline?: number;
     isFlashsale?: number;
+    isFlashsaleExpired?: number;
     keterangan?: string;
     warnaName?: string;
     isGambarUtama?: number;

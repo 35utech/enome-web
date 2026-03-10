@@ -62,6 +62,11 @@ export default function OrderCard({ order }: OrderCardProps) {
                             <span className={cn("px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest", status.bg, status.color)}>
                                 {status.label}
                             </span>
+                            {order.statusTagihan === 'KADALUARSA' && (
+                                <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 border border-rose-100">
+                                    Kadaluarsa
+                                </span>
+                            )}
                         </div>
                         <p className="text-[11px] md:text-[12px] text-neutral-base-400 font-medium mt-0.5 md:mt-1">
                             {order.updatedAt ? format(new Date(order.updatedAt.replace(" ", "T").replace("Z", "")), "dd MMM yyyy • HH:mm", { locale: id }) : order.tglOrder} WIB

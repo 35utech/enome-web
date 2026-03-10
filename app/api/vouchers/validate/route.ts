@@ -54,8 +54,8 @@ export const POST = withAuth(async (req: Request, context: any, session: any) =>
             .where(and(
                 sql`LOWER(${voucher.kodeVoucher}) = LOWER(${kode})`,
                 eq(voucher.isAktif, 1),
-                sql`(${voucher.tanggalMulai} IS NULL OR NOW() >= ${voucher.tanggalMulai})`,
-                sql`(${voucher.tanggalKadaluarsa} IS NULL OR NOW() <= ${voucher.tanggalKadaluarsa})`
+                sql`(${voucher.tanggalMulai} IS NULL OR ${now} >= ${voucher.tanggalMulai})`,
+                sql`(${voucher.tanggalKadaluarsa} IS NULL OR ${now} <= ${voucher.tanggalKadaluarsa})`
             ))
             .limit(1);
 

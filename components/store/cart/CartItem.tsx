@@ -96,9 +96,11 @@ export default function CartItem({
 
                             <div className="flex items-center gap-1.5 md:gap-2 flex-wrap mt-0.5">
                                 {item.isFlashsale === 1 && (
-                                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-red-50 border border-red-100 rounded">
-                                        <Zap className="w-2 h-2 md:w-2.5 md:h-2.5 fill-red-600 text-red-600" />
-                                        <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest leading-none text-red-600">Flash Sales</span>
+                                    <div className={`flex items-center gap-1 px-1.5 py-0.5 border rounded ${item.isFlashsaleExpired === 1 ? "bg-neutral-base-50 border-neutral-base-100" : "bg-red-50 border-red-100"}`}>
+                                        <Zap className={`w-2 h-2 md:w-2.5 md:h-2.5 ${item.isFlashsaleExpired === 1 ? "fill-neutral-base-400 text-neutral-base-400" : "fill-red-600 text-red-600"}`} />
+                                        <span className={`text-[7px] md:text-[8px] font-black uppercase tracking-widest leading-none ${item.isFlashsaleExpired === 1 ? "text-neutral-base-400" : "text-red-600"}`}>
+                                            {item.isFlashsaleExpired === 1 ? "Promo Berakhir" : "Flash Sales"}
+                                        </span>
                                     </div>
                                 )}
                                 <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-wider text-neutral-base-400 px-1.5 md:px-2 py-1 bg-neutral-base-50 border border-neutral-base-100 rounded-full leading-none">

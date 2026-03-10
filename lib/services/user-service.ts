@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { customerAlamat, wallet, provinsi, kota, kecamatan } from "@/lib/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { getJakartaDate } from "@/lib/date-utils";
 
 export class UserService {
     /**
@@ -98,14 +99,15 @@ export class UserService {
         const currentBalance = await this.getWalletBalance(custId);
         const newBalance = type === "debit" ? currentBalance + amount : currentBalance - amount;
 
+        const now = getJakartaDate();
         return await db.insert(wallet).values({
             custId,
             debit: type === "debit" ? amount : 0,
             kredit: type === "kredit" ? amount : 0,
             saldo: newBalance,
             keterangan: description,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: now,
+            updatedAt: now,
         });
     }
 

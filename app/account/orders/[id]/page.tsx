@@ -145,11 +145,12 @@ export default function OrderDetailPage() {
                         <OrderHeader
                             orderId={order.orderId}
                             tglOrder={order.tglOrder}
+                            statusTagihan={order.statusTagihan}
                         />
 
                         <OrderTimeline statusOrder={order.statusOrder} />
 
-                        {order.statusOrder === "CLOSE" && CONFIG.TRACKABLE_COURIERS.includes(order.ekspedisi?.toLowerCase()) && (
+                        {order.statusOrder === "CLOSE" && order.statusTagihan !== "KADALUARSA" && CONFIG.TRACKABLE_COURIERS.includes(order.ekspedisi?.toLowerCase()) && (
                             <div className="bg-white border border-neutral-base-100 rounded-[28px] md:rounded-[32px] p-6 md:p-10 mb-8 shadow-sm overflow-hidden">
                                 <TrackingManifest
                                     awb={order.noResi}
