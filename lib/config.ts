@@ -76,6 +76,11 @@ export const CONFIG = {
     },
 
     PREDEFINED_AMOUNTS: [50000, 100000, 200000, 500000],
+
+    // Tracking API Configurations
+    TRACKING: {
+        RAJAONGKIR_TRACK_URL: "https://rajaongkir.komerce.id/api/v1/track/waybill",
+    },
 };
 
 export default CONFIG;

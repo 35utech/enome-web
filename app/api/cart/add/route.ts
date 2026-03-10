@@ -129,21 +129,24 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
             }
 
             // 6. Cek apakah item yang persis sama sudah ada di keranjang (LOCK)
+            // Note: color_sylla might be an ID or a Name from previous bug.
+            // We join with warna table to allow matching by either ID or Name.
             const [existingCartRows]: any = await tx.execute(sql`
                 SELECT 
-                    id, 
-                    qty_produk as qtyProduk, 
-                    harga_poduk as hargaPoduk 
-                FROM keranjang 
-                WHERE cust_id = ${userId} 
-                AND produk_id = ${id_produk} 
-                AND warna = ${color_sylla} 
-                AND size = ${size_sylla} 
-                AND (variant = ${variant} OR (variant IS NULL AND ${variant || ""} = ""))
-                AND is_deleted = 0 
-                AND is_flashsale = ${isFlashSale ? 1 : 0} 
-                AND is_preorder = ${isPreOrder ? 1 : 0} 
-                AND harga_poduk = ${Math.floor(finalPrice)} 
+                    k.id, 
+                    k.qty_produk as qtyProduk, 
+                    k.harga_poduk as hargaPoduk 
+                FROM keranjang k
+                LEFT JOIN warna w ON (k.warna = w.warna_id OR k.warna = w.warna)
+                WHERE k.cust_id = ${userId} 
+                AND k.produk_id = ${id_produk} 
+                AND (k.warna = ${color_sylla} OR w.warna_id = ${color_sylla} OR w.warna = ${color_sylla})
+                AND k.size = ${size_sylla} 
+                AND (k.variant = ${variant} OR (k.variant IS NULL AND ${variant || ""} = ""))
+                AND k.is_deleted = 0 
+                AND k.is_flashsale = ${isFlashSale ? 1 : 0} 
+                AND k.is_preorder = ${isPreOrder ? 1 : 0} 
+                AND k.harga_poduk = ${Math.floor(finalPrice)} 
                 FOR UPDATE
             `);
             const existingCart = existingCartRows[0];

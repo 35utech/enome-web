@@ -6,6 +6,7 @@ import { login } from "@/lib/auth-utils";
 import { randomBytes } from "crypto";
 import { execSync } from "child_process";
 import { sendActivationEmail } from "@/lib/mail";
+import { getJakartaDate } from "@/lib/date-utils";
 import logger, { apiLogger } from "@/lib/logger";
 
 function buatkode(lastId: string, key: string, padding: number) {
@@ -197,7 +198,7 @@ export async function POST(request: NextRequest) {
                         provinsi: "",
                         kodepos: "",
                         kategoriCustomerId: 4, // Default to Pelanggan
-                        completedDepositTime: sql`CURRENT_TIMESTAMP`,
+                        completedDepositTime: getJakartaDate(),
                         isDeleted: 0,
                     });
 
@@ -212,7 +213,7 @@ export async function POST(request: NextRequest) {
                         provinsi: "",
                         kodePos: "",
                         isPrimary: 1,
-                        createdAt: sql`CURRENT_TIMESTAMP`,
+                        createdAt: getJakartaDate(),
                         createdBy: insertedUserId,
                     });
                     logger.info("Auth Success: Created new customer record via Google", { custId, userId: insertedUserId });

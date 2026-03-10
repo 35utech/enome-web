@@ -27,19 +27,21 @@ async function handleSync(req: NextRequest) {
     }
 
     try {
-        const result = await CronService.cancelExpiredOrders();
+        const results = {
+            cancelOrders: await CronService.cancelExpiredOrders(),
+            closeEvents: await CronService.closeExpiredEvents(),
+            syncStock: await CronService.syncProductStock(),
+            cleanupCart: await CronService.cleanupExpiredFlashSaleCart(),
+        };
 
-        if (result.success) {
-            return NextResponse.json({
-                success: true,
-                message: `Processed ${result.cancelledCount} expired orders.`
-            });
-        } else {
-            return NextResponse.json({
-                success: false,
-                error: result.error
-            }, { status: 500 });
-        }
+        const success = Object.values(results).every(r => r.success);
+
+        return NextResponse.json({
+            success,
+            results,
+            message: success ? "Cron tasks completed successfully" : "Some cron tasks failed"
+        }, { status: success ? 200 : 500 });
+
     } catch (error: any) {
         logger.error("Sync API Error", error);
         return NextResponse.json({

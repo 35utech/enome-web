@@ -55,6 +55,9 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
             return NextResponse.json({ message: "Keranjang belanja kosong" }, { status: 400 });
         }
 
+        // Recalculate totalAmount (subtotal) on server to prevent client-side manipulation / expired price usage
+        const serverTotalAmount = cartItems.reduce((acc, item) => acc + (Number(item.harga || 0) * Number(item.qty || 0)), 0);
+
         // 2. Verify Stock
         const stockResult = await OrderService.verifyStock(cartItems);
         if (!stockResult.success) {
@@ -73,7 +76,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
             packingFee = await ConfigService.getInt("biaya_packing", CONFIG.PACKING_FEE);
         }
         const discountAmount = voucherDiscount || 0;
-        let totalTagihan = totalAmount + shippingCost + packingFee - discountAmount;
+        let totalTagihan = serverTotalAmount + shippingCost + packingFee - discountAmount;
 
         // 5. Generate Unique Code for BCA Transfer
         //    targetCode = 3 digit terakhir total (displayed to user)
@@ -108,6 +111,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
 
         const orderData = {
             ...body,
+            totalAmount: serverTotalAmount,
             orderId,
             userId,
             customerData,

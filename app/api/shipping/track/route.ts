@@ -38,7 +38,8 @@ export const POST = withAuth(async (request: NextRequest) => {
 
         logger.debug("Shipping Track: Calling Komerce API", { awb, courierCode, lastPhone });
 
-        const response = await fetch("https://rajaongkir.komerce.id/api/v1/track/waybill", {
+        let trackingUrl = CONFIG.TRACKING.RAJAONGKIR_TRACK_URL;
+        const response = await fetch(trackingUrl, {
             method: "POST",
             headers: {
                 "content-type": "application/x-www-form-urlencoded",

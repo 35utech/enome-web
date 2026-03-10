@@ -127,6 +127,7 @@ export const GET = withOptionalAuth(async (
         const rawColors = await db
             .selectDistinct({
                 name: sql<string>`COALESCE(${warna.warna}, ${produkDetail.warnaId})`,
+                id: produkDetail.warnaId,
                 value: sql<string>`COALESCE(${warna.kodeWarna}, '#cccccc')`,
             })
             .from(produkDetail)
@@ -134,7 +135,7 @@ export const GET = withOptionalAuth(async (
             .where(eq(produkDetail.produkId, id));
 
         rawColors.forEach(c => {
-            colorMap[c.name] = { id: String(c.name), name: c.name, value: c.value || "", image: null, totalStock: 0 };
+            colorMap[c.name] = { id: String(c.id || c.name), name: c.name, value: c.value || "", image: null, totalStock: 0 };
         });
 
         details.forEach(d => {

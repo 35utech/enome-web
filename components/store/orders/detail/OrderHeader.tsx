@@ -7,9 +7,10 @@ import { ChevronLeft, Calendar, Copy, Check } from "lucide-react";
 interface OrderHeaderProps {
     orderId: string;
     tglOrder: string;
+    statusTagihan?: string;
 }
 
-export default function OrderHeader({ orderId, tglOrder }: OrderHeaderProps) {
+export default function OrderHeader({ orderId, tglOrder, statusTagihan }: OrderHeaderProps) {
     const [copiedOrderId, setCopiedOrderId] = useState(false);
 
     const handleCopy = (text: string) => {
@@ -31,6 +32,13 @@ export default function OrderHeader({ orderId, tglOrder }: OrderHeaderProps) {
                     <h1 className="text-[24px] md:text-[36px] font-black text-neutral-base-900 tracking-tighter">
                         Detail Pesanan
                     </h1>
+                    {statusTagihan === 'KADALUARSA' && (
+                        <div className="px-3 py-1 bg-rose-50 border border-rose-100 rounded-full h-fit mt-1 sm:mt-2">
+                            <span className="text-[10px] md:text-[11px] font-black text-rose-600 uppercase tracking-wider">
+                                Kadaluarsa
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 

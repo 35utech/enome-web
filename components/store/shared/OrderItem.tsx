@@ -20,6 +20,7 @@ export interface OrderItemType {
     stock?: number; // This is already optional, so no change needed here.
     isOnline?: number;
     isFlashsale?: number;
+    isFlashsaleExpired?: number;
     keterangan?: string;
     variant?: string;
 }
@@ -134,9 +135,19 @@ export default function OrderItem({
 
                         {/* Flash Sale Badge */}
                         {item.isFlashsale === 1 && (
-                            <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 border border-red-100 rounded text-red-600">
-                                <Zap className="w-2 md:w-2.5 h-2 md:h-2.5 fill-red-600" />
-                                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest leading-none">Flash Sale</span>
+                            <div className={cn(
+                                "mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 border rounded transition-colors",
+                                item.isFlashsaleExpired === 1
+                                    ? "bg-neutral-base-50 border-neutral-base-100 text-neutral-base-400"
+                                    : "bg-red-50 border-red-100 text-red-600"
+                            )}>
+                                <Zap className={cn(
+                                    "w-2 md:w-2.5 h-2 md:h-2.5",
+                                    item.isFlashsaleExpired === 1 ? "fill-neutral-base-400" : "fill-red-600"
+                                )} />
+                                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest leading-none">
+                                    {item.isFlashsaleExpired === 1 ? "Promo Berakhir" : "Flash Sale"}
+                                </span>
                             </div>
                         )}
                     </div>
@@ -164,7 +175,7 @@ export default function OrderItem({
                     <p className="text-[10px] md:text-[13px] font-medium text-neutral-base-400 flex flex-wrap items-center gap-1.5">
                         {item.variant && (
                             <>
-                                <span className="truncate">Varian: <span className="text-neutral-base-900 font-bold">{item.variant}</span></span>
+                                <span className="truncate">Motif: <span className="text-neutral-base-900 font-bold">{item.variant}</span></span>
                                 <span className="w-px h-2.5 bg-neutral-base-100" />
                             </>
                         )}

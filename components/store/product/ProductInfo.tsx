@@ -191,7 +191,7 @@ export default function ProductInfo({ product, selectedVariant, setSelectedVaria
             return;
         }
         if (!selectedVariant && product.types && product.types.length > 0) {
-            setHintType("motif");
+            setHintType("motif"); // keeping internal type as 'motif' for now to avoid refactoring much data, but let's change UI strings
             setShakeKey(prev => prev + 1);
             toast.error("Silakan pilih Motif terlebih dahulu", { id: "hint-motif" });
             const el = document.getElementById("motif-selection");
