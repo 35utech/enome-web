@@ -5,6 +5,7 @@ import { CheckCircle2, ChevronRight, ShoppingBag, Copy, ShieldCheck, Clock, Truc
 import { motion } from "framer-motion";
 import { ASSET_URL } from "@/config/config";
 import { toast } from "sonner";
+import { cn, handleWhatsAppConfirm } from "@/lib/utils";
 import FallbackImage from "@/components/store/shared/FallbackImage";
 
 interface SuccessStateProps {
@@ -62,13 +63,7 @@ export default function SuccessState({ orderResult, lastOrderedItems, formatPric
         setTimeout(() => setIsCopied({ ...isCopied, [id]: false }), 2000);
     };
 
-    const handleWhatsAppConfirm = () => {
-        const message = `Halo Admin Enome,\n\nSaya ingin konfirmasi pembayaran untuk pesanan:\n\nOrder ID: ${orderResult.orderId}\nTotal Tagihan: ${formatPrice(orderResult.total)}\nMetode Pembayaran: ${orderResult.paymentMethod || "Transfer"}\n\nBerikut bukti pembayarannya:`;
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappNumber = (orderResult as any).whatsappAdmin || "628997179308";
-        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-        window.open(whatsappUrl, "_blank");
-    };
+
 
     return (
         <div className="max-w-5xl mx-auto py-6 md:py-16 px-4 md:px-8">
@@ -214,7 +209,12 @@ export default function SuccessState({ orderResult, lastOrderedItems, formatPric
                         {/* Action Buttons */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <button
-                                onClick={handleWhatsAppConfirm}
+                                onClick={() => handleWhatsAppConfirm(
+                                    orderResult.orderId,
+                                    orderResult.total,
+                                    orderResult.paymentMethod || "Transfer",
+                                    (orderResult as any).whatsappAdmin
+                                )}
                                 className="flex-1 md:flex-[1.5] py-5 md:py-6 rounded-2xl bg-neutral-base-900 flex items-center justify-center gap-2.5 text-[13px] md:text-[14px] font-black uppercase tracking-[0.12em] text-white hover:bg-neutral-base-800 transition-all shadow-xl shadow-neutral-base-900/10 active:scale-[0.98]"
                             >
                                 Konfirmasi Pembayaran

@@ -12,3 +12,10 @@ export function formatCurrency(amount: number) {
     minimumFractionDigits: 0,
   }).format(amount);
 }
+
+export function handleWhatsAppConfirm(orderId: string, totalAmount: number, paymentMethod: string, whatsappNumber: string = "628997179308") {
+  const message = `Halo Admin Enome,\n\nSaya ingin konfirmasi pembayaran untuk pesanan:\n\nOrder ID: ${orderId}\nTotal Tagihan: ${formatCurrency(totalAmount)}\nMetode Pembayaran: ${paymentMethod}\n\nBerikut bukti pembayarannya:`;
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+  window.open(whatsappUrl, "_blank");
+}

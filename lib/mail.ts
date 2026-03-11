@@ -147,36 +147,74 @@ export async function sendNewOrderAdminNotification(adminEmail: string, orderDat
 
         const itemsList = items.map((item: any) => `
             <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.namaProduk} (${item.size}/${item.warna})</td>
-                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.qty}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Rp ${Math.round(item.harga).toLocaleString('id-ID')}</td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #f2f2f2; font-size: 14px; color: #404040;">
+                    <div style="font-weight: 600; color: #171717; margin-bottom: 2px;">${item.namaProduk}</div>
+                    <div style="font-size: 12px; color: #737373;">${item.size} / ${item.warna}</div>
+                </td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #f2f2f2; text-align: center; font-size: 14px; color: #171717; font-weight: 500;">
+                    ${item.qty}
+                </td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #f2f2f2; text-align: right; font-size: 14px; color: #171717; font-weight: 600;">
+                    Rp ${Math.round(item.harga).toLocaleString('id-ID')}
+                </td>
             </tr>
         `).join('');
 
         const orderDetailsHtml = `
-            <div style="text-align: left; background-color: #f9f9f9; padding: 20px; border-radius: 12px; margin-top: 20px;">
-                <p><strong>Order ID:</strong> ${orderId}</p>
-                <p><strong>Customer:</strong> ${customerName}</p>
-                <p><strong>Total Tagihan:</strong> Rp ${Math.round(totalTagihan).toLocaleString('id-ID')}</p>
-                <p><strong>Alamat Pengiriman:</strong> ${shippingAddress}</p>
-                
-                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                    <thead>
-                        <tr style="background-color: #eee;">
-                            <th style="padding: 10px; text-align: left;">Produk</th>
-                            <th style="padding: 10px; text-align: center;">Qty</th>
-                            <th style="padding: 10px; text-align: right;">Harga</th>
+            <div style="text-align: left; background-color: #ffffff; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; margin: 25px 0;">
+                <div style="background-color: #171717; padding: 15px 20px;">
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td><span style="color: #ffffff; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">RINGKASAN PESANAN</span></td>
+                            <td align="right"><span style="background-color: #F59E0B; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;">Menunggu Pembayaran</span></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsList}
-                    </tbody>
-                </table>
+                    </table>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 20px; border-bottom: 1px solid #f5f5f5; padding-bottom: 20px;">
+                        <tr>
+                            <td width="50%" valign="top">
+                                <p style="margin: 0 0 5px 0; font-size: 11px; color: #a3a3a3; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Order ID</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 700; color: #171717;">#${orderId}</p>
+                            </td>
+                            <td width="50%" valign="top">
+                                <p style="margin: 0 0 5px 0; font-size: 11px; color: #a3a3a3; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Pelanggan</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 700; color: #171717;">${customerName}</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-bottom: 25px;">
+                        <p style="margin: 0 0 8px 0; font-size: 11px; color: #a3a3a3; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Alamat Pengiriman</p>
+                        <p style="margin: 0; font-size: 13px; color: #525252; line-height: 1.6;">${shippingAddress}</p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #171717;">
+                                <th style="padding: 10px 10px 8px 10px; text-align: left; font-size: 11px; color: #737373; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Produk</th>
+                                <th style="padding: 10px 10px 8px 10px; text-align: center; font-size: 11px; color: #737373; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Qty</th>
+                                <th style="padding: 10px 10px 8px 10px; text-align: right; font-size: 11px; color: #737373; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsList}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" style="padding: 20px 10px 10px 10px; text-align: left; font-size: 14px; font-weight: 700; color: #737373;">TOTAL TAGIHAN</td>
+                                <td style="padding: 20px 10px 10px 10px; text-align: right; font-size: 20px; font-weight: 800; color: #171717;">
+                                    Rp ${Math.round(totalTagihan).toLocaleString('id-ID')}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         `;
 
         // Fetch backend URL for the admin portal link
-        // The URL format is expected to be: {backend_url}/administrator/pesanan-online/status?id={orderId}
         const backendUrl = await ConfigService.get("backend_url", "http://enome.test");
         const adminDetailLink = `${backendUrl}/pesanan-online/status?id=${encodeURIComponent(orderId)}`;
 
@@ -186,10 +224,10 @@ export async function sendNewOrderAdminNotification(adminEmail: string, orderDat
             subject: `[PESANAN BARU] ${orderId} - ${customerName}`,
             html: getPremiumEmailTemplate(
                 "Pesanan Baru Diterima",
-                `Halo Admin, pesanan baru telah masuk dengan ID <strong>${orderId}</strong>. Berikut adalah rincian pesanan dari pelanggan <strong>${customerName}</strong>.`,
-                "Lihat Detail Pesanan",
+                `Halo Admin, pesanan baru telah masuk. Segera tinjau rincian di bawah ini dan siapkan proses pengiriman setelah pembayaran dikonfirmasi.`,
+                "Kelola di Dashboard",
                 adminDetailLink,
-                "Ini adalah notifikasi otomatis untuk admin. Silakan login ke dashboard untuk memproses pesanan."
+                "Ini adalah notifikasi otomatis sistem. Mohon tidak membalas email ini."
             ).replace('<p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #525252;">', `<p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #525252;">${orderDetailsHtml}`),
             attachments: [
                 {
@@ -205,6 +243,106 @@ export async function sendNewOrderAdminNotification(adminEmail: string, orderDat
         return { success: true, messageId: info.messageId };
     } catch (error: any) {
         logger.error("Error sending admin notification email: ", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function sendOrderConfirmationEmail(to: string, orderData: any) {
+    try {
+        const { orderId, customerName, totalTagihan, items, paymentInfo } = orderData;
+
+        const itemsList = items.map((item: any) => `
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.namaProduk}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.qty}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Rp ${Math.round(item.harga).toLocaleString('id-ID')}</td>
+            </tr>
+        `).join('');
+
+        let paymentInstructionsHtml = '';
+        if (paymentInfo) {
+            paymentInstructionsHtml = `
+                <div style="margin: 20px 0; padding: 25px; background-color: #171717; border-radius: 16px; color: #ffffff; text-align: left;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em;">Instruksi Pembayaran</h3>
+                    <p style="margin: 0 0 20px 0; font-size: 14px; color: #A3A3A3; line-height: 1.5;">Silakan lakukan transfer tepat sampai 3 digit terakhir untuk mempercepat verifikasi otomatis:</p>
+                    
+                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                        <p style="margin: 0 0 5px 0; font-size: 12px; color: #A3A3A3; text-transform: uppercase;">Total Pembayaran</p>
+                        <p style="margin: 0; font-size: 24px; font-weight: 700; color: #ffffff;">Rp ${Math.round(totalTagihan).toLocaleString('id-ID')}</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); pt: 15px; margin-top: 15px;">
+                        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding-bottom: 10px;">
+                                    <p style="margin: 0; font-size: 12px; color: #A3A3A3;">Bank</p>
+                                    <p style="margin: 2px 0 0 0; font-size: 15px; font-weight: 600;">${paymentInfo.bankName}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-bottom: 10px;">
+                                    <p style="margin: 0; font-size: 12px; color: #A3A3A3;">Nomor Rekening</p>
+                                    <p style="margin: 2px 0 0 0; font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: 1px;">${paymentInfo.bankAccount}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p style="margin: 0; font-size: 12px; color: #A3A3A3;">Atas Nama</p>
+                                    <p style="margin: 2px 0 0 0; font-size: 15px; font-weight: 600;">${paymentInfo.bankOwner}</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        const orderSummaryHtml = `
+            <div style="text-align: left; background-color: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <p style="margin-bottom: 10px;"><strong>Ringkasan Pesanan:</strong></p>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        ${itemsList}
+                        <tr>
+                            <td colspan="2" style="padding: 15px 10px 10px 10px; font-weight: bold;">Subtotal</td>
+                            <td style="padding: 15px 10px 10px 10px; font-weight: bold; text-align: right; color: #171717;">
+                                Rp ${Math.round(totalTagihan).toLocaleString('id-ID')}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            ${paymentInstructionsHtml}
+        `;
+
+        const frontendUrl = await ConfigService.get("main_url", "http://enome.test");
+        const orderDetailLink = `${frontendUrl}/account/orders/${encodeURIComponent(orderId)}`;
+
+        const mailOptions = {
+            from: process.env.SMTP_FROM || '"Énome" <noreply@enome.test>',
+            to,
+            subject: `Pesanan Énome Berhasil Dibuat - ${orderId}`,
+            html: getPremiumEmailTemplate(
+                "Terima Kasih Atas Pesanan Anda",
+                `Halo ${customerName}, pesanan Anda dengan ID <strong>${orderId}</strong> telah berhasil kami terima. Berikut adalah detail pembayaran untuk pesanan Anda.`,
+                "Lihat Detail Pesanan",
+                orderDetailLink,
+                "Terima kasih telah berbelanja di Énome. Pesanan Anda akan kami proses setelah pembayaran kami terima."
+            ).replace('<p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #525252;">', `<p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #525252;">${orderSummaryHtml}`),
+            attachments: [
+                {
+                    filename: 'logo-enome-white.png',
+                    path: path.join(process.cwd(), 'public', 'logo-enome-white.png'),
+                    cid: 'logo'
+                }
+            ]
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        logger.info("Customer order confirmation email sent: %s", info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error: any) {
+        logger.error("Error sending order confirmation email to customer: ", error);
         return { success: false, error: error.message };
     }
 }
