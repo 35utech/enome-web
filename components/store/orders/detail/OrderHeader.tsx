@@ -29,7 +29,7 @@ export default function OrderHeader({ orderId, tglOrder, statusTagihan }: OrderH
                     >
                         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-neutral-base-900" />
                     </Link>
-                    <h1 className="text-[24px] md:text-[36px] font-black text-neutral-base-900 tracking-tighter">
+                    <h1 className="text-[24px] md:text-[36px] font-semibold text-neutral-base-900 tracking-tighter">
                         Detail Pesanan
                     </h1>
                     {statusTagihan === 'KADALUARSA' && (

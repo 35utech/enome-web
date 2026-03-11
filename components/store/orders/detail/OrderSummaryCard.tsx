@@ -3,7 +3,7 @@
 import React from "react";
 import { Tag, CreditCard, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, handleWhatsAppConfirm } from "@/lib/utils";
 
 interface OrderSummaryCardProps {
     orderId: string;
@@ -36,12 +36,7 @@ export default function OrderSummaryCard({
     whatsappAdmin = "628997179308",
 }: OrderSummaryCardProps) {
 
-    const handleWhatsAppConfirm = () => {
-        const message = `Halo Admin Enome,\n\nSaya ingin konfirmasi pembayaran untuk pesanan:\n\nOrder ID: ${orderId}\nTotal Tagihan: ${formatCurrency(totalTagihan)}\nMetode Pembayaran: ${metodebayar}\n\nBerikut bukti pembayarannya:`;
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${whatsappAdmin}?text=${encodedMessage}`;
-        window.open(whatsappUrl, "_blank");
-    };
+
 
     return (
         <div className="bg-white border border-neutral-base-100 rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-xl shadow-neutral-base-900/5 xl:sticky xl:top-24">
@@ -126,7 +121,7 @@ export default function OrderSummaryCard({
 
                 {statusTagihan === "BELUM BAYAR" && (
                     <Button
-                        onClick={handleWhatsAppConfirm}
+                        onClick={() => handleWhatsAppConfirm(orderId, totalTagihan, metodebayar, whatsappAdmin)}
                         className="w-full h-12 md:h-14 bg-neutral-base-900 text-white rounded-2xl text-[11px] md:text-[12px] font-black uppercase tracking-widest hover:bg-neutral-base-800 transition-all shadow-xl shadow-neutral-base-900/10 active:scale-95 gap-3"
                     >
                         Konfirmasi Pembayaran
