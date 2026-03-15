@@ -240,8 +240,14 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ error: "Akun Anda telah dihapus" }, { status: 401 });
             }
 
-            // Google users are automatically trusted/activated
-            // No need to check for isDeleted === 2
+            // 2. Check for Role 3 restriction
+            if (currentUser.role === 3) {
+                logger.warn("Auth Warning: Access denied (Role 3) via Google", { email: trimmedEmail, userId: currentUser.id });
+                if (isRedirect) {
+                    return NextResponse.redirect(new URL("/login?error=role_denied", process.env.NEXT_PUBLIC_URL!));
+                }
+                return NextResponse.json({ error: "Anda tidak memiliki akses" }, { status: 401 });
+            }
         }
 
         // Register login activity
@@ -255,6 +261,12 @@ export async function POST(request: NextRequest) {
             id: currentUser.id,
             email: currentUser.email,
             name: currentUser.nama,
+        });
+
+        // Log to activity table
+        after(async () => {
+            const { ActivityService } = await import("@/lib/services/activity-service");
+            await ActivityService.log("Login Google", `User ${currentUser.nama} login via Google`, currentUser.id);
         });
 
         logger.info("Auth Success: Google login successful", { email: trimmedEmail, userId: currentUser.id });

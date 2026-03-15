@@ -124,14 +124,14 @@ export default function OrderSummaryCard({
                     </div>
                 )}
 
-                {uniqueCodeValue > 0 && (
+                {/* {uniqueCodeValue > 0 && (
                     <div className="flex items-center justify-between text-[13px]">
                         <span className="text-amber-600 font-medium">Kode Unik</span>
                         <span className="text-amber-600 font-medium">
                             +{formatCurrency(uniqueCodeValue)}
                         </span>
                     </div>
-                )}
+                )} */}
             </div>
 
             <div className="py-6 md:py-8 flex flex-col sm:flex-row sm:items-center justify-between gap-2">

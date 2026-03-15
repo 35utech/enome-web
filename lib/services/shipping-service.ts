@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { companyProfile, cargo } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import logger from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { ConfigService } from "@/lib/services/config-service";
@@ -37,14 +37,22 @@ export class ShippingService {
 
         const origin = company?.kecamatan || CONFIG.DEFAULT_ORIGIN_CITY;
 
+        // Fetch couriers that are active (1) and automated/non-manual (0)
         const activeCouriers = await db.select()
             .from(cargo)
-            .where(eq(cargo.isAktif, 1));
+            .where(and(eq(cargo.isAktif, 1), eq(cargo.isManual, 0)));
 
         const courierCodes = activeCouriers
             .map(c => c.code?.toLowerCase())
-            .filter(code => code && !["jtr", "cod", "instantkurir", "pickup", "cashless", "gratis"].includes(code))
-            .join(':') || 'jne:sicepat:jnt';
+            .filter(code => !!code)
+            .join(':');
+
+        if (!courierCodes) {
+            logger.warn("ShippingService: No active automated couriers found");
+            return [];
+        }
+
+        logger.info("ShippingService: Fetching shipping costs for all couriers", { origin, destination, weight, courierCodes });
 
         const cacheKey = `all-${origin}-${destination}-${weight}-${courierCodes}`;
         const now = Date.now();
@@ -77,9 +85,17 @@ export class ShippingService {
     }) {
         const { destination, weight, courier, service, claimedPrice } = params;
 
-        // Skip validation for internal/special couriers
-        if (["jtr", "cod", "instantkurir", "pickup", "cashless", "gratis"].includes(courier.toLowerCase())) {
-            return { valid: true, actualPrice: 0 };
+        // Check if the courier is manual (isManual: 1)
+        const courierData = await db.select()
+            .from(cargo)
+            .where(eq(cargo.code, courier))
+            .limit(1);
+
+        const isManual = courierData.length > 0 && courierData[0].isManual === 1;
+
+        // Skip RajaOngkir validation for manual couriers
+        if (isManual) {
+            return { valid: true, actualPrice: claimedPrice };
         }
 
         const apiKey = await ConfigService.get(CONFIG.RAJAONGKIR_KEY_VAR);

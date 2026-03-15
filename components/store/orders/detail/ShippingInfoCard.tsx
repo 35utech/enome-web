@@ -42,15 +42,15 @@ export default function ShippingInfoCard({
     const showTrackingButton = isTrackable && statusOrder === "KIRIM";
 
     return (
-        <div className="bg-white border border-neutral-base-100 rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm overflow-hidden">
-            <div className="flex items-center gap-4 mb-10">
+        <div className="bg-white border border-neutral-base-100 rounded-[32px] md:rounded-[40px] p-5 md:p-6 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-4 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-neutral-base-900 flex items-center justify-center shadow-lg shadow-neutral-base-900/10">
                     <Truck className="w-5 h-5 text-white" />
                 </div>
                 <h2 className="text-[18px] font-bold text-neutral-base-900 uppercase tracking-tight">Informasi Pengiriman</h2>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-5">
                 {/* 1. Penerima */}
                 <div className="flex items-start gap-5">
                     <div className="w-10 h-10 rounded-xl bg-neutral-base-50 flex items-center justify-center shrink-0">
@@ -133,7 +133,7 @@ export default function ShippingInfoCard({
                         </div>
 
                         {showTrackingButton && (
-                            <div className="mt-8">
+                            <div className="mt-4">
                                 <button
                                     onClick={() => setIsTrackingOpen(true)}
                                     className="w-full md:w-auto px-10 h-14 bg-neutral-base-900 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-neutral-base-800 transition-all shadow-xl shadow-neutral-base-900/10 active:scale-[0.98]"

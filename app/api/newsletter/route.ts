@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { newsLatter } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
+import { ActivityService } from "@/lib/services/activity-service";
+import { getSession } from "@/lib/auth-utils";
 
 export async function POST(req: NextRequest) {
     try {
@@ -39,6 +41,9 @@ export async function POST(req: NextRequest) {
         await db.insert(newsLatter).values({
             email,
         });
+
+        const session = await getSession();
+        await ActivityService.log("Newsletter Subscribe", `Email ${email} subscribed to newsletter`, session?.user?.id);
 
         return NextResponse.json(
             { message: "Selamat bergabung! Anda akan segera menerima info eksklusif dan penawaran spesial dari ÉNOMÉ langsung di inbox Anda." },
