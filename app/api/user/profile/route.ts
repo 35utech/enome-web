@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { db } from "@/lib/db";
 import { user, customer, customerKategori, customerAlamat } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { withAuth } from "@/lib/auth-utils";
 import logger, { apiLogger } from "@/lib/logger";
+import { ActivityService } from "@/lib/services/activity-service";
 import { promises as fs } from "fs";
 import { join } from "path";
 
@@ -111,6 +112,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 .where(eq(customerAlamat.custId, customerData[0].custId));
         }
 
+        let photoUpdated = false;
         // 3. Handle Photo Upload (Matching PHP Logic)
         if (photo && photo.size > 0) {
             const ext = photo.name.split('.').pop() || "jpg";
@@ -140,8 +142,14 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 })
                 .where(eq(user.id, userId));
 
+            photoUpdated = true;
             logger.info("Profile Photo: Updated successfully", { userId, fileName });
         }
+
+        if (photoUpdated) {
+            await ActivityService.log("Update Profile Photo", `User updated profile picture`, userId);
+        }
+        await ActivityService.log("Update Profile", `User updated profile data (nama, gender, brithdate)`, userId);
 
         logger.info("Profile Update: Success", { userId });
         return NextResponse.json({ success: true, message: "Profil berhasil diperbarui" });

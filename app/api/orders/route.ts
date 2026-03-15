@@ -10,6 +10,7 @@ import { ShippingService } from "@/lib/services/shipping-service";
 import { db } from "@/lib/db";
 import { rekeningPembayaran } from "@/lib/db/schema";
 import { eq, like, or } from "drizzle-orm";
+import { ActivityService } from "@/lib/services/activity-service";
 
 /**
  * Membuat order baru dari isi keranjang.
@@ -57,7 +58,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
         }
 
         // Recalculate totalAmount (subtotal) on server to prevent client-side manipulation / expired price usage
-        const serverTotalAmount = cartItems.reduce((acc, item) => acc + (Number(item.harga || 0) * Number(item.qty || 0)), 0);
+        const serverTotalAmount = Math.round(cartItems.reduce((acc, item) => acc + (Number(item.harga || 0) * Number(item.qty || 0)), 0));
 
         // 2. Verify Stock
         const stockResult = await OrderService.verifyStock(cartItems);
@@ -95,28 +96,31 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
         // Try biaya_packing first, then packing_fee as fallback
         let packingFee = await ConfigService.getInt("biaya_packing", -1);
         if (packingFee === -1) {
-            packingFee = await ConfigService.getInt("biaya_packing", CONFIG.PACKING_FEE);
+            packingFee = await ConfigService.getInt("biaya_packing", 0);
         }
-        const discountAmount = voucherDiscount || 0;
-        let totalTagihan = serverTotalAmount + shippingCost + packingFee - discountAmount;
 
-        // 5. Generate Unique Code for BCA Transfer
-        //    targetCode = 3 digit terakhir total (displayed to user)
-        //    adjustment = amount added to base to achieve those 3 digits
+        const discountAmount = voucherDiscount || 0;
+        let baseTagihan = serverTotalAmount + shippingCost + packingFee - discountAmount;
+
         const isTransferPayment = payment.toUpperCase().includes("BCA") ||
             payment.toUpperCase().includes("MANUAL") ||
             payment.toUpperCase().includes("TRANSFER") ||
             payment === "SPLIT";
+
         let uniqueCode = 0;
-        let uniqueAdjustment = 0;
+        let totalTagihan = baseTagihan;
 
         if (isTransferPayment) {
-            const result = await OrderService.generateUniqueCode(totalTagihan);
-            uniqueCode = result.targetCode;       // 3 digit terakhir (100-999)
-            uniqueAdjustment = result.adjustment;  // actual charge (100-999)
+            const result = await OrderService.generateUniqueCode(baseTagihan);
+            totalTagihan = baseTagihan + result.adjustment;
+            uniqueCode = result.targetCode;
         }
 
-        totalTagihan += uniqueAdjustment;
+        logger.info("Order total calculation details:", {
+            base: baseTagihan,
+            uniqueCode: uniqueCode,
+            final: totalTagihan
+        });
 
         const finalWalletAmount = Math.min(walletAmount || 0, totalTagihan);
         const finalBankAmount = totalTagihan - finalWalletAmount;
@@ -140,7 +144,14 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
             catatan: finalKeterangan,
             resi: resi || (isSpecialCourier ? shipping.service : ""),
             costs: { totalWeight: stockResult.totalWeight, totalHpp: stockResult.totalHpp },
-            meta: { shippingCost, packingFee, discountAmount, totalTagihan, finalWalletAmount, finalBankAmount },
+            meta: {
+                shippingCost,
+                packingFee,
+                discountAmount,
+                totalTagihan,
+                finalWalletAmount,
+                finalBankAmount
+            },
             service: serviceName
         };
 
@@ -179,8 +190,13 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
 
         // Attach breakdown details for success page
         result.meta = orderData.meta;
-        result.subtotal = totalAmount;
+        result.subtotal = serverTotalAmount;
+        result.shippingPrice = shippingCost;
+        result.packingFee = packingFee;
+        result.voucherDiscount = discountAmount;
         result.whatsappAdmin = await ConfigService.get("whatsapp_nomor", "628997279308");
+
+        await ActivityService.log("Place Order", `User ${session.user.name} created order ${orderId} with total ${totalTagihan}`, userId);
 
         console.log("API POST /api/orders response:", result);
         return NextResponse.json(result);

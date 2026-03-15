@@ -69,7 +69,7 @@ async function ContactInformasi() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                         {/* WhatsApp Card */}
                         <a
                             href={waLink}
@@ -88,23 +88,20 @@ async function ContactInformasi() {
                         </a>
 
                         {/* Email Card */}
-                        <div className="group bg-white p-10 rounded-[40px] border border-neutral-base-100 shadow-xl shadow-neutral-base-900/5 hover:border-neutral-base-900 transition-all duration-500 flex flex-col items-center text-center">
+                        <a
+                            href={`mailto:${email}`}
+                            className="group bg-white p-10 rounded-[40px] border border-neutral-base-100 shadow-xl shadow-neutral-base-900/5 hover:border-neutral-base-900 transition-all duration-500 flex flex-col items-center text-center"
+                        >
                             <div className="size-16 rounded-3xl bg-blue-50 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-blue-600 transition-all duration-500">
                                 <Mail className="size-8 text-blue-600 group-hover:text-white transition-colors" />
                             </div>
                             <h3 className="font-heading text-xl font-bold text-neutral-base-900 mb-2">Email</h3>
-                            <p className="text-neutral-base-900 font-black tracking-tight break-all mb-4">{email}</p>
-                            <p className="text-neutral-base-500 font-medium text-sm">Respon umum dalam 24 jam kerja</p>
-                        </div>
-
-                        {/* Office Card */}
-                        <div className="group bg-white p-10 rounded-[40px] border border-neutral-base-100 shadow-xl shadow-neutral-base-900/5 hover:border-neutral-base-900 transition-all duration-500 flex flex-col items-center text-center">
-                            <div className="size-16 rounded-3xl bg-orange-50 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-orange-600 transition-all duration-500">
-                                <MapPin className="size-8 text-orange-600 group-hover:text-white transition-colors" />
+                            <p className="text-neutral-base-500 font-medium mb-4 text-sm">Hubungi kami melalui email</p>
+                            <p className="text-neutral-base-900 font-black tracking-tight break-all mb-6">{email}</p>
+                            <div className="mt-auto flex items-center gap-2 text-[12px] font-black tracking-widest uppercase text-neutral-base-900">
+                                Kirim Email <ExternalLink className="size-3" />
                             </div>
-                            <h3 className="font-heading text-xl font-bold text-neutral-base-900 mb-2">Alamat</h3>
-                            <p className="text-neutral-base-500 text-sm leading-relaxed font-medium">{address}</p>
-                        </div>
+                        </a>
                     </div>
 
                     {/* Operational Hours Section */}

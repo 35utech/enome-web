@@ -10,7 +10,8 @@ export function formatCurrency(amount: number) {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
-  }).format(amount);
+    maximumFractionDigits: 0,
+  }).format(Math.round(amount));
 }
 
 export function handleWhatsAppConfirm(orderId: string, totalAmount: number, paymentMethod: string, whatsappNumber: string) {

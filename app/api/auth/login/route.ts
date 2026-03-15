@@ -117,6 +117,10 @@ export async function POST(request: NextRequest) {
                 name: currentUser.nama,
             });
 
+            // Log to activity table
+            const { ActivityService } = await import("@/lib/services/activity-service");
+            await ActivityService.log("Login Form", `User ${currentUser.nama} login via Form`, currentUser.id);
+
             logger.info("Auth Success: Login successful", { username, userId: currentUser.id });
             return NextResponse.json({ msg: "success", pesan: "success", url: "Back" });
         }

@@ -153,6 +153,14 @@ export const activityLogin = mysqlTable("activity_login", {
     device: varchar("device", { length: 10 }).notNull(),
 });
 
+export const activity = mysqlTable("activity", {
+    id: serial("id").primaryKey(),
+    activity: varchar("activity", { length: 200 }),
+    activityDescription: text("activity_description"),
+    createdBy: int("created_by"),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const customerKategori = mysqlTable("customer_kategori", {
     id: serial("id").primaryKey(),
     namaTipeCustomer: varchar("nama_tipe_customer", { length: 50 }),

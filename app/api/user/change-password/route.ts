@@ -6,6 +6,7 @@ import { withAuth } from "@/lib/auth-utils";
 import { execSync } from "child_process";
 import logger, { apiLogger } from "@/lib/logger";
 import * as z from "zod";
+import { ActivityService } from "@/lib/services/activity-service";
 
 const changePasswordSchema = z.object({
     newPassword: z.string().min(6, "Password minimal 6 karakter"),
@@ -67,6 +68,8 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 updatedAt: Math.floor(Date.now() / 1000)
             })
             .where(eq(user.id, userId));
+
+        await ActivityService.log("Change Password", `User changed their password`, userId);
 
         logger.info("Auth Success: Password changed successfully", { userId });
         return NextResponse.json({ success: true, message: "Password berhasil diubah" });

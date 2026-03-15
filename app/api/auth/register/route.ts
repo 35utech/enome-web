@@ -199,10 +199,9 @@ export async function POST(request: NextRequest) {
         // Kirim email aktivasi dalam background menggunakan after()
         const activationLink = `${process.env.NEXT_PUBLIC_URL}/verify-email?token=${verificationToken}`;
 
-        after(async () => {
-            logger.info("Background job: Sending activation email", { email: trimmedEmail });
-            await sendActivationEmail(trimmedEmail, activationLink);
-        });
+        // Log activity
+        const { ActivityService } = await import("@/lib/services/activity-service");
+        await ActivityService.log("Registration", `New user registered: ${name} (${trimmedEmail})`, undefined);
 
         logger.info("Auth Success: Simple registration completed, activation email queued in background", { email: trimmedEmail });
         return NextResponse.json({

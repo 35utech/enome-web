@@ -6,6 +6,7 @@ import { CartService } from "@/lib/services/cart-service";
 import { db } from "@/lib/db";
 import { keranjang, produkDetail, produk } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
+import { ActivityService } from "@/lib/services/activity-service";
 
 /**
  * Update item keranjang (qty / catatan).
@@ -105,6 +106,8 @@ export const PATCH = withAuth(async (
             return NextResponse.json({ message: result.error, desc: result.detail }, { status: 422 });
         }
 
+        await ActivityService.log("Update Cart", `Update item ${id} in cart: qty=${qty || 'same'}, notes=${notes || 'same'}`, Number(session.user.id));
+
         logger.info("Cart Update: Success", { id, qty, notes });
         return NextResponse.json({ message: "success" });
 
@@ -144,6 +147,8 @@ export const DELETE = withAuth(async (
 
         // Soft delete dengan mengubah flag isDeleted menjadi 1
         await CartService.deleteCartItem(id, session.user.id, getJakartaDate());
+
+        await ActivityService.log("Delete Cart", `Remove item ${id} from cart`, Number(session.user.id));
 
         logger.info("Cart Delete: Success", { id });
         return NextResponse.json({ message: "success" });

@@ -8,6 +8,7 @@ import path from "path";
 import logger, { apiLogger } from "@/lib/logger";
 import { CONFIG } from "@/lib/config";
 import { getJakartaDate, nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull } from "@/lib/date-utils";
+import { ActivityService } from "@/lib/services/activity-service";
 
 /**
  * Menambahkan produk ke keranjang belanja.
@@ -216,6 +217,13 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
         } catch (logErr: any) {
             logger.error("Cart Add: Legacy log write failure", { error: logErr.message });
         }
+
+        // NEW GLOBAL ACTIVITY LOGGING
+        await ActivityService.log(
+            "Add to Cart",
+            `${session.user.name} Menambahkan ${id_produk} - ${variant || "No Variant"} - ${color_sylla} - ${size_sylla} ke dalam keranjang`,
+            userId
+        );
 
         logger.info("Cart Add: Success", { userId, totalInCart: totalItems });
         return NextResponse.json({

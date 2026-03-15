@@ -65,8 +65,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
-      <body className={`${montserrat.variable} antialiased`}>
+    <html lang="id" className={`${montserrat.variable} ${montserrat.className}`}>
+      <body className="antialiased font-sans">
         <ReactQueryProvider>
           <TooltipProvider>
             <Suspense fallback={null}>

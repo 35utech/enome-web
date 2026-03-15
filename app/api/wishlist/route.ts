@@ -4,6 +4,7 @@ import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth, withOptionalAuth } from "@/lib/auth-utils";
 import logger, { apiLogger } from "@/lib/logger";
+import { ActivityService } from "@/lib/services/activity-service";
 
 /**
  * Mengambil daftar produk_id yang ada di wishlist user.
@@ -93,6 +94,8 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                     )
                 );
 
+            await ActivityService.log("Wishlist Remove", `User removed ${produkId} from wishlist`, custId);
+
             logger.info("Wishlist: Removed", { produkId, custId });
             return NextResponse.json({ action: "removed", produkId });
         } else {
@@ -107,6 +110,8 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 isDeleted: 0,
                 createdBy: custId,
             });
+
+            await ActivityService.log("Wishlist Add", `User added ${produkId} to wishlist`, custId);
 
             logger.info("Wishlist: Added", { produkId, custId });
             return NextResponse.json({ action: "added", produkId });

@@ -103,6 +103,7 @@ export function useCheckout() {
         courierName?: string,
         courierService?: string,
         expiredTime?: string | number | null,
+        roundingAmount?: number,
         whatsappAdmin?: string,
     } | null>(null);
     const [lastOrderedItems, setLastOrderedItems] = useState<any[]>([]);
@@ -131,7 +132,10 @@ export function useCheckout() {
             try {
                 const config = await checkoutApi.getConfig(["biaya_packing", "packing_fee", "whatsapp_nomor"]);
                 const pFee = config.biaya_packing || config.packing_fee;
-                if (pFee) setPackingFee(parseInt(pFee) || CONFIG.PACKING_FEE);
+                if (pFee) {
+                    const parsed = parseInt(pFee);
+                    setPackingFee(!isNaN(parsed) ? parsed : CONFIG.PACKING_FEE);
+                }
                 if (config.whatsapp_nomor) setWhatsappAdmin(config.whatsapp_nomor);
             } catch (err) {
                 console.error("Failed to fetch dynamic config:", err);
@@ -561,6 +565,7 @@ export function useCheckout() {
                     courierName: shippingForm.courierName || shippingForm.courier,
                     courierService: shippingForm.service,
                     expiredTime: data.expiredTime,
+                    roundingAmount: data.roundingAmount,
                     whatsappAdmin: data.whatsappAdmin || whatsappAdmin,
                 });
                 setLastOrderedItems([...cartItems]);
