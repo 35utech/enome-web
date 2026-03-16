@@ -110,6 +110,14 @@ export default function CartItem({
                                     {item.size}
                                 </span>
                             </div>
+
+                            {item.isPriceChanged && (
+                                <div className="mt-1 flex items-center gap-1.5 px-2 py-1 bg-amber-50 border border-amber-200/50 rounded-md w-fit">
+                                    <span className="text-[10px] md:text-[11px] font-medium text-amber-700">
+                                        ⚠️ Harga telah diperbarui
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 

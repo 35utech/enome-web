@@ -7,7 +7,7 @@ import {
 import { eq, and, sql, desc, like, or } from "drizzle-orm";
 import { CONFIG } from "@/lib/config";
 import logger from "@/lib/logger";
-import { nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull, getJakartaDate } from "@/lib/date-utils";
+import { nowJakartaYYMMDD, nowJakartaDate, nowJakartaFull, getJakartaDate, parseJakarta } from "@/lib/date-utils";
 import { ConfigService } from "./config-service";
 import { sendNewOrderAdminNotification, sendOrderConfirmationEmail } from "@/lib/mail";
 import pusher from "@/lib/pusher";
@@ -83,10 +83,12 @@ export class OrderService {
         let totalWeight = 0;
         let totalHpp = 0;
         const verifiedItems: any[] = [];
+        const issues: any[] = [];
 
         for (const item of cartItems) {
             const [result]: any = await db.select({
                 detail: produkDetail,
+                namaProduk: produk.namaProduk,
                 isOnline: produk.isOnline
             })
                 .from(produkDetail)
@@ -95,35 +97,62 @@ export class OrderService {
                     eq(produkDetail.produkId, item.produkId!),
                     eq(produkDetail.warnaId, item.warna!),
                     eq(produkDetail.size, item.size!),
-                    // Protect against matching the wrong stock variant
                     eq(produkDetail.variant, item.variant || "")
                 ))
                 .limit(1);
 
+            const productName = result?.namaProduk || item.namaProduk || item.produkId;
+            const variantInfo = [item.warna, item.size, item.variant].filter(Boolean).join(" / ");
+
             if (!result || !result.detail) {
-                return {
-                    success: false,
-                    error: `Mohon maaf, varian produk ${item.namaProduk || item.produkId} yang kamu pilih sepertinya sudah tidak tersedia.`
-                };
+                issues.push({
+                    produkId: item.produkId,
+                    namaProduk: productName,
+                    variant: variantInfo,
+                    type: "not_found",
+                    message: `Produk ${productName} (${variantInfo}) sudah tidak tersedia.`
+                });
+                continue;
             }
 
             if (result.isOnline === 0) {
-                return {
-                    success: false,
-                    error: `Mohon maaf, saat ini toko kami sedang tutup atau produk ${item.namaProduk || item.produkId} sedang tidak tersedia.`
-                };
+                issues.push({
+                    produkId: item.produkId,
+                    namaProduk: productName,
+                    variant: variantInfo,
+                    type: "offline",
+                    message: `Toko sedang tutup atau produk ${productName} tidak tersedia.`
+                });
+                continue;
             }
 
             const detail = result.detail;
-
-            // Use mapped field 'qty' or database field 'qtyProduk'
             const qty = item.qty || item.qtyProduk || 0;
+            const stokTersedia = detail.stokNormal || 0;
 
-            if ((detail.stokNormal || 0) < qty) {
-                return {
-                    success: false,
-                    error: "Mohon maaf, stok produk di keranjang Anda sudah tidak tersedia atau jumlahnya berubah."
-                };
+            if (stokTersedia < qty) {
+                if (stokTersedia <= 0) {
+                    issues.push({
+                        produkId: item.produkId,
+                        namaProduk: productName,
+                        variant: variantInfo,
+                        type: "sold_out",
+                        availableStock: 0,
+                        requestedQty: qty,
+                        message: `Produk ${productName} (${variantInfo}) sudah habis terjual.`
+                    });
+                } else {
+                    issues.push({
+                        produkId: item.produkId,
+                        namaProduk: productName,
+                        variant: variantInfo,
+                        type: "insufficient",
+                        availableStock: stokTersedia,
+                        requestedQty: qty,
+                        message: `Stok ${productName} (${variantInfo}) tidak cukup (Tersedia: ${stokTersedia}).`
+                    });
+                }
+                continue;
             }
 
             // Flash Sale validation
@@ -135,33 +164,29 @@ export class OrderService {
                     }).from(flashSale).where(eq(flashSale.id, Number(item.flashsaleId))).limit(1);
 
                     if (!fsData || fsData.isAktif !== 1) {
-                        return {
-                            success: false,
-                            error: `Mohon maaf, Flash Sale untuk produk ${item.namaProduk || item.produkId} sudah dihentikan. Silakan hapus dari keranjang.`
-                        };
+                        issues.push({
+                            produkId: item.produkId,
+                            namaProduk: productName,
+                            variant: variantInfo,
+                            type: "flashsale_ended",
+                            message: `Flash Sale ${productName} sudah berakhir.`
+                        });
+                        continue;
                     }
 
                     const dhms = nowJakartaFull();
-                    const now = new Date(dhms.replace(" ", "T") + ".000Z").getTime();
-                    const expiredDate = new Date(fsData.waktuSelesai || item.flashsaleExpired).getTime();
+                    const now = parseJakarta(dhms).getTime();
+                    const expiredDate = parseJakarta(fsData.waktuSelesai || item.flashsaleExpired).getTime();
 
                     if (now > expiredDate) {
-                        return {
-                            success: false,
-                            error: `Waktu Flash Sale untuk produk ${item.namaProduk || item.produkId} telah berakhir. Silakan hapus dari keranjang atau ulangi proses tambah.`
-                        };
-                    }
-                } else if (item.flashsaleExpired) {
-                    // Fallback for older cart items without flashsaleId
-                    const dhms = nowJakartaFull();
-                    const now = new Date(dhms.replace(" ", "T") + ".000Z").getTime();
-                    const expiredDate = new Date(item.flashsaleExpired).getTime();
-
-                    if (now > expiredDate) {
-                        return {
-                            success: false,
-                            error: `Waktu Flash Sale untuk produk ${item.namaProduk || item.produkId} telah berakhir. Silakan hapus dari keranjang atau ulangi proses tambah.`
-                        };
+                        issues.push({
+                            produkId: item.produkId,
+                            namaProduk: productName,
+                            variant: variantInfo,
+                            type: "flashsale_expired",
+                            message: `Waktu Flash Sale ${productName} telah berakhir.`
+                        });
+                        continue;
                     }
                 }
             }
@@ -169,6 +194,14 @@ export class OrderService {
             totalWeight += (detail.berat || 0) * qty;
             totalHpp += (detail.hpp || 0) * qty;
             verifiedItems.push({ ...item, detail, qty });
+        }
+
+        if (issues.length > 0) {
+            return {
+                success: false,
+                issues,
+                error: issues[0].message // Backward compatibility for simple error display
+            };
         }
 
         return { success: true, verifiedItems, totalWeight, totalHpp };
@@ -425,7 +458,8 @@ export class OrderService {
                 } else {
                     now.setDate(now.getDate() + 1); // Fallback 1 day
                 }
-                expiredTimeValue = now.toISOString();
+                const { formatJakarta } = await import("@/lib/date-utils");
+                expiredTimeValue = formatJakarta(now, 'full').replace(' ', 'T') + '+07:00';
             }
 
             const paymentValues: any = {

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Calendar, Copy, Check } from "lucide-react";
+import FormattedDate from "@/components/store/shared/FormattedDate";
 
 interface OrderHeaderProps {
     orderId: string;
@@ -22,23 +23,25 @@ export default function OrderHeader({ orderId, tglOrder, statusTagihan }: OrderH
     return (
         <div className="flex flex-col gap-6 mb-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3 md:gap-4">
+                <div className="flex items-center gap-3 md:gap-4 flex-wrap">
                     <Link
                         href="/account/orders"
                         className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white border border-neutral-base-100 flex items-center justify-center hover:bg-neutral-base-50 transition-all shrink-0"
                     >
                         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-neutral-base-900" />
                     </Link>
-                    <h1 className="text-[24px] md:text-[36px] font-semibold text-neutral-base-900 tracking-tighter">
-                        Detail Pesanan
-                    </h1>
-                    {statusTagihan === 'KADALUARSA' && (
-                        <div className="px-3 py-1 bg-rose-50 border border-rose-100 rounded-full h-fit mt-1 sm:mt-2">
-                            <span className="text-[10px] md:text-[11px] font-black text-rose-600 uppercase tracking-wider">
-                                Kadaluarsa
-                            </span>
-                        </div>
-                    )}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 md:gap-6">
+                        <h1 className="text-[20px] sm:text-[24px] md:text-[36px] font-semibold text-neutral-base-900 tracking-tighter">
+                            Detail Pesanan
+                        </h1>
+                        {statusTagihan === 'KADALUARSA' && (
+                            <div className="px-3 py-1 bg-rose-50 border border-rose-100 rounded-full w-fit">
+                                <span className="text-[10px] md:text-[11px] font-black text-rose-600 uppercase tracking-wider">
+                                    Kadaluarsa
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -47,24 +50,23 @@ export default function OrderHeader({ orderId, tglOrder, statusTagihan }: OrderH
                 <div className="flex items-center gap-3 text-neutral-base-400">
                     <Calendar className="w-4 h-4 opacity-50" />
                     <span className="text-[13px] md:text-[14px] font-bold text-neutral-base-500">
-                        {new Date(tglOrder).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                        })}
+                        <FormattedDate
+                            date={tglOrder}
+                            options={{ day: "numeric", month: "long", year: "numeric" }}
+                        />
                     </span>
                 </div>
 
                 {/* Order ID Pill */}
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 pl-0 sm:pl-6 border-l-0 sm:border-l border-neutral-base-100">
-                    <span className="text-[11px] font-bold text-neutral-base-400 tracking-wider">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:pl-6 sm:border-l border-neutral-base-100">
+                    <span className="text-[12px] sm:text-[11px] font-bold text-neutral-base-400 tracking-wider">
                         ID Pesanan
                     </span>
                     <div
                         onClick={() => handleCopy(orderId)}
                         className="flex items-center gap-2.5 px-3 py-1.5 bg-neutral-base-50 border border-neutral-base-100 rounded-xl group transition-all hover:bg-white hover:border-neutral-base-900 hover:shadow-md active:scale-95 cursor-pointer"
                     >
-                        <span className="text-[11px] md:text-[12px] font-black text-neutral-base-900 tracking-wider font-mono">
+                        <span className="text-[12px] md:text-[13px] font-black text-neutral-base-900 tracking-wider font-mono">
                             {orderId}
                         </span>
                         <div className="w-px h-3 bg-neutral-base-200" />

@@ -72,8 +72,8 @@ export default function OrderItem({
         <div
             key={item.id}
             className={cn(
-                "flex items-start gap-3 md:gap-5 group relative transition-all duration-500 rounded-[24px] md:rounded-[30px]",
-                isCheckout ? "p-3 md:p-4" : "p-4 md:p-6 bg-white border border-neutral-base-100 hover:border-neutral-base-900 shadow-sm hover:shadow-xl hover:shadow-neutral-base-900/5",
+                "flex items-start gap-3 md:gap-5 group relative transition-all duration-500 rounded-[20px] md:rounded-[30px]",
+                isCheckout ? "p-3 md:p-4" : "p-3.5 md:p-6 bg-white border border-neutral-base-100 hover:border-neutral-base-900 shadow-sm hover:shadow-xl hover:shadow-neutral-base-900/5",
                 (isOffline || isStockInsufficient) && "border-red-100 bg-red-50/10 ring-1 ring-red-100/50"
             )}
         >
@@ -88,12 +88,12 @@ export default function OrderItem({
                     )}
                 >
                     <div className={cn(
-                        "w-5 h-5 md:w-6 md:h-6 rounded border flex items-center justify-center transition-colors",
+                        "w-4.5 h-4.5 md:w-6 md:h-6 rounded border flex items-center justify-center transition-colors",
                         isSelected
                             ? "bg-amber-800 border-amber-800 text-white"
                             : "bg-white border-neutral-base-200 text-transparent"
                     )}>
-                        <svg className="w-3.5 md:w-4 h-3.5 md:h-4 fill-none stroke-current stroke-3" viewBox="0 0 24 24">
+                        <svg className="w-3 md:w-4 h-3 md:h-4 fill-none stroke-current stroke-3" viewBox="0 0 24 24">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
                     </div>
@@ -102,8 +102,8 @@ export default function OrderItem({
 
             {/* 2. Product Image */}
             <div className={cn(
-                "bg-neutral-base-50 overflow-hidden relative shrink-0 border border-neutral-base-100 shadow-sm rounded-xl md:rounded-2xl transition-all",
-                isCheckout ? "w-16 h-20 md:w-20 md:h-24" : "w-18 h-18 md:w-32 md:h-32",
+                "bg-neutral-base-50 overflow-hidden relative shrink-0 border border-neutral-base-100 shadow-sm rounded-lg md:rounded-2xl transition-all",
+                isCheckout ? "w-14 h-18 md:w-20 md:h-24" : "w-16 h-16 md:w-32 md:h-32",
                 isOffline && "opacity-40 grayscale-[0.5]"
             )}>
                 <FallbackImage
@@ -111,10 +111,8 @@ export default function OrderItem({
                     alt={item.namaProduk}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 80px, 150px"
+                    sizes="(max-width: 768px) 64px, 150px"
                 />
-
-
             </div>
 
             {/* 3. Info Section */}
@@ -126,9 +124,9 @@ export default function OrderItem({
                 <div className="flex items-start justify-between gap-2 md:gap-3">
                     <div className="min-w-0 flex-1">
                         <h3 className={cn(
-                            "font-bold text-neutral-base-900 tracking-tight leading-snug wrap-break-word",
-                            isCheckout ? "text-[13px] md:text-[15px] line-clamp-1" : "text-[14px] md:text-[18px] line-clamp-2",
-                            isOffline && "line-through text-neutral-base-400"
+                            "font-bold text-neutral-base-900 tracking-tight leading-tight wrap-break-word",
+                            isCheckout ? "text-[12px] md:text-[15px] line-clamp-1" : "text-[13px] md:text-[18px] line-clamp-2",
+                            isOffline && "line-through text-neutral-base-400 font-medium"
                         )}>
                             {item.namaProduk}
                         </h3>
@@ -145,7 +143,7 @@ export default function OrderItem({
                                     "w-2 md:w-2.5 h-2 md:h-2.5",
                                     item.isFlashsaleExpired === 1 ? "fill-neutral-base-400" : "fill-red-600"
                                 )} />
-                                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest leading-none">
+                                <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest leading-none">
                                     {item.isFlashsaleExpired === 1 ? "Promo Berakhir" : "Flash Sale"}
                                 </span>
                             </div>
@@ -171,34 +169,34 @@ export default function OrderItem({
                 </div>
 
                 {/* MIDDLE ROW: Attributes & Status */}
-                <div className="flex flex-col gap-0.5 mt-0.5 md:mt-1">
-                    <p className="text-[10px] md:text-[13px] font-medium text-neutral-base-400 flex flex-wrap items-center gap-1.5">
+                <div className="flex flex-col gap-0.5 mt-1 md:mt-1.5">
+                    <p className="text-[11px] md:text-[13px] font-medium text-neutral-base-400 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                         {item.variant && (
                             <>
                                 <span className="truncate">Motif: <span className="text-neutral-base-900 font-bold">{item.variant}</span></span>
-                                <span className="w-px h-2.5 bg-neutral-base-100" />
+                                <span className="hidden md:inline w-px h-2.5 bg-neutral-base-100" />
                             </>
                         )}
                         <span className="truncate">Ukuran: <span className="text-neutral-base-900 font-bold">{item.size}</span></span>
-                        <span className="w-px h-2.5 bg-neutral-base-100" />
+                        <span className="hidden md:inline w-px h-2.5 bg-neutral-base-100" />
                         <span className="truncate">Warna: <span className="text-neutral-base-900 font-bold">{item.warnaName || item.warna}</span></span>
                     </p>
 
                     {/* Status Badges (Stock / Offline) */}
                     {(isOffline || isStockInsufficient) && (
-                        <div className="flex flex-wrap gap-1 items-center mt-1">
+                        <div className="flex flex-wrap gap-1 items-center mt-1.5">
                             {isOffline ? (
-                                <span className="px-1 py-0.5 bg-red-50 text-red-600 text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded border border-red-100">
+                                <span className="px-1.5 py-0.5 bg-red-50 text-red-600 text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded border border-red-100">
                                     {item.isOnline === 0 ? "Tidak Tersedia" : "Stok Habis"}
                                 </span>
                             ) : isStockInsufficient && (
-                                <div className="flex items-center gap-1">
-                                    <span className="px-1 py-0.5 bg-red-50 text-red-600 text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded border border-red-100">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="px-1.5 py-0.5 bg-red-50 text-red-600 text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded border border-red-100">
                                         Stok: {item.stock}
                                     </span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onUpdateQuantity(item.id, item.stock ?? 1, item.stock ?? 1); }}
-                                        className="text-[8px] md:text-[9px] font-black uppercase tracking-widest bg-white text-neutral-base-900 px-2 py-1 rounded border border-neutral-base-200 hover:bg-neutral-base-900 hover:text-white transition-all shadow-sm"
+                                        className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest bg-white text-neutral-base-900 px-2 py-1 rounded border border-neutral-base-200 hover:bg-neutral-base-900 hover:text-white transition-all shadow-sm"
                                     >
                                         Sesuaikan
                                     </button>
@@ -209,37 +207,37 @@ export default function OrderItem({
                 </div>
 
                 {/* BOTTOM ROW: Qty & Price */}
-                <div className="mt-auto pt-2 flex items-end justify-between">
+                <div className="mt-auto pt-3 flex items-end justify-between gap-2">
                     {/* Qty Controls */}
-                    <div className="flex items-center bg-white border border-neutral-base-200 shadow-sm rounded-lg p-0.5 gap-1">
+                    <div className="flex items-center bg-white border border-neutral-base-200 shadow-sm rounded-xl p-0.5 gap-1 shrink-0">
                         <button
                             onClick={(e) => { e.stopPropagation(); onUpdateQuantity(item.id, Number(item.qty) - 1, item.stock ?? 99); }}
                             disabled={Number(item.qty) <= 1 || isOffline}
-                            className="w-5.5 h-5.5 md:w-8 md:h-8 flex items-center justify-center hover:bg-neutral-base-50 rounded-md transition-all disabled:opacity-30 active:scale-90"
+                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-neutral-base-50 rounded-lg transition-all disabled:opacity-30 active:scale-90"
                         >
-                            <Minus className="w-2.5 h-2.5 md:w-4 md:h-4 text-neutral-base-600" />
+                            <Minus className="w-3 h-3 md:w-4 md:h-4 text-neutral-base-600" />
                         </button>
                         <input
                             type="number"
                             value={item.qty}
                             readOnly
-                            className="w-5 md:w-8 bg-transparent text-center font-black text-neutral-base-900 tabular-nums text-[11px] md:text-[14px] outline-none"
+                            className="w-6 md:w-8 bg-transparent text-center font-bold text-neutral-base-900 tabular-nums text-[12px] md:text-[14px] outline-none"
                         />
                         <button
                             onClick={(e) => { e.stopPropagation(); onUpdateQuantity(item.id, Number(item.qty) + 1, item.stock ?? 99); }}
                             disabled={Number(item.qty) >= (item.stock || 99) || isOffline}
-                            className="w-5.5 h-5.5 md:w-8 md:h-8 flex items-center justify-center hover:bg-neutral-base-50 rounded-md transition-all disabled:opacity-30 active:scale-90"
+                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-neutral-base-50 rounded-lg transition-all disabled:opacity-30 active:scale-90"
                         >
-                            <Plus className="w-2.5 h-2.5 md:w-4 md:h-4 text-neutral-base-600" />
+                            <Plus className="w-3 h-3 md:w-4 md:h-4 text-neutral-base-600" />
                         </button>
                     </div>
 
                     {/* Price */}
-                    <div className="flex flex-col items-end">
+                    <div className="flex flex-col items-end shrink-0">
                         <span className={cn(
-                            "font-medium text-neutral-base-900 tracking-tighter tabular-nums leading-none",
-                            isCheckout ? "text-[15px] md:text-[20px]" : "text-[16px] md:text-[24px]",
-                            isOffline && "text-neutral-base-300 line-through"
+                            "font-bold text-neutral-base-900 tracking-tighter tabular-nums leading-none",
+                            isCheckout ? "text-[16px] md:text-[20px]" : "text-[18px] md:text-[24px]",
+                            isOffline && "text-neutral-base-300 line-through font-medium"
                         )}>
                             {formatCurrency(Number(item.harga || 0) * Number(item.qty || 0))}
                         </span>
@@ -251,13 +249,13 @@ export default function OrderItem({
                     <motion.div
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 pt-4 border-t border-dashed border-neutral-base-100 flex flex-col gap-2"
+                        className="mt-3.5 pt-3.5 border-t border-dashed border-neutral-base-100 flex flex-col gap-2"
                     >
                         <div className="flex items-center gap-2 px-1">
                             <div className="shrink-0 p-1 bg-amber-50 rounded-md">
                                 <MessageSquare className="w-2.5 h-2.5 text-amber-600" />
                             </div>
-                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-neutral-base-400">
+                            <span className="text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-neutral-base-400">
                                 Catatan Item
                             </span>
                         </div>
@@ -267,8 +265,8 @@ export default function OrderItem({
                                 value={localNotes}
                                 onChange={(e) => setLocalNotes(e.target.value)}
                                 onBlur={handleNotesBlur}
-                                placeholder="Tambahkan catatan (ukuran, warna, dll)..."
-                                className="w-full bg-neutral-base-50/50 hover:bg-neutral-base-50 focus:bg-white border border-transparent focus:border-neutral-base-200 rounded-xl px-3 py-2 text-[11px] md:text-[13px] font-medium outline-none placeholder:text-neutral-base-200 transition-all"
+                                placeholder="Tambahkan catatan..."
+                                className="w-full bg-neutral-base-50/50 hover:bg-neutral-base-50 focus:bg-white border border-transparent focus:border-neutral-base-200 rounded-xl px-3 py-2.5 text-[11px] md:text-[13px] font-medium outline-none placeholder:text-neutral-base-200 transition-all"
                             />
                             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-amber-500 group-focus-within/note:w-full transition-all duration-300 rounded-full" />
                         </div>

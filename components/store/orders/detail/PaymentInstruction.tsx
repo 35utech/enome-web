@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { AlertCircle, Copy, Check, CreditCard } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import FormattedDate from "@/components/store/shared/FormattedDate";
 
 interface PaymentInstructionProps {
     statusTagihan: string;
@@ -43,16 +44,10 @@ export default function PaymentInstruction({
                     <p className="text-[14px] md:text-[16px] font-bold text-amber-900 leading-tight">Instruksi Pembayaran</p>
                 </div>
                 {expiredTime && (
-                    <div className="flex flex-col items-start sm:items-end pl-11 sm:pl-0">
-                        <p className="text-[9px] font-black text-amber-800/60 uppercase tracking-widest leading-none mb-1.5">Batas Waktu Pembayaran</p>
-                        <p className="text-[11px] font-bold text-amber-900 leading-none">
-                            {new Date(expiredTime).toLocaleString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            })}
+                    <div className="flex flex-col items-start sm:items-end pl-[52px] sm:pl-0">
+                        <p className="text-[10px] md:text-[11px] font-black text-amber-800/60 uppercase tracking-widest leading-none mb-2">Batas Waktu Pembayaran</p>
+                        <p className="text-[12px] font-bold text-amber-900 leading-none">
+                            <FormattedDate date={expiredTime} />
                         </p>
                     </div>
                 )}
@@ -60,7 +55,7 @@ export default function PaymentInstruction({
 
             <div className="space-y-5">
                 <div>
-                    <p className="text-[11px] font-black text-amber-800/60 uppercase tracking-widest mb-2">
+                    <p className="text-[12px] font-black text-amber-800/60 uppercase tracking-widest mb-3">
                         Transfer Ke Rekening {paymentInfo.namaBank}
                     </p>
                     <div className="flex items-center gap-3">
@@ -78,14 +73,14 @@ export default function PaymentInstruction({
                             )}
                         </button>
                     </div>
-                    <p className="text-[12px] font-bold text-neutral-base-500 mt-1">
+                    <p className="text-[13px] font-bold text-neutral-base-500 mt-1.5">
                         a.n {paymentInfo.namaPemilik}
                     </p>
                 </div>
 
                 {uniqueCodeValue > 0 && (
                     <div className="pt-5 border-t border-amber-200/50">
-                        <p className="text-[11px] font-black text-amber-800/60 uppercase tracking-widest mb-2">
+                        <p className="text-[12px] font-black text-amber-800/60 uppercase tracking-widest mb-3">
                             PENTING: Transfer Tepat Hingga 3 Digit Terakhir
                         </p>
                         <p className="text-[14px] font-medium text-rose-900/80 leading-relaxed">

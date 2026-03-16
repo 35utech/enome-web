@@ -9,7 +9,7 @@ import ProductInfo from "@/components/store/product/ProductInfo";
 import ProductCard from "@/components/store/product/ProductCard";
 import { useProduct } from "@/hooks/use-products";
 import { ASSET_URL } from "@/config/config";
-import { Loader2, ShoppingBag, Check, ChevronRight } from "lucide-react";
+import { Loader2, ShoppingBag, Check, ChevronRight, ShoppingCart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Breadcrumb from "@/components/store/shared/Breadcrumb";
 import Link from "next/link";
@@ -325,21 +325,12 @@ function ProductDetailContent({ productData }: { productData: any }) {
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={() => {
-                                            const el = document.getElementById("product-info-top");
-                                            el?.scrollIntoView({ behavior: "smooth" });
-                                        }}
-                                        className="text-[11px] font-bold uppercase tracking-widest text-neutral-base-500 hover:text-neutral-base-900 transition-colors"
-                                    >
-                                        Ubah Pilihan
-                                    </button>
-                                    <button
-                                        onClick={() => {
                                             const el = document.getElementById("add-to-cart-button");
                                             el?.click();
                                         }}
-                                        className="bg-neutral-base-900 text-white px-8 py-3 rounded-lg text-[12px] font-bold uppercase tracking-widest hover:bg-neutral-base-800 transition-all shadow-lg active:scale-95"
+                                        className="flex items-center gap-2 bg-neutral-base-900 text-white px-8 py-3 rounded-lg text-[12px] font-bold uppercase tracking-widest hover:bg-neutral-base-800 transition-all shadow-lg active:scale-95"
                                     >
-                                        Tambah ke Keranjang
+                                        <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4" /> Tambah ke Keranjang
                                     </button>
                                 </div>
                             </div>

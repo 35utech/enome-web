@@ -33,7 +33,8 @@ function CheckoutContent() {
         packingFee, grandTotal, remainingBill,
         handleSelectAddress, updateQuantity, removeItem, updateNotes, removeAllItems, applyVoucher, submitOrder,
         setShippingOptions, setVoucherData,
-        errors, setErrors
+        errors, setErrors,
+        refreshShipping
     } = useCheckout();
 
     const addressRef = useRef<HTMLDivElement>(null);
@@ -89,7 +90,7 @@ function CheckoutContent() {
                     </div>
 
                     {/* Modern Stepper */}
-                    <div className="flex items-center justify-between max-w-2xl mx-auto mb-2 md:mb-4 relative">
+                    <div className="flex items-center justify-between max-w-2xl mx-auto mb-1 md:mb-2 relative">
                         {[
                             { id: "cart", label: "Keranjang", icon: ShoppingBag, step: 1 },
                             { id: "address", label: "Pengiriman", icon: MapPin, step: 2 },
@@ -106,7 +107,7 @@ function CheckoutContent() {
                                         {isActive ? <Check className="w-4 h-4 md:w-6 md:h-6" /> : <s.icon className="w-4 h-4 md:w-6 md:h-6" />}
                                     </div>
                                     <span className={clsx(
-                                        "mt-1.5 md:mt-2 text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-colors duration-300",
+                                        "mt-1.5 md:mt-2 text-[9px] md:text-[11px] font-bold uppercase tracking-widest transition-colors duration-300",
                                         isActive ? "text-neutral-base-900" : "text-neutral-base-300"
                                     )}>
                                         {s.label}
@@ -127,7 +128,7 @@ function CheckoutContent() {
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto pt-4 md:pt-8 px-4">
+            <main className="max-w-7xl mx-auto pt-2 px-4">
                 <AnimatePresence mode="wait">
                     <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
                         {/* Main Checkout Form */}
@@ -148,55 +149,49 @@ function CheckoutContent() {
                                 />
                             </motion.div>
 
-                            {/* 2. Shipping Section Wrapper */}
+                            {/* 2. Address Section */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="flex flex-col gap-4 md:gap-6 bg-white/80 backdrop-blur-sm border border-neutral-base-100/50 p-4 md:p-8 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                                className="w-full"
+                                ref={addressRef}
+                                id="address-section"
                             >
-                                <div ref={addressRef} id="address-section">
-                                    <AddressSection
-                                        addresses={addresses}
-                                        shippingForm={shippingForm}
-                                        setShippingForm={setShippingForm}
-                                        isSelectionModalOpen={isSelectionModalOpen}
-                                        setIsSelectionModalOpen={setIsSelectionModalOpen}
-                                        isAddAddressModalOpen={isAddAddressModalOpen}
-                                        setIsAddAddressModalOpen={setIsAddAddressModalOpen}
-                                        handleSelectAddress={handleSelectAddress}
-                                        hasError={errors?.address}
-                                        onFieldChange={() => setErrors(prev => ({ ...prev, address: false }))}
-                                    />
-                                </div>
+                                <AddressSection
+                                    addresses={addresses}
+                                    shippingForm={shippingForm}
+                                    setShippingForm={setShippingForm}
+                                    isSelectionModalOpen={isSelectionModalOpen}
+                                    setIsSelectionModalOpen={setIsSelectionModalOpen}
+                                    isAddAddressModalOpen={isAddAddressModalOpen}
+                                    setIsAddAddressModalOpen={setIsAddAddressModalOpen}
+                                    handleSelectAddress={handleSelectAddress}
+                                    hasError={errors?.address}
+                                    onFieldChange={() => setErrors(prev => ({ ...prev, address: false }))}
+                                />
+                            </motion.div>
 
-                                <div className="h-px bg-neutral-base-50/50 my-1 md:my-2" />
-
-                                <div ref={shippingRef} id="shipping-section">
-                                    <CourierSection
-                                        shippingForm={shippingForm}
-                                        setShippingForm={setShippingForm}
-                                        shippingOptions={shippingOptions}
-                                        isLoadingShipping={isLoadingShipping}
-                                        totalWeight={totalWeight}
-                                        formatPrice={formatCurrency}
-                                        hasError={errors?.shipping}
-                                        onFieldChange={() => setErrors(prev => ({ ...prev, shipping: false }))}
-                                    />
-                                </div>
-
-                                <div className="h-px bg-neutral-base-50/50 my-1 md:my-2" />
-
-                                {/* TODO: uncomment if needed */}
-                                {/* <DropshipperSection
-                                    isDropshipper={isDropshipper}
-                                    setIsDropshipper={setIsDropshipper}
-                                    dropshipperForm={dropshipperForm}
-                                    setDropshipperForm={setDropshipperForm}
-                                /> */}
-
-                                <div className="h-px bg-neutral-base-50/50 my-1 md:my-2" />
-
+                            {/* 3. Courier Section */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.15 }}
+                                className="w-full"
+                                ref={shippingRef}
+                                id="shipping-section"
+                            >
+                                <CourierSection
+                                    shippingForm={shippingForm}
+                                    setShippingForm={setShippingForm}
+                                    shippingOptions={shippingOptions}
+                                    isLoadingShipping={isLoadingShipping}
+                                    totalWeight={totalWeight}
+                                    formatPrice={formatCurrency}
+                                    hasError={errors?.shipping}
+                                    onFieldChange={() => setErrors(prev => ({ ...prev, shipping: false }))}
+                                    onRefresh={refreshShipping}
+                                />
                             </motion.div>
 
                             {/* 4. Payment Method */}

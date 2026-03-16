@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { keranjang, produk, warna, produkDetail, variant as variantTable, customer, flashSale } from "@/lib/db/schema";
 import { eq, and, sql, or } from "drizzle-orm";
-import { nowJakartaFull } from "@/lib/date-utils";
+import { nowJakartaFull, parseJakarta } from "@/lib/date-utils";
 import { CONFIG } from "@/lib/config";
 
 export class CartService {
@@ -10,7 +10,7 @@ export class CartService {
      */
     static async getCartItems(userId: number | string, itemIds?: number[]) {
         const dhms = nowJakartaFull();
-        const now = new Date(dhms.replace(" ", "T") + ".000Z");
+        const now = parseJakarta(dhms);
 
         // 1. Get customer category for dynamic pricing
         const [customerData]: any = await db.select({ kategoriCustomerId: customer.kategoriCustomerId })
@@ -68,9 +68,20 @@ export class CartService {
             .leftJoin(warna, or(eq(keranjang.warna, warna.warnaId), eq(keranjang.warna, warna.warna)))
             .leftJoin(produkDetail, and(
                 eq(keranjang.produkId, produkDetail.produkId),
-                or(eq(keranjang.warna, produkDetail.warnaId), eq(warna.warnaId, produkDetail.warnaId)),
                 eq(keranjang.size, produkDetail.size),
-                sql`(${produkDetail.variant} = ${keranjang.variant} OR (${produkDetail.variant} IS NULL AND ${keranjang.variant} IS NULL))`
+                // Match color by either ID or Name
+                or(
+                    eq(keranjang.warna, produkDetail.warnaId),
+                    eq(warna.warnaId, produkDetail.warnaId),
+                    eq(warna.warna, produkDetail.warnaId)
+                ),
+                // Match variant, treating empty string and NULL as the same
+                sql`(
+                    ${produkDetail.variant} = ${keranjang.variant} 
+                    OR (${produkDetail.variant} IS NULL AND (${keranjang.variant} IS NULL OR ${keranjang.variant} = ''))
+                    OR (${keranjang.variant} IS NULL AND (${produkDetail.variant} IS NULL OR ${produkDetail.variant} = ''))
+                    OR (${produkDetail.variant} = '' AND ${keranjang.variant} = '')
+                )`
             ))
             .leftJoin(flashSale, eq(keranjang.flashsaleId, sql`CAST(${flashSale.id} AS CHAR)`))
             .where(and(...conditions))
@@ -85,19 +96,36 @@ export class CartService {
             let isExpired = false;
 
             if (isFlashSalePrice) {
-                const cartExpired = item.flashsaleExpired ? new Date(item.flashsaleExpired) < now : false;
+                const cartExpired = item.flashsaleExpired ? parseJakarta(String(item.flashsaleExpired)) < now : false;
                 const eventInactive = item.flashsaleId ? (item.fsIsAktif === 0) : false;
-                const eventExpired = item.fsWaktuSelesai ? new Date(item.fsWaktuSelesai) < now : false;
+                const eventExpired = item.fsWaktuSelesai ? parseJakarta(String(item.fsWaktuSelesai)) < now : false;
 
                 isExpired = cartExpired || eventInactive || eventExpired;
             }
 
-            const finalHarga = isExpired ? Number(item.normalHarga || item.storedHarga) : Number(item.storedHarga);
+            // 1. Ambil harga asli (normalHarga) yang terbaru sebagai prioritas
+            // Jika tidak ada normalHarga, baru fallback ke storedHarga (harga saat masuk cart)
+            let currentActivePrice = Number(item.normalHarga ?? item.storedHarga);
+            
+            // 2. Tentukan harga final
+            let finalHarga = currentActivePrice;
+            
+            // Jika ini flash sale dan BELUM expired, kembali pakai harga flashsale (storedHarga)
+            if (isFlashSalePrice && !isExpired) {
+                finalHarga = Number(item.storedHarga);
+            } 
+
+            // 3. Deteksi apakah harga berubah (dari saat masuk keranjang vs harga aktual)
+            const isPriceChanged = Number(item.storedHarga) !== finalHarga;
+
+            console.log(`Cart debug - ID ${item.id}: stored=${item.storedHarga}, normal=${item.normalHarga}, final=${finalHarga}, changed=${isPriceChanged}`);
 
             return {
                 ...item,
                 harga: finalHarga,
                 isFlashsaleExpired: isExpired ? 1 : 0,
+                isPriceChanged: isPriceChanged,
+                oldHarga: isPriceChanged ? Number(item.storedHarga) : null
             };
         });
 

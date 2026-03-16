@@ -10,6 +10,8 @@ import { apiClient } from "./api-client";
 
 /** Struktur satu item di keranjang */
 export interface CartItem {
+    isPriceChanged?: boolean;
+    oldHarga?: number;
     id: number;
     produkId: string;
     qty: number;

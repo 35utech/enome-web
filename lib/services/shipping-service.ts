@@ -54,21 +54,8 @@ export class ShippingService {
 
         logger.info("ShippingService: Fetching shipping costs for all couriers", { origin, destination, weight, courierCodes });
 
-        const cacheKey = `all-${origin}-${destination}-${weight}-${courierCodes}`;
-        const now = Date.now();
-        const cached = this.cache.get(cacheKey);
-
-        if (cached && cached.expires > now) {
-            logger.info("ShippingService: Using cache for all couriers", { cacheKey });
-            return cached.data;
-        }
-
+        // Bypass cache to always fetch fresh data
         const rajaOngkirResults = await this.fetchKomerce(apiKey, origin, destination, weight, courierCodes);
-
-        this.cache.set(cacheKey, {
-            data: rajaOngkirResults,
-            expires: now + this.DEFAULT_TTL
-        });
 
         return rajaOngkirResults;
     }
@@ -108,19 +95,9 @@ export class ShippingService {
 
         const origin = company?.kecamatan || CONFIG.DEFAULT_ORIGIN_CITY;
         const cacheKey = `val-${origin}-${destination}-${weight}-${courier}`;
-        const now = Date.now();
-        const cached = this.cache.get(cacheKey);
 
-        let results: any[];
-        if (cached && cached.expires > now) {
-            results = cached.data;
-        } else {
-            results = await this.fetchKomerce(apiKey, origin, destination, weight, courier.toLowerCase());
-            this.cache.set(cacheKey, {
-                data: results,
-                expires: now + this.VALIDATION_TTL
-            });
-        }
+        // Bypass cache to always fetch fresh data for validation
+        let results = await this.fetchKomerce(apiKey, origin, destination, weight, courier.toLowerCase());
 
         // Find the specific service
         const matchedCourier = results.find(r => r.code.toUpperCase() === courier.toUpperCase());
@@ -156,6 +133,7 @@ export class ShippingService {
                     courier: courier,
                     price: "lowest"
                 }),
+                cache: "no-store",
                 signal: AbortSignal.timeout(10000)
             });
 

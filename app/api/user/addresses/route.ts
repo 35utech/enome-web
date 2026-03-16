@@ -72,15 +72,16 @@ export const POST = withAuth(async (req: NextRequest, context: any, session: any
             isPrimary
         } = body;
 
-        // Mendapatkan data customer berdasarkan user yang login
-        const [customerData]: any = await db.select()
-            .from(customer)
-            .where(eq(customer.userId, session.user.id))
-            .limit(1);
+        // Mendapatkan data customer berdasarkan user yang login (Auto-provision if missing)
+        const customerData = await CustomerService.ensureCustomerData(
+            session.user.id,
+            session.user.name || "Customer",
+            session.user.email
+        );
 
-        if (!customerData || !customerData.custId) {
-            logger.warn("API Not Found: POST /api/user/addresses", { error: "Customer not found" });
-            return NextResponse.json({ error: "Profil customer tidak ditemukan" }, { status: 404 });
+        if (!customerData) {
+            logger.error("API Error: POST /api/user/addresses - Failed to provision customer record", { userId: session.user.id });
+            return NextResponse.json({ error: "Gagal memproses data profile customer" }, { status: 500 });
         }
 
         // Tentukan label alamat
@@ -109,6 +110,20 @@ export const POST = withAuth(async (req: NextRequest, context: any, session: any
             createdBy: 1, // Sistem ID default
             createdAt: getJakartaDate(),
         });
+
+        // Sync to Customer table if primary
+        if (isPrimary === 1) {
+            await db.update(customer).set({
+                namaToko: namaToko || undefined,
+                telp: noHandphone || undefined,
+                alamat: alamatLengkap || undefined,
+                alamatLengkap: (alamatLengkap || "").substring(0, 50),
+                kecamatan: kec || undefined,
+                kota: kab || undefined,
+                provinsi: prov || undefined,
+                kodepos: kodePos || undefined,
+            }).where(eq(customer.custId, customerData.custId));
+        }
 
         logger.info("API Response: 200 /api/user/addresses (POST)", { addressId: result.insertId });
         return NextResponse.json({
@@ -188,6 +203,18 @@ export const PATCH = withAuth(async (req: NextRequest, context: any, session: an
             await db.update(customerAlamat)
                 .set({ isPrimary: 1, labelAlamat: "Alamat Utama" })
                 .where(eq(customerAlamat.id, id));
+
+            // Sync to Customer table
+            await db.update(customer).set({
+                namaToko: addr[0].namaToko || undefined,
+                telp: addr[0].noHandphone || undefined,
+                alamat: addr[0].alamatLengkap || undefined,
+                alamatLengkap: (addr[0].alamatLengkap || "").substring(0, 50),
+                kecamatan: addr[0].kecamatan || undefined,
+                kota: addr[0].kota || undefined,
+                provinsi: addr[0].provinsi || undefined,
+                kodepos: addr[0].kodePos || undefined,
+            }).where(eq(customer.custId, custId as string));
         }
 
         // Jika ada perubahan data lainnya (selain status Primary)
@@ -211,6 +238,20 @@ export const PATCH = withAuth(async (req: NextRequest, context: any, session: an
                 await db.update(customerAlamat)
                     .set(mappedUpdates)
                     .where(eq(customerAlamat.id, id));
+
+                // Sync to Customer table if this is the primary address
+                if (addr[0].isPrimary === 1) {
+                    await db.update(customer).set({
+                        namaToko: mappedUpdates.namaToko || undefined,
+                        telp: mappedUpdates.noHandphone || undefined,
+                        alamat: mappedUpdates.alamatLengkap || undefined,
+                        alamatLengkap: (mappedUpdates.alamatLengkap || "").substring(0, 50),
+                        kecamatan: mappedUpdates.kecamatan || undefined,
+                        kota: mappedUpdates.kota || undefined,
+                        provinsi: mappedUpdates.provinsi || undefined,
+                        kodepos: mappedUpdates.kodePos || undefined,
+                    }).where(eq(customer.custId, addr[0].custId as string));
+                }
             }
         }
 

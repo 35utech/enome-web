@@ -42,11 +42,15 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
         }
 
         const userId = session.user.id;
-        const customerData = await CustomerService.getCustomerData(userId);
+        const customerData = await CustomerService.ensureCustomerData(
+            userId,
+            session.user.name || "Customer",
+            session.user.email
+        );
 
         if (!customerData) {
-            logger.warn("Order Error: Customer not found", { userId });
-            return NextResponse.json({ error: "Profil customer tidak ditemukan" }, { status: 404 });
+            logger.error("Order Error: Failed to provision customer record", { userId });
+            return NextResponse.json({ error: "Gagal memproses data profile customer" }, { status: 500 });
         }
 
         // 1. Fetch Cart Items using CartService
@@ -63,8 +67,12 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
         // 2. Verify Stock
         const stockResult = await OrderService.verifyStock(cartItems);
         if (!stockResult.success) {
-            logger.warn("Order Error: Stock verification failed", { userId, error: stockResult.error });
-            return NextResponse.json({ message: "error", desc: stockResult.error }, { status: 400 });
+            logger.warn("Order Error: Stock verification failed", { userId, issues: stockResult.issues });
+            return NextResponse.json({ 
+                message: "error", 
+                desc: stockResult.error,
+                issues: stockResult.issues 
+            }, { status: 400 });
         }
 
         // 3. Generate Order ID

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -579,14 +579,35 @@ export function useCheckout() {
                 toast.success("Pesanan berhasil dibuat!");
                 window.scrollTo({ top: 0, behavior: "smooth" });
             } else {
-                // Jika gagal karena stok atau ketersediaan, refresh seluruh data keranjang
-                // agar highlight merah dan info stok terbaru muncul di tiap item
-                if (data.desc?.includes("stok") || data.desc?.includes("tersedia") || data.message?.includes("stok")) {
+                // Handle detailed stock/availability issues
+                if (data.issues && data.issues.length > 0) {
+                    const issueMessages = data.issues.map((issue: any) => issue.message);
+                    toast.error(
+                        <div className="flex flex-col gap-1">
+                            <span className="font-bold">Gagal Membuat Pesanan</span>
+                            <div className="text-[11px] opacity-80 flex flex-col gap-0.5">
+                                {issueMessages.map((msg: string, i: number) => (
+                                    <span key={i} className="block">• {msg}</span>
+                                ))}
+                            </div>
+                        </div>,
+                        { duration: 5000 }
+                    );
+                    
                     queryClient.invalidateQueries({ queryKey: queryKeys.cart.all });
-                    // Scroll ke atas agar user langsung melihat item yang ditandai merah
                     window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
+                    // Fallback for other errors
+                    const isStockError = data.desc?.toLowerCase().includes("stok") || 
+                                       data.desc?.toLowerCase().includes("tersedia") || 
+                                       data.message?.toLowerCase().includes("stok");
+                                       
+                    if (isStockError) {
+                        queryClient.invalidateQueries({ queryKey: queryKeys.cart.all });
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                    toast.error(data.desc || data.message || "Gagal membuat pesanan");
                 }
-                toast.error(data.desc || data.message || "Gagal membuat pesanan");
             }
         } catch (error) {
             toast.error("Terjadi kesalahan sistem");
@@ -616,6 +637,7 @@ export function useCheckout() {
         couriers, isLoadingCouriers, shippingOptions, setShippingOptions, isLoadingShipping, shippingPrice, setShippingPrice,
         errors, validateCheckout, setErrors,
         packingFee, grandTotal, remainingBill,
-        handleSelectAddress, updateQuantity, removeItem, updateNotes, removeAllItems, applyVoucher, submitOrder, setVoucherData
+        handleSelectAddress, updateQuantity, removeItem, updateNotes, removeAllItems, applyVoucher, submitOrder, setVoucherData,
+        refreshShipping: fetchShippingCost
     };
 }

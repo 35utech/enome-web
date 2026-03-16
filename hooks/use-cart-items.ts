@@ -27,17 +27,17 @@ export function useCartItems() {
     }, [selectedItems]);
 
     const toggleSelectAll = useCallback(() => {
-        const onlineItems = cartItems.filter(item => item.isOnline !== 0);
-        if (selectedIds.length === onlineItems.length && onlineItems.length > 0) {
+        const selectableItems = cartItems.filter(item => item.isOnline !== 0 && (item.stock || 0) > 0);
+        if (selectedIds.length === selectableItems.length && selectableItems.length > 0) {
             setSelectedIds([]);
         } else {
-            setSelectedIds(onlineItems.map(i => i.id));
+            setSelectedIds(selectableItems.map(i => i.id));
         }
     }, [cartItems, selectedIds]);
 
     const toggleSelectItem = useCallback((id: number) => {
         const item = cartItems.find(i => i.id === id);
-        if (item?.isOnline === 0) return;
+        if (!item || item.isOnline === 0 || (item.stock || 0) <= 0) return;
 
         setSelectedIds(prev =>
             prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]

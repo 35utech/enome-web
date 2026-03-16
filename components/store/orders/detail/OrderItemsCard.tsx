@@ -35,7 +35,7 @@ export default function OrderItemsCard({ items, orderNotes }: OrderItemsCardProp
                         Rincian Barang
                     </h2>
                 </div>
-                <span className="text-[11px] font-bold text-neutral-base-400 tracking-wider">
+                <span className="text-[12px] font-bold text-neutral-base-400 tracking-wider">
                     {items.length} Barang
                 </span>
             </div>
@@ -62,7 +62,7 @@ export default function OrderItemsCard({ items, orderNotes }: OrderItemsCardProp
                             <h3 className="text-[14px] md:text-[16px] font-bold text-neutral-base-900 mb-1 md:mb-2 line-clamp-1">
                                 {item.namaProduk}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-[11px] md:text-[13px] font-medium text-neutral-base-400">
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] md:text-[13px] font-medium text-neutral-base-400">
                                 {item.ukuran && (
                                     <span>
                                         <span className="text-neutral-base-500 font-medium">Ukuran:</span> <b className="text-neutral-base-900 font-bold">{item.ukuran}</b>
@@ -83,14 +83,14 @@ export default function OrderItemsCard({ items, orderNotes }: OrderItemsCardProp
                                 </span>
                             </div>
                             {item.catatan && (
-                                <div className="mt-2.5 p-3 bg-neutral-base-50 rounded-xl border border-neutral-base-100">
-                                    <p className="text-[10px] md:text-[11px] font-medium text-neutral-base-500 flex flex-col items-start gap-2">
+                                <div className="mt-2.5 p-3 md:p-4 bg-neutral-base-50 rounded-xl border border-neutral-base-100">
+                                    <p className="text-[11px] md:text-[12px] font-medium text-neutral-base-500 flex flex-col items-start gap-1 md:gap-2">
                                         <span className="w-1 h-1 rounded-full bg-neutral-base-400" />
-                                        Catatan: <span className="text-neutral-base-800 not-italic">{item.catatan}</span>
+                                        Catatan: <span className="text-neutral-base-800 not-italic ml-0 font-bold">{item.catatan}</span>
                                     </p>
                                 </div>
                             )}
-                            <p className="text-[14px] md:text-[16px] font-bold text-neutral-base-900 mt-2 md:mt-4">
+                            <p className="text-[14px] md:text-[16px] font-semibold text-neutral-base-900 mt-2 md:mt-4">
                                 {formatCurrency(item.harga)}
                             </p>
                         </div>

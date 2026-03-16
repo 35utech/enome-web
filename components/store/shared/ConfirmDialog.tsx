@@ -50,7 +50,7 @@ export default function ConfirmDialog({
     const Content = () => (
         <div className="flex flex-col gap-6">
             <div className="space-y-3">
-                <h2 className="text-xl md:text-2xl font-black tracking-tight text-neutral-base-900 leading-tight">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-neutral-base-900 leading-tight">
                     {title}
                 </h2>
                 <p className="text-neutral-base-500 font-medium leading-relaxed text-sm md:text-base">

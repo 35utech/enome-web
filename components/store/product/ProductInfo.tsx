@@ -17,7 +17,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Ruler, ShieldCheck, ShoppingBag, Plus, Minus, Loader2, Heart, Package, Info, Sparkles, Weight, List } from "lucide-react";
+import { Check, Ruler, ShieldCheck, ShoppingBag, Plus, Minus, Loader2, Heart, Package, Info, Sparkles, Weight, List, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useWishlist, useToggleWishlist } from "@/hooks/use-wishlist";
@@ -523,7 +523,7 @@ export default function ProductInfo({ product, selectedVariant, setSelectedVaria
                     {isAdding ? (
                         <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
                     ) : (
-                        <ShoppingBag className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     )}
                     {isAdding ? "Menambahkan..." : "Tambah ke Keranjang"}
                 </motion.button>
