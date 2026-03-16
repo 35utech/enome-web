@@ -113,12 +113,12 @@ export default function TrackingManifest({ awb, courier, phone, showTitle = fals
                                                 {step.manifest_description}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[11px] font-black uppercase tracking-widest text-neutral-base-400">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-[12px] font-black uppercase tracking-widest text-neutral-base-400">
                                                 {step.manifest_date}
                                             </span>
-                                            <span className="w-1 h-1 rounded-full bg-neutral-base-200" />
-                                            <span className="text-[11px] font-black uppercase tracking-widest text-neutral-base-400">
+                                            <span className="w-1 h-1 rounded-full bg-neutral-base-100" />
+                                            <span className="text-[12px] font-black uppercase tracking-widest text-neutral-base-400">
                                                 {step.manifest_time}
                                             </span>
                                         </div>

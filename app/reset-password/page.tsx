@@ -249,7 +249,7 @@ export default function ResetPasswordPage() {
                         className="object-cover transition-transform duration-[20s] ease-out hover:scale-105"
                         priority
                     />
-                    <div className="absolute inset-0 bg-linear-to-t from-neutral-base-950/90 via-neutral-base-950/20 to-transparent" />
+                    {/* <div className="absolute inset-0 bg-linear-to-t from-neutral-base-950/90 via-neutral-base-950/20 to-transparent" />
                     <div className="relative z-10 w-full text-white">
                         <Link href="/" className="inline-block mb-6 group">
                             <span className="text-3xl font-bold tracking-tighter text-white uppercase group-hover:text-neutral-base-100 transition-colors">Énome</span>
@@ -257,7 +257,7 @@ export default function ResetPasswordPage() {
                         <p className="text-white/80 text-base max-w-[90%] leading-relaxed">
                             Koleksi interior mewah untuk mendefinisikan kembali ruang hidup Anda.
                         </p>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Right Side - Form Section */}

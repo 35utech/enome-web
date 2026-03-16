@@ -72,15 +72,16 @@ export const POST = withAuth(async (req: NextRequest, context: any, session: any
             isPrimary
         } = body;
 
-        // Mendapatkan data customer berdasarkan user yang login
-        const [customerData]: any = await db.select()
-            .from(customer)
-            .where(eq(customer.userId, session.user.id))
-            .limit(1);
+        // Mendapatkan data customer berdasarkan user yang login (Auto-provision if missing)
+        const customerData = await CustomerService.ensureCustomerData(
+            session.user.id,
+            session.user.name || "Customer",
+            session.user.email
+        );
 
-        if (!customerData || !customerData.custId) {
-            logger.warn("API Not Found: POST /api/user/addresses", { error: "Customer not found" });
-            return NextResponse.json({ error: "Profil customer tidak ditemukan" }, { status: 404 });
+        if (!customerData) {
+            logger.error("API Error: POST /api/user/addresses - Failed to provision customer record", { userId: session.user.id });
+            return NextResponse.json({ error: "Gagal memproses data profile customer" }, { status: 500 });
         }
 
         // Tentukan label alamat

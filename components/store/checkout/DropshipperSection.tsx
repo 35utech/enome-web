@@ -26,9 +26,9 @@ export default function DropshipperSection({
                         <Truck className={`w-4.5 h-4.5 md:w-6 md:h-6 ${isDropshipper ? "animate-pulse" : ""}`} />
                     </div>
                     <div className="flex flex-col gap-0.5 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-neutral-base-900">Dropshipper?</span>
-                            {isDropshipper && <span className="bg-amber-100 text-amber-800 text-[9px] md:text-[11px] font-black px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-widest">AKTIF</span>}
+                        <div className="flex items-center gap-3">
+                            <span className="text-[11px] md:text-[12px] font-bold uppercase tracking-widest text-neutral-base-900">Dropshipper?</span>
+                            {isDropshipper && <span className="bg-amber-100 text-amber-800 text-[10px] md:text-[12px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">AKTIF</span>}
                         </div>
                         <span className="text-[10px] md:text-[11px] text-neutral-base-400 font-bold leading-tight hidden xs:block">Kirim paket atas nama Anda sendiri.</span>
                     </div>
@@ -56,7 +56,9 @@ export default function DropshipperSection({
                             <div className="flex flex-col gap-1 md:gap-2">
                                 <div className="flex items-center gap-2 px-1">
                                     <User className="w-3 h-3 text-amber-800" />
-                                    <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-neutral-base-400">Nama Pengirim</label>
+                                    <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-neutral-base-400">Nama Pengirim</label>
+                                </div>
                                 </div>
                                 <input
                                     type="text"
@@ -72,7 +74,9 @@ export default function DropshipperSection({
                             <div className="flex flex-col gap-1 md:gap-2">
                                 <div className="flex items-center gap-2 px-1">
                                     <Phone className="w-3 h-3 text-amber-800" />
-                                    <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-neutral-base-400">Nomor Telepon</label>
+                                    <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-neutral-base-400">Nomor Telepon</label>
+                                </div>
                                 </div>
                                 <input
                                     type="text"
@@ -88,7 +92,9 @@ export default function DropshipperSection({
                             <div className="flex flex-col gap-1 md:gap-2 md:col-span-2">
                                 <div className="flex items-center gap-2 px-1">
                                     <MapPin className="w-3 h-3 text-amber-800" />
-                                    <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-neutral-base-400">Alamat Pengirim</label>
+                                    <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-neutral-base-400">Alamat Pengirim</label>
+                                </div>
                                 </div>
                                 <input
                                     type="text"

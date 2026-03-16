@@ -129,14 +129,10 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 finalPrice = retailPrice - (retailPrice * (discount / 100));
             }
 
-            // 6. Cek apakah item yang persis sama sudah ada di keranjang (LOCK)
-            // Note: color_sylla might be an ID or a Name from previous bug.
-            // We join with warna table to allow matching by either ID or Name.
             const [existingCartRows]: any = await tx.execute(sql`
                 SELECT 
                     k.id, 
-                    k.qty_produk as qtyProduk, 
-                    k.harga_poduk as hargaPoduk 
+                    k.qty_produk as qtyProduk 
                 FROM keranjang k
                 LEFT JOIN warna w ON (k.warna = w.warna_id OR k.warna = w.warna)
                 WHERE k.cust_id = ${userId} 
@@ -145,9 +141,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 AND k.size = ${size_sylla} 
                 AND (k.variant = ${variant} OR (k.variant IS NULL AND ${variant || ""} = ""))
                 AND k.is_deleted = 0 
-                AND k.is_flashsale = ${isFlashSale ? 1 : 0} 
-                AND k.is_preorder = ${isPreOrder ? 1 : 0} 
-                AND k.harga_poduk = ${Math.floor(finalPrice)} 
+                LIMIT 1
                 FOR UPDATE
             `);
             const existingCart = existingCartRows[0];
@@ -161,7 +155,14 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 }
 
                 await tx.update(keranjang)
-                    .set({ qtyProduk: newQty, updatedAt: now })
+                    .set({ 
+                        qtyProduk: newQty, 
+                        hargaPoduk: Math.floor(finalPrice),
+                        isFlashsale: isFlashSale ? 1 : 0,
+                        flashsaleId: isFlashSale ? String(activeFlashSale[0].flashSaleId) : null,
+                        flashsaleExpired: isFlashSale ? activeFlashSale[0].waktuSelesai : null,
+                        updatedAt: now 
+                    })
                     .where(eq(keranjang.id, existingCart.id));
             } else {
                 await tx.insert(keranjang).values({

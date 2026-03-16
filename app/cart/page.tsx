@@ -79,10 +79,10 @@ export default function CartPage() {
             <Navbar />
 
             {/* Sticky Header with Breadcrumb and Actions */}
-            <div className="sticky top-[70px] md:top-[80px] z-30 bg-white/95 backdrop-blur-md border-b border-neutral-base-50">
-                <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12 py-4 md:py-6 flex items-center justify-between gap-4">
+            <div className="sticky top-[70px] md:top-[80px] z-30 bg-white/90 backdrop-blur-md border-b border-neutral-base-50">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12 py-3 md:py-6 flex items-center justify-between gap-2 md:gap-4">
                     <Breadcrumb
-                        className="truncate min-w-0"
+                        className="truncate min-w-0 flex-1"
                         items={[
                             { label: "Beranda", href: "/" },
                             { label: "Keranjang" }
@@ -90,25 +90,37 @@ export default function CartPage() {
                     />
 
                     {!isLoading && cartItems.length > 0 && (
-                        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                        <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <button
                                         onClick={toggleSelectAll}
-                                        className="flex items-center gap-2 bg-white px-3 md:px-4 py-2 rounded-lg border border-neutral-base-100 shadow-sm hover:border-neutral-base-300 transition-all group"
+                                        className="flex items-center gap-2 bg-white px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg border border-neutral-base-100 shadow-sm hover:border-neutral-base-300 transition-all group active:scale-95"
                                     >
-                                        {selectedIds.length === cartItems.filter(i => i.isOnline !== 0).length && cartItems.filter(i => i.isOnline !== 0).length > 0 ? (
-                                            <CheckSquare className="w-4 h-4 text-neutral-base-900" />
-                                        ) : (
-                                            <Square className="w-4 h-4 text-neutral-base-300 group-hover:text-neutral-base-900" />
-                                        )}
+                                        {(() => {
+                                            const selectableItems = cartItems.filter(i => i.isOnline !== 0 && (i.stock || 0) > 0);
+                                            const isAllSelected = selectableItems.length > 0 && selectedIds.length === selectableItems.length;
+                                            return isAllSelected ? (
+                                                <CheckSquare className="w-3.5 h-3.5 md:w-4 md:h-4 text-neutral-base-900" />
+                                            ) : (
+                                                <Square className="w-3.5 h-3.5 md:w-4 md:h-4 text-neutral-base-300 group-hover:text-neutral-base-900" />
+                                            );
+                                        })()}
                                         <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest text-neutral-base-900">
-                                            {selectedIds.length === cartItems.filter(i => i.isOnline !== 0).length && cartItems.filter(i => i.isOnline !== 0).length > 0 ? "Batalkan Pilihan" : "Pilih Semua"}
+                                            {(() => {
+                                                const selectableItems = cartItems.filter(i => i.isOnline !== 0 && (i.stock || 0) > 0);
+                                                return selectableItems.length > 0 && selectedIds.length === selectableItems.length ? "Batalkan Pilihan" : "Pilih Semua";
+                                            })()}
                                         </span>
                                     </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="bottom">
-                                    <p>{selectedIds.length === cartItems.filter(i => i.isOnline !== 0).length && cartItems.filter(i => i.isOnline !== 0).length > 0 ? "Batalkan Pilihan" : "Pilih Semua"}</p>
+                                    <p>
+                                        {(() => {
+                                            const selectableItems = cartItems.filter(i => i.isOnline !== 0 && (i.stock || 0) > 0);
+                                            return selectableItems.length > 0 && selectedIds.length === selectableItems.length ? "Batalkan Pilihan" : "Pilih Semua";
+                                        })()}
+                                    </p>
                                 </TooltipContent>
                             </Tooltip>
 
@@ -116,9 +128,9 @@ export default function CartPage() {
                                 <TooltipTrigger asChild>
                                     <button
                                         onClick={() => setIsConfirmDeleteAllOpen(true)}
-                                        className="flex items-center gap-2 bg-white px-3 md:px-4 py-2 rounded-lg border border-red-100 shadow-sm hover:bg-red-50 hover:border-red-200 transition-all group"
+                                        className="flex items-center gap-2 bg-white px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg border border-red-100 shadow-sm hover:bg-red-50 hover:border-red-200 transition-all group active:scale-95"
                                     >
-                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                        <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
                                         <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest text-red-600">
                                             Hapus Semua
                                         </span>
@@ -204,7 +216,7 @@ export default function CartPage() {
             </main>
 
             {/* Mobile Sticky Footer */}
-            <AnimatePresence>
+            {/* <AnimatePresence>
                 {!isLoading && cartItems.length > 0 && !isSummaryInView && (
                     <motion.div
                         initial={{ y: 100, opacity: 0 }}
@@ -221,7 +233,7 @@ export default function CartPage() {
                         />
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence> */}
         </div>
     );
 }

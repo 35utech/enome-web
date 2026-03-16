@@ -68,9 +68,20 @@ export class CartService {
             .leftJoin(warna, or(eq(keranjang.warna, warna.warnaId), eq(keranjang.warna, warna.warna)))
             .leftJoin(produkDetail, and(
                 eq(keranjang.produkId, produkDetail.produkId),
-                or(eq(keranjang.warna, produkDetail.warnaId), eq(warna.warnaId, produkDetail.warnaId)),
                 eq(keranjang.size, produkDetail.size),
-                sql`(${produkDetail.variant} = ${keranjang.variant} OR (${produkDetail.variant} IS NULL AND ${keranjang.variant} IS NULL))`
+                // Match color by either ID or Name
+                or(
+                    eq(keranjang.warna, produkDetail.warnaId),
+                    eq(warna.warnaId, produkDetail.warnaId),
+                    eq(warna.warna, produkDetail.warnaId)
+                ),
+                // Match variant, treating empty string and NULL as the same
+                sql`(
+                    ${produkDetail.variant} = ${keranjang.variant} 
+                    OR (${produkDetail.variant} IS NULL AND (${keranjang.variant} IS NULL OR ${keranjang.variant} = ''))
+                    OR (${keranjang.variant} IS NULL AND (${produkDetail.variant} IS NULL OR ${produkDetail.variant} = ''))
+                    OR (${produkDetail.variant} = '' AND ${keranjang.variant} = '')
+                )`
             ))
             .leftJoin(flashSale, eq(keranjang.flashsaleId, sql`CAST(${flashSale.id} AS CHAR)`))
             .where(and(...conditions))
@@ -92,12 +103,29 @@ export class CartService {
                 isExpired = cartExpired || eventInactive || eventExpired;
             }
 
-            const finalHarga = isExpired ? Number(item.normalHarga || item.storedHarga) : Number(item.storedHarga);
+            // 1. Ambil harga asli (normalHarga) yang terbaru sebagai prioritas
+            // Jika tidak ada normalHarga, baru fallback ke storedHarga (harga saat masuk cart)
+            let currentActivePrice = Number(item.normalHarga ?? item.storedHarga);
+            
+            // 2. Tentukan harga final
+            let finalHarga = currentActivePrice;
+            
+            // Jika ini flash sale dan BELUM expired, kembali pakai harga flashsale (storedHarga)
+            if (isFlashSalePrice && !isExpired) {
+                finalHarga = Number(item.storedHarga);
+            } 
+
+            // 3. Deteksi apakah harga berubah (dari saat masuk keranjang vs harga aktual)
+            const isPriceChanged = Number(item.storedHarga) !== finalHarga;
+
+            console.log(`Cart debug - ID ${item.id}: stored=${item.storedHarga}, normal=${item.normalHarga}, final=${finalHarga}, changed=${isPriceChanged}`);
 
             return {
                 ...item,
                 harga: finalHarga,
                 isFlashsaleExpired: isExpired ? 1 : 0,
+                isPriceChanged: isPriceChanged,
+                oldHarga: isPriceChanged ? Number(item.storedHarga) : null
             };
         });
 

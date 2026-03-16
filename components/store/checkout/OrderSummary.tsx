@@ -62,39 +62,39 @@ export default function OrderSummary({
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-amber-50 flex items-center justify-center">
                         <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-amber-800" />
                     </div>
-                    <h3 className="font-heading text-[22px] md:text-[26px] font-black text-neutral-base-900 tracking-tight">Ringkasan</h3>
+                    <h3 className="font-heading text-[22px] md:text-[26px] font-bold text-neutral-base-900 tracking-tight">Ringkasan</h3>
                 </div>
 
                 <div className="flex flex-col gap-4 md:gap-5 mb-5 md:mb-8">
-                    <div className="flex justify-between items-center text-[12px] md:text-[13px] font-bold text-neutral-base-600 uppercase tracking-widest">
+                    <div className="flex justify-between items-center text-[12px] md:text-[13px] font-medium text-neutral-base-600 uppercase tracking-widest">
                         <span>Subtotal</span>
-                        <span className="text-neutral-base-900 font-black text-[14px] md:text-[15px] tabular-nums">{formatPrice(totalAmount)}</span>
+                        <span className="text-neutral-base-900 font-medium text-[14px] md:text-[15px] tabular-nums">{formatPrice(totalAmount)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[12px] md:text-[13px] font-bold text-neutral-base-600 uppercase tracking-widest">
+                    <div className="flex justify-between items-center text-[12px] md:text-[13px] font-medium text-neutral-base-600 uppercase tracking-widest">
                         <span className="truncate mr-4 text-left">
                             Pengiriman ({shippingForm.courierName || shippingForm.courier ? (
                                 (shippingForm.courierName || shippingForm.courier).toUpperCase()
                             ) : "---"})
                         </span>
-                        <span className={`text-[13px] md:text-[15px] font-black flex items-center gap-2 shrink-0 text-neutral-base-900`}>
+                        <span className={`text-[13px] md:text-[15px] font-medium flex items-center gap-2 shrink-0 text-neutral-base-900`}>
                             {isLoadingShipping ? (
                                 <Loader2 className="w-3 h-3 animate-spin text-sky-600" />
                             ) : !shippingForm.courier ? (
-                                <span className="text-[10px] md:text-[11px] text-amber-800 font-bold italic">Belum dipilih</span>
+                                <span className="text-[10px] md:text-[11px] text-amber-800 font-medium italic">Belum dipilih</span>
                             ) : shippingForm.shippingType === 'manual' ? (
-                                <span className="text-[13px] md:text-[15px] text-neutral-base-900 font-black">Rp. 0</span>
+                                <span className="text-[13px] md:text-[15px] text-neutral-base-900 font-medium">Rp. 0</span>
                             ) : formatPrice(shippingPrice)}
                         </span>
                     </div>
                     {isVoucherApplied && (
-                        <div className="flex justify-between items-center text-[12px] md:text-[13px] font-bold uppercase tracking-wider">
+                        <div className="flex justify-between items-center text-[12px] md:text-[13px] font-medium uppercase tracking-wider">
                             <span className="text-neutral-base-400">Potongan Voucher</span>
                             <span className="text-rose-600">-{formatPrice(voucherDiscount)}</span>
                         </div>
                     )}
-                    <div className="flex justify-between items-center text-[12px] md:text-[13px] font-bold text-neutral-base-600 uppercase tracking-widest">
+                    <div className="flex justify-between items-center text-[12px] md:text-[13px] font-medium text-neutral-base-600 uppercase tracking-widest">
                         <span>Biaya Packing</span>
-                        <span className="text-neutral-base-900 tabular-nums font-black text-[14px] md:text-[15px]">{formatPrice(packingFee)}</span>
+                        <span className="text-neutral-base-900 tabular-nums font-medium text-[14px] md:text-[15px]">{formatPrice(packingFee)}</span>
                     </div>
 
                     <div className="h-px bg-neutral-base-50 my-1 md:my-2" />
@@ -111,8 +111,8 @@ export default function OrderSummary({
                                     <Tag className="w-4 h-4 md:w-5 md:h-5 text-neutral-base-900" />
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                    <span className="text-[10px] md:text-[11px] font-black text-neutral-base-400 uppercase tracking-widest">Voucher Aktif</span>
-                                    <span className="text-[12px] md:text-[14px] font-black text-neutral-base-900 truncate">{voucherCode}</span>
+                                    <span className="text-[10px] md:text-[11px] font-bold text-neutral-base-400 uppercase tracking-widest">Voucher Aktif</span>
+                                    <span className="text-[12px] md:text-[14px] font-bold text-neutral-base-900 truncate">{voucherCode}</span>
                                 </div>
                             </div>
                             <button
@@ -128,7 +128,7 @@ export default function OrderSummary({
                         </motion.div>
                     ) : (
                         <div className={`border border-neutral-base-100/50 rounded-[28px] p-4 md:p-5 flex flex-col gap-3 md:gap-4 transition-all duration-500 shadow-sm ${remainingBill === 0 ? "bg-neutral-base-50/20 opacity-60 grayscale" : "bg-white/50 backdrop-blur-xs"}`}>
-                            <span className="text-[10px] md:text-[11px] font-black text-neutral-base-900 uppercase tracking-widest ml-1">
+                            <span className="text-[11px] md:text-[12px] font-bold text-neutral-base-900 uppercase tracking-widest ml-1">
                                 {remainingBill === 0 ? "Promo Code Tidak Tersedia" : "Punya Kode Promo?"}
                             </span>
                             <div className="flex gap-2">
@@ -143,7 +143,7 @@ export default function OrderSummary({
                                 <button
                                     onClick={applyVoucher}
                                     disabled={!voucherCode || isVoucherLoading || remainingBill === 0}
-                                    className="px-6 h-11 md:h-12 rounded-2xl bg-neutral-base-900 text-white text-[12px] md:text-[13px] font-black uppercase tracking-widest hover:bg-neutral-base-800 disabled:opacity-50 transition-all active:scale-95 disabled:cursor-not-allowed shrink-0 shadow-lg shadow-neutral-base-900/10"
+                                    className="px-6 h-11 md:h-12 rounded-2xl bg-neutral-base-900 text-white text-[12px] md:text-[14px] font-bold uppercase tracking-widest hover:bg-neutral-base-800 disabled:opacity-50 transition-all active:scale-95 disabled:cursor-not-allowed shrink-0 shadow-lg shadow-neutral-base-900/10"
                                 >
                                     {isVoucherLoading ? <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" /> : "Pakai"}
                                 </button>
@@ -155,10 +155,10 @@ export default function OrderSummary({
 
                     <div className="flex justify-between items-center py-2 md:py-2">
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-[13px] md:text-[14px] font-bold uppercase tracking-wider text-neutral-base-400 leading-none">Total Tagihan</span>
-                            <span className="text-[10px] md:text-[11px] font-bold text-neutral-base-900 uppercase tracking-wider">Grand Total</span>
+                            <span className="text-[13px] md:text-[14px] font-medium uppercase tracking-wider text-neutral-base-400 leading-none">Total Tagihan</span>
+                            <span className="text-[11px] md:text-[12px] font-bold text-neutral-base-900 uppercase tracking-wider">Grand Total</span>
                         </div>
-                        <span className="text-[24px] md:text-[28px] font-black text-neutral-base-900 tracking-tighter tabular-nums">
+                        <span className="text-[24px] md:text-[28px] font-bold text-neutral-base-900 tracking-tighter tabular-nums">
                             {formatPrice(totalAmount + shippingPrice + packingFee - voucherDiscount)}
                         </span>
                     </div>
@@ -169,12 +169,12 @@ export default function OrderSummary({
                                 <span className="text-[10px] md:text-[11px] font-bold text-emerald-800 uppercase tracking-widest">Sisa Pembayaran</span>
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] md:text-[11px] font-black text-emerald-600 uppercase tracking-widest">
+                                    <span className="text-[10px] md:text-[11px] font-bold text-emerald-600 uppercase tracking-widest">
                                         {remainingBill === 0 ? "Sudah Tercover Wallet" : "Bayar via Rekening"}
                                     </span>
                                 </div>
                             </div>
-                            <span className="text-[18px] md:text-[22px] font-black text-emerald-700 tracking-tight tabular-nums">
+                            <span className="text-[18px] md:text-[22px] font-bold text-emerald-700 tracking-tight tabular-nums">
                                 {formatPrice(remainingBill)}
                             </span>
                         </div>
@@ -184,7 +184,7 @@ export default function OrderSummary({
                 <button
                     disabled={isSubmitting || cartItemsCount === 0 || hasStockProblems}
                     onClick={submitOrder}
-                    className={`w-full h-14 md:h-18 rounded-[24px] md:rounded-3xl text-[14px] md:text-[15px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 md:gap-4 transition-all shadow-2xl group mb-6 md:mb-8 overflow-hidden relative bg-neutral-base-900 text-white hover:bg-neutral-base-800 shadow-neutral-base-900/10 disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`w-full h-14 md:h-16 rounded-[24px] md:rounded-3xl text-[14px] md:text-[16px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3 md:gap-4 transition-all shadow-2xl group mb-6 md:mb-8 overflow-hidden relative bg-neutral-base-900 text-white hover:bg-neutral-base-800 shadow-neutral-base-900/10 disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                     {isSubmitting ? (
                         <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
@@ -204,8 +204,8 @@ export default function OrderSummary({
                             <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
                         </div>
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-neutral-base-900">Pembayaran Aman</span>
-                            <span className="text-[9px] md:text-[11px] text-neutral-base-400 font-bold leading-tight">Data transaksi Anda terenkripsi penuh.</span>
+                            <span className="text-[11px] md:text-[12px] font-bold uppercase tracking-widest text-neutral-base-900">Pembayaran Aman</span>
+                            <span className="text-[10px] md:text-[11px] text-neutral-base-400 font-medium leading-tight">Data transaksi Anda terenkripsi penuh.</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 md:gap-4">
@@ -213,15 +213,15 @@ export default function OrderSummary({
                             <Truck className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                         </div>
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-neutral-base-900">Pengiriman Cepat</span>
-                            <span className="text-[9px] md:text-[11px] text-neutral-base-400 font-bold leading-tight">Pesanan diproses dalam 1x24 jam.</span>
+                            <span className="text-[11px] md:text-[12px] font-bold uppercase tracking-widest text-neutral-base-900">Pengiriman Cepat</span>
+                            <span className="text-[10px] md:text-[11px] text-neutral-base-400 font-medium leading-tight">Pesanan diproses dalam 1x24 jam.</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <Link href="/products" className="flex items-center justify-center gap-2 mt-5 md:mt-8 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-neutral-base-400 hover:text-neutral-base-900 transition-all">
-                <ArrowLeft className="w-3 h-3" />
+            <Link href="/products" className="flex items-center justify-center gap-2 mt-5 md:mt-8 text-[11px] md:text-[12px] font-bold uppercase tracking-widest text-neutral-base-400 hover:text-neutral-base-900 transition-all">
+                <ArrowLeft className="w-4 h-4" />
                 Kembali Belanja
             </Link>
         </aside>

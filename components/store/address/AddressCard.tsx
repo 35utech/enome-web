@@ -65,11 +65,11 @@ export default function AddressCard({
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className={cn(
-                                "font-black uppercase tracking-widest text-neutral-base-900",
+                                "font-bold uppercase tracking-widest text-neutral-base-900",
                                 isCheckout ? "text-[11px] md:text-[12px]" : "text-[13px] md:text-sm"
                             )}>{address.label}</span>
                             {address.isPrimary === 1 && !isCheckout && (
-                                <span className="bg-amber-50 text-amber-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-amber-200/50">UTAMA</span>
+                                <span className="bg-amber-50 text-amber-800 text-[9px] md:text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-amber-200/50">UTAMA</span>
                             )}
                         </div>
                         <p className={cn(
@@ -125,7 +125,7 @@ export default function AddressCard({
             <div className={cn("grow", isCheckout ? "space-y-1.5 md:space-y-2" : "space-y-3 md:space-y-4 mb-6 md:mb-8")}>
                 <div>
                     <p className={cn(
-                        "font-black text-neutral-base-900 mb-0.5",
+                        "font-bold text-neutral-base-900 mb-0.5",
                         isCheckout ? "text-[12px] md:text-[13px]" : "text-[13px] md:text-sm"
                     )}>{address.receiverName}</p>
                     <p className={cn(
@@ -148,7 +148,7 @@ export default function AddressCard({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-neutral-base-50 mt-auto">
                     <div className="flex items-center gap-2">
                         {address.isPrimary === 1 ? (
-                            <div className="flex items-center gap-2 text-amber-800 font-black text-[10px] md:text-[11px] uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-amber-800 font-bold text-[10px] md:text-[11px] uppercase tracking-widest">
                                 <CheckCircle2 className="w-4 h-4" /> Alamat Pengiriman Utama
                             </div>
                         ) : onSetPrimary && (
@@ -157,7 +157,7 @@ export default function AddressCard({
                                     e.stopPropagation();
                                     onSetPrimary(address.id);
                                 }}
-                                className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-neutral-base-400 hover:text-amber-800 transition-colors"
+                                className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-neutral-base-400 hover:text-amber-800 transition-colors"
                             >
                                 Atur Sebagai Utama
                             </button>
