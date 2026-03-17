@@ -27,7 +27,7 @@ interface OrderItemsCardProps {
 
 export default function OrderItemsCard({ items, orderNotes }: OrderItemsCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
-    
+
     // Show first 3 items by default
     const INITIAL_DISPLAY_COUNT = 3;
     const hasMore = items.length > INITIAL_DISPLAY_COUNT;
@@ -56,7 +56,7 @@ export default function OrderItemsCard({ items, orderNotes }: OrderItemsCardProp
                             key={item.id}
                             className="p-6 md:p-8 flex items-start md:items-center gap-4 md:gap-6 group"
                         >
-                            <div className="w-20 h-24 md:w-24 md:h-32 bg-neutral-base-50 rounded-xl md:rounded-2xl overflow-hidden relative border border-neutral-base-50 shrink-0">
+                            <div className="aspect-square w-20 md:w-28 bg-neutral-base-50 rounded-xl md:rounded-2xl overflow-hidden relative border border-neutral-base-50 shrink-0">
                                 <FallbackImage
                                     src={
                                         item.gambar
