@@ -283,9 +283,9 @@ export default function OrderItem({
                                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-base-50/80 border border-neutral-base-100 rounded-lg hover:bg-neutral-base-100 transition-all group active:scale-[0.98]"
                                     >
                                         <div className="flex items-center gap-1.5 min-w-0">
-                                            <span className="text-[9px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] whitespace-nowrap font-montserrat">Variasi:</span>
+                                            <span className="text-[10px] md:text-[11px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] whitespace-nowrap font-montserrat">Variasi:</span>
                                             <div className="flex items-center gap-1 min-w-0">
-                                                <span className="text-[9px] font-bold text-neutral-base-900 truncate font-montserrat uppercase tracking-[0.05em]">
+                                                <span className="text-[10px] md:text-[11px] font-bold text-neutral-base-900 truncate font-montserrat uppercase tracking-[0.05em]">
                                                     {[item.variant, item.size, item.warnaName || item.warna].filter(Boolean)[0]}
                                                 </span>
                                             </div>
@@ -308,18 +308,18 @@ export default function OrderItem({
                                                 <div className="pt-2.5 flex flex-wrap gap-1.5">
                                                     {item.variant && (
                                                         <div className="inline-flex items-center px-2 py-0.5 bg-white border border-neutral-base-100 rounded-lg shadow-sm">
-                                                            <span className="text-[9px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] mr-1 font-montserrat">Motif:</span>
-                                                            <span className="text-[9px] font-bold text-neutral-base-900 uppercase tracking-[0.12em] font-montserrat">{item.variant}</span>
+                                                            <span className="text-[10px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] mr-1 font-montserrat">Motif:</span>
+                                                            <span className="text-[10px] font-bold text-neutral-base-900 uppercase tracking-[0.12em] font-montserrat">{item.variant}</span>
                                                         </div>
                                                     )}
                                                     <div className="inline-flex items-center px-2 py-0.5 bg-white border border-neutral-base-100 rounded-lg shadow-sm">
-                                                        <span className="text-[9px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] mr-1 font-montserrat">Ukuran:</span>
-                                                        <span className="text-[9px] font-bold text-neutral-base-900 uppercase tracking-[0.12em] font-montserrat">{item.size}</span>
+                                                        <span className="text-[10px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] mr-1 font-montserrat">Ukuran:</span>
+                                                        <span className="text-[10px] font-bold text-neutral-base-900 uppercase tracking-[0.12em] font-montserrat">{item.size}</span>
                                                     </div>
                                                     {(item.warnaName || item.warna) && (
                                                         <div className="inline-flex items-center px-2 py-0.5 bg-white border border-neutral-base-100 rounded-lg shadow-sm">
-                                                            <span className="text-[9px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] mr-1 font-montserrat">Warna:</span>
-                                                            <span className="text-[9px] font-bold text-neutral-base-900 uppercase tracking-[0.12em] font-montserrat">{item.warnaName || item.warna}</span>
+                                                            <span className="text-[10px] font-bold text-neutral-base-400 uppercase tracking-[0.12em] mr-1 font-montserrat">Warna:</span>
+                                                            <span className="text-[10px] font-bold text-neutral-base-900 uppercase tracking-[0.12em] font-montserrat">{item.warnaName || item.warna}</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -331,8 +331,8 @@ export default function OrderItem({
                                 {/* Mobile Price: Below Attributes */}
                                 <div className="mt-3">
                                     <span className={cn(
-                                        "font-bold text-neutral-base-900 font-montserrat tracking-tight tabular-nums leading-none text-[15px]",
-                                        isOffline && "text-neutral-base-300 line-through font-medium"
+                                        "font-bold text-neutral-base-900 font-montserrat tracking-tight tabular-nums leading-none text-[16px]",
+                                        isOffline ? "text-neutral-base-300 line-through font-medium" : ""
                                     )}>
                                         {formatCurrency(Number(item.harga || 0) * Number(item.qty || 0))}
                                     </span>
@@ -380,28 +380,28 @@ export default function OrderItem({
 
                     <div className="flex items-center gap-2 shrink-0">
                         {/* Qty Controls */}
-                        <div className="flex items-center bg-white border border-neutral-base-100 shadow-sm rounded-xl p-0.5 gap-0.5 h-9">
+                        <div className="flex items-center bg-white border border-neutral-base-100 shadow-sm rounded-xl p-0.5 gap-0.5 h-10">
                             <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 onClick={(e) => { e.stopPropagation(); onUpdateQuantity(item.id, Number(item.qty) - 1, item.stock ?? 99); }}
                                 disabled={Number(item.qty) <= 1 || isOffline}
-                                className="w-7 h-7 flex items-center justify-center hover:bg-neutral-base-50 rounded-lg transition-all disabled:opacity-30"
+                                className="w-9 h-9 flex items-center justify-center hover:bg-neutral-base-50 rounded-lg transition-all disabled:opacity-30"
                             >
-                                <Minus className="w-3.5 h-3.5 text-neutral-base-600" />
+                                <Minus className="w-4 h-4 text-neutral-base-600" />
                             </motion.button>
                             <input
                                 type="number"
                                 value={item.qty}
                                 readOnly
-                                className="w-6 bg-transparent text-center font-bold text-neutral-base-900 tabular-nums text-[13px] outline-none"
+                                className="w-7 bg-transparent text-center font-bold text-neutral-base-900 tabular-nums text-[14px] outline-none"
                             />
                             <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 onClick={(e) => { e.stopPropagation(); onUpdateQuantity(item.id, Number(item.qty) + 1, item.stock ?? 99); }}
                                 disabled={Number(item.qty) >= (item.stock || 99) || isOffline}
-                                className="w-7 h-7 flex items-center justify-center hover:bg-neutral-base-50 rounded-lg transition-all disabled:opacity-30"
+                                className="w-9 h-9 flex items-center justify-center hover:bg-neutral-base-50 rounded-lg transition-all disabled:opacity-30"
                             >
-                                <Plus className="w-3.5 h-3.5 text-neutral-base-600" />
+                                <Plus className="w-4 h-4 text-neutral-base-600" />
                             </motion.button>
                         </div>
                     </div>
