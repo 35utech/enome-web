@@ -81,7 +81,7 @@ export default function CartPage() {
 
             {/* Sticky Header with Breadcrumb and Actions */}
             <div className="sticky top-[70px] md:top-[80px] z-30 bg-white/95 backdrop-blur-md border-b border-neutral-base-100">
-                <div className="max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12 py-3 md:py-4 flex items-center justify-between gap-4">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12 py-3 md:py-4 flex items-center justify-between gap-4">
                     <Breadcrumb
                         className="truncate min-w-0 flex-1 py-1"
                         items={[
@@ -145,7 +145,7 @@ export default function CartPage() {
                 onConfirm={removeAll}
             />
 
-            <main className="max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12 py-8 md:py-16 pb-28 md:pb-16 min-h-[60vh]">
+            <main className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-16 pb-32 md:pb-16 min-h-[60vh]">
                 <AnimatePresence mode="wait">
                     {isLoading ? (
                         <motion.div
@@ -205,7 +205,6 @@ export default function CartPage() {
             </main>
 
             {/* Mobile Sticky Footer */}
-            {/* TODO: uncomment if needed */}
             {/* <AnimatePresence>
                 {!isLoading && cartItems.length > 0 && !isSummaryInView && (
                     <motion.div
