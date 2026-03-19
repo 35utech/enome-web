@@ -111,6 +111,8 @@ export const GET = withAuth(async (request: NextRequest, context: any, session: 
 
 
             firstItemSize: sql<string>`(SELECT od.ukuran FROM orderdetail od WHERE od.order_id = orders.order_id LIMIT 1)`,
+            uniqueSizes: sql<string>`(SELECT GROUP_CONCAT(DISTINCT od.ukuran SEPARATOR ', ') FROM orderdetail od WHERE od.order_id = orders.order_id AND od.ukuran IS NOT NULL AND od.ukuran != '')`,
+            sizeCount: sql<number>`(SELECT COUNT(DISTINCT od.ukuran) FROM orderdetail od WHERE od.order_id = orders.order_id AND od.ukuran IS NOT NULL AND od.ukuran != '')`,
             itemCount: sql<number>`(SELECT SUM(od.qty) FROM orderdetail od WHERE od.order_id = orders.order_id)`
         })
             .from(orders)
