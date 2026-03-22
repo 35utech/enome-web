@@ -15,7 +15,6 @@ import CourierSection from "@/components/store/checkout/CourierSection";
 import DropshipperSection from "@/components/store/checkout/DropshipperSection";
 import PaymentSection from "@/components/store/checkout/PaymentSection";
 import OrderSummary from "@/components/store/checkout/OrderSummary";
-import SuccessState from "@/components/store/checkout/SuccessState";
 import { formatCurrency } from "@/lib/utils";
 
 function CheckoutContent() {
@@ -28,7 +27,7 @@ function CheckoutContent() {
         voucherCode, setVoucherCode, isVoucherApplied, setIsVoucherApplied, voucherDiscount, isVoucherLoading,
         addresses, isLoadingAddresses, isSelectionModalOpen, setIsSelectionModalOpen, isAddAddressModalOpen, setIsAddAddressModalOpen,
         paymentMethod, setPaymentMethod, paymentMethods, isLoadingPayments,
-        orderResult, lastOrderedItems, isSubmitting,
+        isSubmitting,
         couriers, isLoadingCouriers, shippingOptions, isLoadingShipping, shippingPrice, setShippingPrice,
         packingFee, grandTotal, remainingBill, originName,
         handleSelectAddress, updateQuantity, removeItem, updateNotes, removeAllItems, applyVoucher, submitOrder,
@@ -59,21 +58,6 @@ function CheckoutContent() {
         }
     }, [errors]);
 
-    if (orderResult) {
-        return (
-            <div className="min-h-screen bg-neutral-base-50">
-                <Navbar />
-                <SuccessState
-                    orderResult={{
-                        ...orderResult,
-                        statusOrder: orderResult.statusOrder || "OPEN"
-                    }}
-                    lastOrderedItems={lastOrderedItems}
-                    formatPrice={formatCurrency}
-                />
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-neutral-base-50 pb-10 md:pb-20">
