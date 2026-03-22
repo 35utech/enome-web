@@ -99,7 +99,7 @@ export default function FallbackImage({
             >
                 <Image
                     {...props}
-                    src={src}
+                    src={typeof src === 'string' ? src.replace(/ /g, '%20') : src}
                     alt={alt}
                     fill={fill}
                     className={className}
