@@ -14,6 +14,8 @@ try {
   console.warn("Invalid NEXT_PUBLIC_ASSET_URL, fallback to localhost");
 }
 
+console.log("NEXT.JS IMAGE CONFIG:", { assetProtocol, assetHostname });
+
 const nextConfig: NextConfig = {
   typescript: {
     // 🔥 ini penting kalau VPS RAM kecil
@@ -25,11 +27,33 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
+        hostname: "sys.batik-enome.com",
+        port: "",
+        pathname: "/**",
       },
       {
-        protocol: assetProtocol,
+        protocol: "http",
+        hostname: "sys.batik-enome.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: assetHostname,
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: assetHostname,
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
       },
     ],
   },
