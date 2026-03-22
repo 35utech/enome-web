@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCart } from "@/hooks/use-cart";
 import { useAddresses, Address } from "@/hooks/use-addresses";
@@ -14,6 +14,7 @@ import CONFIG from "@/lib/config";
 
 export function useCheckout() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const queryClient = useQueryClient();
     const selectedIds = useMemo(() =>
         searchParams.get("ids")?.split(",").map(id => parseInt(id)) || [],
@@ -82,33 +83,6 @@ export function useCheckout() {
     const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
     const [isLoadingPayments, setIsLoadingPayments] = useState(false);
 
-    // Order Result
-    const [orderResult, setOrderResult] = useState<{
-        orderId: string,
-        total: number,
-        paymentMethod?: string,
-        uniqueCode?: number,
-        bankAccount?: string,
-        bankOwner?: string,
-        bankName?: string,
-        subtotal?: number,
-        shippingPrice?: number,
-        packingFee?: number,
-        voucherDiscount?: number,
-        walletDeduction?: number,
-        // Detailed shipping/customer info
-        customerName?: string,
-        customerPhone?: string,
-        fullAddress?: string,
-        courierName?: string,
-        courierService?: string,
-        expiredTime?: string | number | null,
-        roundingAmount?: number,
-        whatsappAdmin?: string,
-        statusOrder?: string,
-        paymentVerificationTimeout?: number,
-    } | null>(null);
-    const [lastOrderedItems, setLastOrderedItems] = useState<any[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isVoucherLoading, setIsVoucherLoading] = useState(false);
     const [totalWeight, setTotalWeight] = useState(0);
@@ -559,32 +533,6 @@ export function useCheckout() {
 
             const data = await response.json();
             if (response.ok) {
-                setOrderResult({
-                    orderId: data.orderId,
-                    total: data.meta?.totalTagihan || data.totalAmount || (totalAmount + shippingPrice + packingFee - voucherDiscount - appliedWalletAmount),
-                    paymentMethod: data.paymentMethod,
-                    uniqueCode: data.uniqueCode,
-                    bankAccount: data.bankAccount,
-                    bankOwner: data.bankOwner,
-                    bankName: data.bankName,
-                    subtotal: data.subtotal || totalAmount,
-                    shippingPrice: data.meta?.shippingCost || shippingPrice,
-                    packingFee: data.meta?.packingFee || packingFee,
-                    voucherDiscount: data.meta?.discountAmount || voucherDiscount,
-                    walletDeduction: data.meta?.finalWalletAmount || appliedWalletAmount,
-                    customerName: shippingForm.name,
-                    customerPhone: shippingForm.phone,
-                    fullAddress: `${shippingForm.address}, ${shippingForm.kecamatan}, ${shippingForm.kota}, ${shippingForm.provinsi} ${shippingForm.kodePos}`,
-                    courierName: shippingForm.courierName || shippingForm.courier,
-                    courierService: shippingForm.service,
-                    expiredTime: data.expiredTime,
-                    roundingAmount: data.roundingAmount,
-                    whatsappAdmin: data.whatsappAdmin || whatsappAdmin,
-                    statusOrder: data.statusOrder || "OPEN",
-                    paymentVerificationTimeout: data.paymentVerificationTimeout,
-                });
-                setLastOrderedItems([...cartItems]);
-
                 // Invalidate cart queries to ensure UI is updated
                 queryClient.invalidateQueries({ queryKey: queryKeys.cart.all });
                 queryClient.invalidateQueries({ queryKey: queryKeys.cart.count });
@@ -592,7 +540,9 @@ export function useCheckout() {
 
                 refreshCart();
                 toast.success("Pesanan berhasil dibuat!");
-                window.scrollTo({ top: 0, behavior: "smooth" });
+
+                // Redirect to success page
+                router.push(`/checkout/success?orderId=${encodeURIComponent(data.orderId)}`);
             } else {
                 // Handle detailed stock/availability issues
                 if (data.issues && data.issues.length > 0) {
@@ -648,11 +598,12 @@ export function useCheckout() {
         voucherCode, setVoucherCode, isVoucherApplied, setIsVoucherApplied, voucherDiscount, isVoucherLoading,
         addresses, isLoadingAddresses, isSelectionModalOpen, setIsSelectionModalOpen, isAddAddressModalOpen, setIsAddAddressModalOpen,
         paymentMethod, setPaymentMethod, paymentMethods, isLoadingPayments,
-        orderResult, lastOrderedItems, isSubmitting,
+        isSubmitting,
         couriers, isLoadingCouriers, shippingOptions, setShippingOptions, isLoadingShipping, shippingPrice, setShippingPrice,
-        errors, validateCheckout, setErrors,
+        errors, setErrors,
         packingFee, grandTotal, remainingBill, originName,
-        handleSelectAddress, updateQuantity, removeItem, updateNotes, removeAllItems, applyVoucher, submitOrder, setVoucherData,
+        handleSelectAddress, updateQuantity, removeItem, updateNotes, removeAllItems, applyVoucher, submitOrder,
+        setVoucherData,
         refreshShipping: fetchShippingCost
     };
 }

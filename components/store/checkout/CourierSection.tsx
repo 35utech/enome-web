@@ -124,14 +124,14 @@ export default function CourierSection({
                                     )}>
                                         <Truck className="w-4.5 h-4.5 md:w-6 md:h-6" />
                                     </div>
- 
+
                                     <div className="flex-1 min-w-0 pr-4">
                                         <div className="flex items-center gap-2 mb-0.5 md:mb-1">
                                             <h4 className="text-[11px] md:text-[14px] font-bold text-neutral-base-900 uppercase tracking-tight truncate leading-tight">
                                                 {opt.courierCode ? `${opt.courierCode.toUpperCase()} - ` : ""}{opt.service}
                                             </h4>
                                         </div>
- 
+
                                         <div className="flex flex-col gap-1 md:gap-1.5">
                                             <p className="text-[9px] md:text-[12px] font-medium text-neutral-base-400 uppercase tracking-widest truncate">
                                                 {opt.description || opt.cost[0].note}
@@ -139,7 +139,7 @@ export default function CourierSection({
                                             <div className="flex items-center gap-1.5 md:gap-2">
                                                 <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-neutral-base-300" />
                                                 <span className="text-[9px] md:text-[12px] font-bold text-neutral-base-500 uppercase tracking-widest">
-                                                    Est: {opt.cost[0].etd ? `${opt.cost[0].etd.replace(" HARI", "").replace(" Hari", "")} Hari` : (isManual ? 'Cek Manual' : 'Menyusul')}
+                                                    Est: {opt.cost[0].etd ? `${opt.cost[0].etd.replace(" HARI", "").replace(" Hari", "")} Hari` : (isManual ? 'Cek Manual' : '-')}
                                                 </span>
                                             </div>
                                             <div className="mt-0.5 md:mt-1">
@@ -152,7 +152,7 @@ export default function CourierSection({
                                             </div>
                                         </div>
                                     </div>
- 
+
                                     <div className={cn(
                                         "absolute top-3.5 right-3.5 md:top-6 md:right-6 w-4.5 h-4.5 md:w-6 md:h-6 rounded-full border-2 transition-all flex items-center justify-center shrink-0",
                                         isSelected ? "border-neutral-base-900" : "border-neutral-base-200"
@@ -166,13 +166,13 @@ export default function CourierSection({
                 ) : (
                     <div className="h-40 md:h-48 rounded-xl md:rounded-[32px] border-2 border-dashed border-rose-100 flex flex-col items-center justify-center gap-4 bg-rose-50/10 px-6 text-center">
                         <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-400">
-                             <AlertCircle className="w-6 h-6" />
+                            <AlertCircle className="w-6 h-6" />
                         </div>
                         <div className="flex flex-col gap-1">
                             <p className="text-[13px] md:text-[14px] font-bold text-rose-500 uppercase tracking-widest">Pilihan pengiriman tidak tersedia</p>
                             <p className="text-[11px] text-neutral-base-400 font-medium whitespace-normal max-w-[250px] mx-auto">Kurir mungkin tidak mendukung area ini atau terjadi gangguan koneksi.</p>
                         </div>
-                        <button 
+                        <button
                             onClick={(e) => {
                                 e.preventDefault();
                                 onRefresh?.();
