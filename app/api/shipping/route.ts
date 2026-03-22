@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: "missing_params" }, { status: 400 });
         }
 
-        const { results, originName, originId } = await ShippingService.calculateShipping(destination, weight, origin, price);
+        const { results, originName, originId } = await ShippingService.calculateShipping(destination, weight, origin);
 
         return NextResponse.json({
             rajaongkir: {

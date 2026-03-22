@@ -26,7 +26,7 @@ export class ShippingService {
     /**
      * Calculate shipping costs for all active couriers.
      */
-    static async calculateShipping(destination: string | number, weight: number, originOverride?: string, price?: string | number): Promise<{ results: any[], originName: string, originId: string }> {
+    static async calculateShipping(destination: string | number, weight: number, originOverride?: string): Promise<{ results: any[], originName: string, originId: string }> {
         const apiKey = await ConfigService.get(CONFIG.RAJAONGKIR_KEY_VAR);
         if (!apiKey) throw new Error("rajaongkir_key_not_found");
 
@@ -69,7 +69,7 @@ export class ShippingService {
         // Fetch each courier individually for better reliability
         const allResults = await Promise.all(
             activeCouriers.map(c =>
-                this.fetchKomerce(apiKey, origin, destination, weight, c.code?.toLowerCase() || "", price)
+                this.fetchKomerce(apiKey, origin, destination, weight, c.code?.toLowerCase() || "")
             )
         );
 
@@ -119,7 +119,7 @@ export class ShippingService {
         const cacheKey = `val-${origin}-${destination}-${weight}-${courier}`;
 
         // Bypass cache to always fetch fresh data for validation
-        let results = await this.fetchKomerce(apiKey, origin, destination, weight, courier.toLowerCase(), claimedPrice);
+        let results = await this.fetchKomerce(apiKey, origin, destination, weight, courier.toLowerCase());
 
         // Find the specific service
         const matchedCourier = results.find(r => r.code.toUpperCase() === courier.toUpperCase());
@@ -140,7 +140,7 @@ export class ShippingService {
         return { valid, actualPrice };
     }
 
-    private static async fetchKomerce(apiKey: string, origin: string | number, destination: string | number, weight: number, courier: string, price: string | number = ""): Promise<any[]> {
+    private static async fetchKomerce(apiKey: string, origin: string | number, destination: string | number, weight: number, courier: string): Promise<any[]> {
         try {
             const response = await fetch("https://rajaongkir.komerce.id/api/v1/calculate/district/domestic-cost", {
                 method: "POST",
@@ -153,7 +153,7 @@ export class ShippingService {
                     destination: String(destination),
                     weight: String(Math.max(1, weight)),
                     courier: courier,
-                    price: price ? String(price) : "lowest"
+                    price: "lowest"
                 }),
                 cache: "no-store",
                 signal: AbortSignal.timeout(10000)
