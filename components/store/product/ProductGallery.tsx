@@ -43,15 +43,14 @@ export default function ProductGallery({ images, isSoldOut, isOnFlashSale }: Pro
                             {/* Badges and Overlays for primary image */}
                             {idx === 0 && (
                                 <>
-                                    <div className="absolute top-6 left-6 z-20 flex flex-col gap-3">
+                                    <div className="absolute top-0 left-0 z-20">
                                         {isOnFlashSale && (
                                             <motion.div
-                                                initial={{ x: -20, opacity: 0 }}
-                                                animate={{ x: 0, opacity: 1 }}
-                                                className="bg-red-600 backdrop-blur-md px-5 py-2.5 rounded-full flex items-center gap-2.5 shadow-2xl border border-red-500/50"
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                className="bg-red-600 px-5 py-2.5 rounded-br-3xl flex items-center shadow-2xl"
                                             >
-                                                <Zap className="w-4 h-4 text-white fill-white animate-pulse" />
-                                                <span className="text-[12px] font-bold uppercase tracking-widest text-white drop-shadow-sm font-montserrat">Flash Sale</span>
+                                                <span className="text-[14px] font-bold uppercase tracking-[0.2em] text-white drop-shadow-sm font-montserrat">&nbsp; Flash Sale</span>
                                             </motion.div>
                                         )}
                                     </div>

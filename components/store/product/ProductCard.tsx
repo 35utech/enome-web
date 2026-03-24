@@ -118,9 +118,9 @@ export default function ProductCard({ product, index }: ProductCardProps) {
 
                     {/* Status Badges */}
                     {product.isOnFlashSale && (
-                        <div className="absolute top-3 left-3 z-10 pointer-events-none">
-                            <span className="bg-red-600/90 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-sm">
-                                Flash Sale
+                        <div className="absolute top-0 left-0 z-10 pointer-events-none">
+                            <span className="bg-red-600 text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-br-xl shadow-lg shadow-red-900/20">
+                                &nbsp; Flash Sale
                             </span>
                         </div>
                     )}

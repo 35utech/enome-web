@@ -68,10 +68,10 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
         const stockResult = await OrderService.verifyStock(cartItems);
         if (!stockResult.success) {
             logger.warn("Order Error: Stock verification failed", { userId, issues: stockResult.issues });
-            return NextResponse.json({ 
-                message: "error", 
+            return NextResponse.json({
+                message: "error",
                 desc: stockResult.error,
-                issues: stockResult.issues 
+                issues: stockResult.issues
             }, { status: 400 });
         }
 
@@ -174,7 +174,7 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 .limit(1);
             bankData = bank;
         }
- 
+
         // 6. Create Order — pass targetCode as uniqueCode for display in keterangan
         const result: any = await OrderService.createOrder(orderData, stockResult.verifiedItems || [], finalWalletAmount, uniqueCode, bankData);
 
@@ -192,9 +192,9 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
                 // Fallback if not found in DB
                 result.paymentMethod = payment;
                 result.bankAccount = "2810377740";
-                result.bankOwner = "TRYSETYO0603";
-                result.bankName = "Bank BCA";
-                result.bankLogo = "rekening_pembayaran/bca.png";
+                result.bankOwner = "TRY SETYO UTOMO";
+                result.bankName = "Transfer Bank BCA";
+                result.bankLogo = "rekening_pembayaran/20260307225156.png";
             }
 
         }

@@ -42,6 +42,7 @@ export class CartService {
             qty: keranjang.qtyProduk,
             storedHarga: keranjang.hargaPoduk,
             normalHarga: sql<number>`MAX(COALESCE(${(produkDetail as any)[priceColumnName]}, ${produkDetail.hargaJual}))`.as('normalHarga'),
+            baseHarga: sql<number>`MAX(${produkDetail.hargaJual})`.as('baseHarga'),
             gambar: sql<string>`COALESCE(
                 (SELECT CONCAT('produk/', pi2.gambar) 
                  FROM produk_image pi2 
@@ -62,6 +63,10 @@ export class CartService {
             berat: sql<number>`MAX(${produkDetail.berat})`.as('berat'),
             fsIsAktif: flashSale.isAktif,
             fsWaktuSelesai: flashSale.waktuSelesai,
+            // Subquery for direct flash sale detection (if exists for this product)
+            activeFsId: sql<number>`(SELECT fs.id FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id WHERE fs.is_aktif = 1 AND fsd.produk_id = ${keranjang.produkId} AND ${dhms} BETWEEN fs.waktu_mulai AND fs.waktu_selesai AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`.as('activeFsId'),
+            activeFsDiscount: sql<number>`(SELECT ck.diskon_flash_sale FROM customer_kategori ck WHERE ck.id = ${kategoriId} LIMIT 1)`.as('activeFsDiscount'),
+            activeFsEndTime: sql<string>`(SELECT DATE_FORMAT(fs.waktu_selesai, '%Y-%m-%d %H:%i:%s') FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id WHERE fs.is_aktif = 1 AND fsd.produk_id = ${keranjang.produkId} AND ${dhms} BETWEEN fs.waktu_mulai AND fs.waktu_selesai AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`.as('activeFsEndTime'),
         })
             .from(keranjang)
             .leftJoin(produk, eq(keranjang.produkId, produk.produkId))
@@ -96,41 +101,51 @@ export class CartService {
             .orderBy(sql`${keranjang.createdAt} DESC`);
 
         // 2. Process items: check for expired flash sales and revert price if needed
-        const items = rawItems.map(item => {
-            // A flash sale is expired if:
-            // 1. keranjang.is_flashsale is 1 AND
-            // 2. (keranjang.flashsale_expired is passed OR FlashSale event is not active anymore)
-            const isFlashSalePrice = item.isFlashsale === 1;
+        const items = rawItems.map((item: any) => {
+            const hasActiveFS = !!item.activeFsId;
+            const isFlashSalePrice = item.isFlashsale === 1 || hasActiveFS;
             let isExpired = false;
 
             if (isFlashSalePrice) {
-                const cartExpired = item.flashsaleExpired ? parseJakarta(String(item.flashsaleExpired)) < now : false;
-                const eventInactive = item.flashsaleId ? (item.fsIsAktif === 0) : false;
-                const eventExpired = item.fsWaktuSelesai ? parseJakarta(String(item.fsWaktuSelesai)) < now : false;
-
-                isExpired = cartExpired || eventInactive || eventExpired;
+                if (hasActiveFS) {
+                    // It has an active FS, so it's not expired
+                    isExpired = false;
+                } else {
+                    // It was a flash sale item but current active FS check failed
+                    // Check if the original one linked is still valid
+                    const cartExpired = item.flashsaleExpired ? parseJakarta(String(item.flashsaleExpired)) < now : false;
+                    const eventInactive = item.flashsaleId ? (item.fsIsAktif === 0) : false;
+                    const eventExpired = item.fsWaktuSelesai ? parseJakarta(String(item.fsWaktuSelesai)) < now : false;
+                    isExpired = cartExpired || eventInactive || eventExpired;
+                }
             }
 
-            // 1. Ambil harga asli (normalHarga) yang terbaru sebagai prioritas
-            // Jika tidak ada normalHarga, baru fallback ke storedHarga (harga saat masuk cart)
-            let currentActivePrice = Number(item.normalHarga ?? item.storedHarga);
+            // 1. Ambil harga dasar terbaru
+            let normalHargaCurrent = Number(item.normalHarga ?? item.storedHarga);
+            let baseHargaCurrent = Number(item.baseHarga ?? item.storedHarga);
             
             // 2. Tentukan harga final
-            let finalHarga = currentActivePrice;
+            let finalHarga = normalHargaCurrent;
             
-            // Jika ini flash sale dan BELUM expired, kembali pakai harga flashsale (storedHarga)
+            // Jika ada flash sale aktif (baik yang lama atau yang baru terdeteksi)
             if (isFlashSalePrice && !isExpired) {
-                finalHarga = Number(item.storedHarga);
+                if (hasActiveFS) {
+                    // Hitung harga diskon dari harga dasar (hargaJual)
+                    const discount = Number(item.activeFsDiscount || 0);
+                    finalHarga = baseHargaCurrent - (baseHargaCurrent * (discount / 100));
+                } else {
+                    // Fallback ke storedHarga (harga flashsale saat ditambahkan)
+                    finalHarga = Number(item.storedHarga);
+                }
             } 
 
             // 3. Deteksi apakah harga berubah (dari saat masuk keranjang vs harga aktual)
             const isPriceChanged = Number(item.storedHarga) !== finalHarga;
 
-            console.log(`Cart debug - ID ${item.id}: stored=${item.storedHarga}, normal=${item.normalHarga}, final=${finalHarga}, changed=${isPriceChanged}`);
-
             return {
                 ...item,
                 harga: finalHarga,
+                isFlashsale: isFlashSalePrice && !isExpired ? 1 : 0,
                 isFlashsaleExpired: isExpired ? 1 : 0,
                 isPriceChanged: isPriceChanged,
                 oldHarga: isPriceChanged ? Number(item.storedHarga) : null

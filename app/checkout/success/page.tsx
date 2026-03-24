@@ -185,14 +185,19 @@ function SuccessContent() {
     };
 
     return (
-        <div className="min-h-screen bg-neutral-base-50">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="min-h-screen bg-neutral-base-50"
+        >
             <Navbar />
             <SuccessState
                 orderResult={orderResult}
                 lastOrderedItems={detail.items}
                 formatPrice={formatCurrency}
             />
-        </div>
+        </motion.div>
     );
 }
 

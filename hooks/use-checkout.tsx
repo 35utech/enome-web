@@ -569,7 +569,7 @@ export function useCheckout() {
                 toast.success("Pesanan berhasil dibuat!");
 
                 // Add a small delay for "smooth" transition
-                await new Promise(resolve => setTimeout(resolve, 1200));
+                await new Promise(resolve => setTimeout(resolve, 800));
 
                 // Redirect to success page
                 router.push(`/checkout/success?orderId=${encodeURIComponent(data.orderId)}`);
