@@ -168,6 +168,13 @@ export const POST = withAuth(async (request: NextRequest, context: any, session:
             const filePath = join(uploadDir, fileName);
             await fs.writeFile(filePath, buffer);
 
+            try {
+                // Ensure file is readable by web server (Nginx) and other users
+                await fs.chmod(filePath, 0o644);
+            } catch (chmodError) {
+                logger.warn("Profile Photo: Failed to set file permissions", { filePath, error: chmodError });
+            }
+
             const assetUrl = process.env.NEXT_PUBLIC_URL || "";
             const fullUrl = `${assetUrl}/img/user/${fileName}`;
 

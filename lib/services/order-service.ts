@@ -23,21 +23,30 @@ export class OrderService {
      * @returns {{ targetCode: number, adjustment: number }}
      */
     static async generateUniqueCode(baseAmount: number): Promise<{ targetCode: number, adjustment: number }> {
+        const configMin = await ConfigService.getInt("code_uniq_payment_min", 1);
+        const configMax = await ConfigService.getInt("code_uniq_payment_max", 222);
+
+        // Ensure min is smaller than max even if swapped in database
+        const min = Math.min(configMin, configMax);
+        const max = Math.max(configMin, configMax);
+        const range = Math.max(1, max - min + 1);
+
         let adjustment: number;
         let targetCode: number;
         let isUnique = false;
         let attempts = 0;
 
         do {
-            // Generate adjustment kecil (100-999) agar charge reasonable
-            adjustment = Math.floor(Math.random() * 900) + 100;
-            targetCode = (baseAmount + adjustment) % 1000;
+            // 1. Generate random adjustment in the range (e.g. 1-222)
+            adjustment = Math.floor(Math.random() * range) + min;
 
-            // Pastikan targetCode >= 100 (3 digit)
-            if (targetCode < 100) {
-                adjustment += (100 - targetCode);
-                targetCode = (baseAmount + adjustment) % 1000;
-            }
+            // 2. targetCode is what is displayed to user as "Unique Code". 
+            // The user wants the adjustment itself to be the unique code.
+            targetCode = adjustment;
+
+            // 3. The final total's last 3 digits will be what admin sees.
+            // We check for uniqueness of this final suffix.
+            const finalTotalSuffix = (Math.round(baseAmount) + adjustment) % 1000;
 
             // Cek apakah ada order pending dengan 3 digit terakhir sama
             const [existing] = await db.select({ orderId: orders.orderId })
@@ -45,7 +54,7 @@ export class OrderService {
                 .where(
                     and(
                         eq(orders.statusOrder, "OPEN"),
-                        sql`MOD(${orders.totalTagihan}, 1000) = ${targetCode}`
+                        sql`MOD(${orders.totalTagihan}, 1000) = ${finalTotalSuffix}`
                     )
                 )
                 .limit(1);
@@ -489,7 +498,7 @@ export class OrderService {
                 paymentTransactionId: `${orderId};`,
                 createdAt: sql`${dhms}`,
                 createdBy: Number(userId) || 1,
-                tujuanAtasNama: bankData ? bankData.namaPemilik : (payment === "Transfer Bank BCA" ? "TRY Setyo0603" : "-"),
+                tujuanAtasNama: bankData ? bankData.namaPemilik : (payment === "Transfer Bank BCA" ? "TRY SETYO UTOMO" : "-"),
                 tujuanNamaBank: bankData ? bankData.namaBank : (payment === "Transfer Bank BCA" ? "BCA" : (payment || "-")),
                 tujuanLogoBank: bankData ? `${ASSET_URL}/img/rekening_pembayaran/${bankData.logoBank}` : "-",
                 tujuanNoRekening: bankData ? bankData.noRekening : (payment === "Transfer Bank BCA" ? "2810377740" : "-"),
@@ -549,9 +558,9 @@ export class OrderService {
                         } else {
                             // Default Fallback
                             emailPayload.paymentInfo = {
-                                bankName: "Bank BCA",
+                                bankName: "Transfer Bank BCA",
                                 bankAccount: "2810377740",
-                                bankOwner: "TRYSETYO0603"
+                                bankOwner: "TRY SETYO UTOMO"
                             };
                         }
                     }

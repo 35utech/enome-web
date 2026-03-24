@@ -286,12 +286,13 @@ function CheckoutContent() {
                 cartItems={cartItems}
                 shippingForm={shippingForm}
                 paymentMethod={paymentMethod}
-                grandTotal={totalAmount + shippingPrice + packingFee}
+                grandTotal={grandTotal}
                 shippingPrice={shippingPrice}
                 packingFee={packingFee}
                 voucherDiscount={voucherDiscount}
                 appliedWalletAmount={appliedWalletAmount}
                 remainingBill={remainingBill}
+                subtotal={totalAmount}
                 formatPrice={formatCurrency}
             />
         </div>
