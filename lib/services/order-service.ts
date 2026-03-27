@@ -1,7 +1,7 @@
 import { ASSET_URL } from "@/config/config";
 import { db } from "@/lib/db";
 import {
-    keranjang, orders, orderdetail, produk, produkDetail,
+    keranjang, orders, orderdetail, produk, produkDetail, produkDetailCabangStok,
     preOrder, wallet, voucher, voucherHistory, payment as paymentTable, flashSale, centralConfig, rekeningPembayaran, companyProfile, stok
 } from "@/lib/db/schema";
 
@@ -375,9 +375,18 @@ export class OrderService {
 
                 await tx.insert(orderdetail).values(detailValues);
 
-                await tx.update(produkDetail)
-                    .set({ stokNormal: sql`${produkDetail.stokNormal} - ${qty}` })
-                    .where(eq(produkDetail.detailId, item.detail.detailId));
+                // await tx.update(produkDetail)
+                //     .set({ stokNormal: sql`${produkDetail.stokNormal} - ${qty}` })
+                //     .where(eq(produkDetail.detailId, item.detail.detailId));
+
+                await tx.update(produkDetailCabangStok)
+                .set({
+                    stokNormal: sql`${produkDetailCabangStok.stokNormal} - ${qty}`,
+                })
+                .where(and(
+                    eq(produkDetailCabangStok.produkdetailId, item.detail.detailId),
+                    eq(produkDetailCabangStok.companyprofileId, CONFIG.DEFAULT_COMPANY_PROFILE_ID)
+                ));
 
                 // 3. Log Stock Movement
                 await tx.insert(stok).values({

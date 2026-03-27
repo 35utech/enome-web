@@ -560,3 +560,14 @@ export const blog = mysqlTable("blog", {
     updatedBy: varchar("updated_by", { length: 100 }),
     isDeleted: int("is_deleted").default(0),
 });
+
+export const produkDetailCabangStok = mysqlTable("produkdetail_cabang_stok", {
+    id: serial("id").primaryKey(),
+    produkdetailId: int("produkdetail_id").notNull(),
+    companyprofileId: int("companyprofile_id").notNull(),
+    stokNormal: int("stok_normal").default(0),
+    stokRijek: int("stok_rijek").default(0),
+    createdAt: int("created_at"),
+    updatedAt: int("updated_at"),
+    updatedBy: int("updated_by"),
+});

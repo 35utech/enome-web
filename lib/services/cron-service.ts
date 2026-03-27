@@ -250,33 +250,65 @@ export class CronService {
     /**
      * Syncs product stock by summing up stock from detail table.
      */
+    // static async syncProductStock() {
+    //     logger.info(`CronService: Starting syncProductStock process`);
+
+    //     try {
+    //         // This is complex to do in Drizzle with a single query across all products
+    //         // We use a raw SQL approach for performance, similar to the PHP one.
+    //         const query = sql`
+    //             UPDATE produk p
+    //             LEFT JOIN (
+    //                 select produk_id, sum(stok_normal) as total, sum(stok_rijek) as total_rijek
+    //                 from produkdetail
+    //                 group by produk_id
+    //             ) AS x ON p.produk_id = x.produk_id
+    //             SET 
+    //                 p.qtystok_normal = COALESCE(x.total, 0),
+    //                 p.qtystok_rijek = COALESCE(x.total_rijek, 0)
+    //         `;
+
+    //         await db.execute(query);
+
+    //         logger.info(`CronService: Product stock synced.`);
+    //         return { success: true };
+    //     } catch (error) {
+    //         logger.error("CronService: Error in syncProductStock", error);
+    //         return { success: false, error };
+    //     }
+    // }
+
     static async syncProductStock() {
         logger.info(`CronService: Starting syncProductStock process`);
 
         try {
-            // This is complex to do in Drizzle with a single query across all products
-            // We use a raw SQL approach for performance, similar to the PHP one.
             const query = sql`
                 UPDATE produk p
                 LEFT JOIN (
-                    select produk_id, sum(stok_normal) as total, sum(stok_rijek) as total_rijek
-                    from produkdetail
-                    group by produk_id
-                ) AS x ON p.produk_id = x.produk_id
-                SET 
-                    p.qtystok_normal = COALESCE(x.total, 0),
+                    SELECT
+                        pd.produk_id,
+                        COALESCE(SUM(pcs.stok_normal), 0) AS total_normal,
+                        COALESCE(SUM(pcs.stok_rijek), 0) AS total_rijek
+                    FROM produkdetail pd
+                    LEFT JOIN produkdetail_cabang_stok pcs
+                        ON pcs.produkdetail_id = pd.detail_id
+                    GROUP BY pd.produk_id
+                ) x ON p.produk_id = x.produk_id
+                SET
+                    p.qtystok_normal = COALESCE(x.total_normal, 0),
                     p.qtystok_rijek = COALESCE(x.total_rijek, 0)
             `;
 
             await db.execute(query);
 
-            logger.info(`CronService: Product stock synced.`);
+            logger.info(`CronService: Product stock synced from branch stock.`);
             return { success: true };
         } catch (error) {
             logger.error("CronService: Error in syncProductStock", error);
             return { success: false, error };
         }
     }
+
 
     /**
      * Deletes or masks flash sale items in cart that have expired.
