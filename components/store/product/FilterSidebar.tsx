@@ -49,7 +49,7 @@ const GENDER_OPTIONS = [
 const BRAND_OPTIONS = [
     { label: "Enome", value: "enome" },
     { label: "Enome Homme", value: "homme" },
-    { label: "Enome by nuna", value: "nuna" }
+    { label: "Enome by Nuna", value: "nuna" }
 ];
 
 /** Rentang harga yang didukung backend */
