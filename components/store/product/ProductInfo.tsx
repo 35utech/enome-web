@@ -34,6 +34,7 @@ import {
 import type { MatrixEntry, ProductColor } from "@/lib/product-utils";
 import { ASSET_URL } from "@/config/config";
 import AccordionItem from "./AccordionItem";
+import SizeGuide from "./SizeGuide";
 
 interface ProductInfoProps {
     product: {
@@ -60,6 +61,7 @@ interface ProductInfoProps {
         jenisBahan?: string | null;
         isFuring?: number | null;
         berat?: number | null;
+        gambarSize?: string | null;
     };
     selectedVariant: string;
     setSelectedVariant: (variant: string) => void;
@@ -416,10 +418,7 @@ export default function ProductInfo({ product, selectedVariant, setSelectedVaria
                     <span className={`text-[11px] font-bold uppercase tracking-[0.12em] transition-colors ${hintType === 'size' ? 'text-red-500' : 'text-neutral-base-900'}`}>
                         Ukuran: <span className="font-medium text-neutral-base-500 ml-1 normal-case tracking-normal">{selectedSize || "Pilih ukuran"}</span>
                     </span>
-                    <button className="text-[11px] font-bold text-neutral-base-400 hover:text-neutral-base-900 underline flex items-center gap-1 transition-colors">
-                        <Ruler className="w-3 h-3" />
-                        Panduan ukuran
-                    </button>
+                    <SizeGuide imageUrl={product.gambarSize} />
                 </div>
                 <m.div
                     key={`size-${shakeKey}`}
