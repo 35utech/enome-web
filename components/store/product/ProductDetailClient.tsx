@@ -142,6 +142,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
         isFuring: product.isFuring,
         berat: variants.berat,
         isHighlighted: product.isHighlighted,
+        gambarSize: product.gambarSize,
     };
 
     return (
