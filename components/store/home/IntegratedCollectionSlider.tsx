@@ -21,28 +21,34 @@ const getPositionClasses = (position: string | undefined, isMobile: boolean) => 
 
     const pos = position.toLowerCase();
 
-    // Mobile specific logic (simplified)
-    if (isMobile) {
-        if (pos.includes('top')) return "items-center top-20 text-center";
-        if (pos.includes('mid') || pos.includes('center')) return "items-center top-1/2 -translate-y-1/2 text-center";
-        return "items-center bottom-24 text-center";
-    }
-
-    // Responsive Desktop positioning
+    // Responsive positioning logic
     let vClasses = "";
     let hClasses = "";
 
     // Vertical keywords
-    if (pos.includes('top')) vClasses = "top-20 sm:top-28 md:top-36 lg:top-40 ";
-    else if (pos.includes('bottom')) vClasses = "bottom-12 sm:bottom-20 md:bottom-24 ";
-    else if (pos.includes('mid') || (pos.includes('center') && !pos.includes('left') && !pos.includes('right'))) vClasses = "top-1/2 -translate-y-1/2 ";
-    else vClasses = "bottom-20 sm:bottom-24 "; // default
+    if (pos.includes('top')) {
+        vClasses = isMobile ? "top-10 " : "top-10 sm:top-12 md:top-16 lg:top-20 ";
+    } else if (pos.includes('bottom')) {
+        vClasses = isMobile ? "bottom-24 " : "bottom-12 sm:bottom-16 md:bottom-20 ";
+    } else if (pos.includes('mid') || (pos.includes('center') && !pos.includes('left') && !pos.includes('right'))) {
+        vClasses = "top-1/2 -translate-y-1/2 ";
+    } else {
+        vClasses = isMobile ? "bottom-24 " : "bottom-12 sm:bottom-20 "; // default
+    }
 
     // Horizontal keywords
-    if (pos.includes('right')) hClasses = "items-end text-right right-10 sm:right-16 md:right-24 lg:right-32 ";
-    else if (pos.includes('left')) hClasses = "items-start text-left left-10 sm:left-16 md:left-24 lg:left-32 ";
-    else if (pos.includes('center') || (pos.includes('middle') && !pos.includes('top') && !pos.includes('bottom'))) hClasses = "items-center text-center left-1/2 -translate-x-1/2 ";
-    else hClasses = "items-start text-left left-10 sm:left-16 md:left-24 lg:left-32 "; // default
+    if (pos.includes('right')) {
+        hClasses = isMobile ? "items-center text-center right-6 " : "items-end text-right right-10 sm:right-12 md:right-16 lg:right-20 ";
+        // If mobile and contains top, we keep center for better balance, but if it has right, we follow right logic
+        if (isMobile && !pos.includes('top')) hClasses = "items-end text-right right-6 ";
+    } else if (pos.includes('left')) {
+        hClasses = isMobile ? "items-center text-center left-6 " : "items-start text-left left-10 sm:left-12 md:left-16 lg:left-20 ";
+        if (isMobile && !pos.includes('top')) hClasses = "items-start text-left left-6 ";
+    } else if (pos.includes('center') || (pos.includes('middle') && !pos.includes('top') && !pos.includes('bottom'))) {
+        hClasses = "items-center text-center left-1/2 -translate-x-1/2 ";
+    } else {
+        hClasses = isMobile ? "items-center text-center " : "items-start text-left left-10 sm:left-12 md:left-16 lg:left-20 "; // default
+    }
 
     return vClasses + hClasses;
 };
@@ -325,7 +331,7 @@ export default function IntegratedCollectionSlider() {
                                     {img.brandImageLink && (
                                         <div className={cn(
                                             "absolute inset-0 z-10 pointer-events-none w-full h-full",
-                                            isMobile ? "p-6 pb-28" : "p-10 sm:p-16 lg:p-32"
+                                            isMobile ? "p-4 pb-28" : "p-6 sm:p-10 lg:p-16"
                                         )}>
                                             <m.div
                                                 initial={{ opacity: 0, scale: 1 }}
@@ -353,7 +359,7 @@ export default function IntegratedCollectionSlider() {
                                     {/* Collection Title & Tagline - Dynamic Positioning */}
                                     <div className={cn(
                                         "absolute inset-0 z-10 pointer-events-none w-full h-full",
-                                        isMobile ? "p-6 pb-28" : "p-10 sm:p-16 lg:p-32"
+                                        isMobile ? "p-4 pb-28" : "p-6 sm:p-10 lg:p-16"
                                     )}>
                                         <div className={cn(
                                             "absolute flex flex-col transition-all duration-700",

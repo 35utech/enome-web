@@ -3,10 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import FilterSidebar, { FilterState } from "@/components/store/product/FilterSidebar";
-import ProductListHeader, { SortOption } from "@/components/store/product/ProductListHeader";
 import Navbar from "@/components/store/layout/Navbar";
-import Footer from "@/components/store/layout/Footer";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { SlidersHorizontal, Search } from "lucide-react";
 import { useProducts, useCategories, useColors, useSizes } from "@/hooks/use-products";
@@ -14,6 +11,15 @@ import type { Category, Color, Size } from "@/hooks/use-products";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import EmptyState from "@/components/store/shared/EmptyState";
 import CONFIG from "@/lib/config";
+import dynamic from "next/dynamic";
+
+// Types
+import type { FilterState } from "@/components/store/product/FilterSidebar";
+import type { SortOption } from "@/components/store/product/ProductListHeader";
+
+const Footer = dynamic(() => import("@/components/store/layout/Footer"), { ssr: true });
+const FilterSidebar = dynamic(() => import("@/components/store/product/FilterSidebar"), { ssr: true });
+const ProductListHeader = dynamic(() => import("@/components/store/product/ProductListHeader"), { ssr: true });
 
 // New Components
 import Pagination from "@/components/store/shared/Pagination";
@@ -43,7 +49,16 @@ export default function ProductsClient() {
     const [sortBy, setSortBy] = useState<SortOption>("newest");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { data: rawProducts = [], isLoading: productsLoading, isFetching: productsFetching } = useProducts(activeFilters);
+    const { data: productsResponse, isLoading: productsLoading, isFetching: productsFetching } = useProducts({ 
+        ...activeFilters, 
+        page: currentPage, 
+        limit: CONFIG.PAGINATION.DEFAULT_LIMIT,
+        sort: sortBy
+    });
+    
+    const rawProducts = productsResponse?.data || [];
+    const totalItems = productsResponse?.total || 0;
+
     const { data: categoriesData = [], isLoading: categoriesLoading } = useCategories({ brand: activeFilters.brand, gender: activeFilters.gender });
     const { data: colorsData = [], isLoading: colorsLoading } = useColors();
     const { data: sizesData = [], isLoading: sizesLoading } = useSizes();
@@ -94,28 +109,8 @@ export default function ProductsClient() {
         setCurrentPage(1); // Reset to first page on filter change
     }, []);
 
-    const filteredProducts = useMemo(() => {
-        let items = [...rawProducts];
-        items.sort((a, b) => {
-            switch (sortBy) {
-                case "price_asc": return Number(a.finalMinPrice || 0) - Number(b.finalMinPrice || 0);
-                case "price_desc": return Number(b.finalMinPrice || 0) - Number(a.finalMinPrice || 0);
-                case "name_asc": return a.namaProduk.localeCompare(b.namaProduk);
-                case "newest":
-                default:
-                    if (a.tglRilis && b.tglRilis) return new Date(b.tglRilis).getTime() - new Date(a.tglRilis).getTime();
-                    return b.produkId.localeCompare(a.produkId);
-            }
-        });
-        return items;
-    }, [rawProducts, sortBy]);
-
     const ITEMS_PER_PAGE = CONFIG.PAGINATION.DEFAULT_LIMIT;
-    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-    const paginatedProducts = useMemo(() => {
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
-    }, [filteredProducts, currentPage, ITEMS_PER_PAGE]);
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -191,13 +186,13 @@ export default function ProductsClient() {
                                             <StickyHeader
                                                 currentPage={currentPage}
                                                 itemsPerPage={ITEMS_PER_PAGE}
-                                                totalItems={filteredProducts.length}
+                                                totalItems={totalItems}
                                                 sortBy={sortBy}
                                                 onSortChange={setSortBy}
                                                 isRefreshing={isRefreshing}
                                             />
 
-                                            {filteredProducts.length === 0 ? (
+                                            {totalItems === 0 ? (
                                                 <EmptyState
                                                     icon={Search}
                                                     title="Tidak ada product"
@@ -207,14 +202,14 @@ export default function ProductsClient() {
                                                     className="py-20 border-dashed"
                                                 />
                                             ) : (
-                                                <ProductGrid products={paginatedProducts} isRefreshing={isRefreshing} />
+                                                <ProductGrid products={rawProducts} isRefreshing={isRefreshing} />
                                             )}
 
                                             {totalPages > 1 && (
                                                 <div className="mt-16">
                                                     <Pagination
                                                         currentPage={currentPage}
-                                                        totalItems={filteredProducts.length}
+                                                        totalItems={totalItems}
                                                         itemsPerPage={ITEMS_PER_PAGE}
                                                         onPageChange={handlePageChange}
                                                     />

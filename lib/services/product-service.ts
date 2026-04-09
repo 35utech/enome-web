@@ -7,6 +7,7 @@ import { CustomerService } from "./customer-service";
 export interface ProductQueryOptions {
     kategoriId: number;
     limit?: number;
+    page?: number;
     where?: any;
     orderBy?: any;
     categories?: string[];
@@ -23,44 +24,14 @@ export class ProductService {
      * Base query for fetching products with prices, stock, and status.
      */
     static async getProducts(options: ProductQueryOptions) {
-        const { kategoriId, limit = 6, where, orderBy } = options;
+        const { kategoriId, limit = 9, page = 1, where, orderBy } = options;
+        const offset = (page - 1) * limit;
         const priceColumn = CustomerService.getPriceColumn(kategoriId);
         const now = getJakartaDate();
 
-        let query = db
-            .select({
-                produkId: produk.produkId,
-                namaProduk: produk.namaProduk,
-                kategori: produk.kategori,
-                gambar: produk.gambar,
-                deskripsi: produk.deskripsi,
-                tglRilis: produk.tglRilis,
-                minPrice: min(priceColumn),
-                maxPrice: max(priceColumn),
-                baseMinPrice: min(produkDetail.hargaJual),
-                baseMaxPrice: max(produkDetail.hargaJual),
-                totalStock: sql<number>`(SELECT COALESCE(SUM(stok_normal), 0) FROM produkdetail WHERE produk_id = produk.produk_id)`,
-                isOnline: produk.isOnline,
-                isAktif: produk.isAktif,
-                isHighlighted: produk.isHighlighted,
-                produkPreorder: produk.produkPreorder,
-                brand: produk.brand,
-                gender: produk.gender,
-                colors: sql<string>`GROUP_CONCAT(DISTINCT CONCAT(COALESCE(${warna.warna}, ${produkDetail.warnaId}), '|', COALESCE(${warna.kodeWarna}, '#cccccc')) SEPARATOR ',')`,
-                flashSaleId: sql<number>`(SELECT fs.id FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id WHERE fs.is_aktif = 1 AND fsd.produk_id = produk.produk_id AND ${now} BETWEEN fs.waktu_mulai AND fs.waktu_selesai AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`,
-                preOrderId: sql<number>`(SELECT po.pre_order_id FROM pre_order po INNER JOIN pre_order_detail pod ON po.pre_order_id = pod.pre_order_id WHERE po.is_aktif = 1 AND pod.produk_id = produk.produk_id AND po.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`,
-                flashSaleDiscount: sql<number>`(SELECT ck.diskon_flash_sale FROM customer_kategori ck WHERE ck.id = ${kategoriId} LIMIT 1)`,
-            })
-            .from(produk)
-            .leftJoin(produkDetail, eq(produk.produkId, produkDetail.produkId))
-            .leftJoin(warna, or(eq(produkDetail.warnaId, warna.warnaId), eq(produkDetail.warnaId, warna.warna)))
-            .groupBy(produk.produkId);
-
+        // --- Build Conditions ---
         const conditions: any[] = [];
         if (where) conditions.push(where);
-
-        // Hide out-of-stock products unless it's a pre-order
-        // conditions.push(sql`((SELECT COALESCE(SUM(stok_normal), 0) FROM produkdetail WHERE produk_id = ${produk.produkId}) > 0 OR ${produk.produkPreorder} = 1)`);
 
         if (options.categories && options.categories.length > 0) {
             conditions.push(inArray(produk.kategori, options.categories));
@@ -109,21 +80,55 @@ export class ProductService {
             }
         }
 
-        if (conditions.length > 0) {
-            query = query.where(and(...conditions)) as any;
-        }
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-        if (orderBy) {
-            query = query.orderBy(orderBy) as any;
-        }
+        // --- Execute Queries in Parallel ---
+        const [totalResult, data] = await Promise.all([
+            // 1. Get Total Count
+            db.select({ count: sql<number>`COUNT(DISTINCT ${produk.produkId})` })
+                .from(produk)
+                .leftJoin(produkDetail, eq(produk.produkId, produkDetail.produkId))
+                .leftJoin(warna, or(eq(produkDetail.warnaId, warna.warnaId), eq(produkDetail.warnaId, warna.warna)))
+                .where(whereClause),
 
+            // 2. Get Paginated Data
+            db.select({
+                produkId: produk.produkId,
+                namaProduk: produk.namaProduk,
+                kategori: produk.kategori,
+                gambar: produk.gambar,
+                deskripsi: produk.deskripsi,
+                tglRilis: produk.tglRilis,
+                minPrice: min(priceColumn),
+                maxPrice: max(priceColumn),
+                baseMinPrice: min(produkDetail.hargaJual),
+                baseMaxPrice: max(produkDetail.hargaJual),
+                totalStock: sql<number>`(SELECT COALESCE(SUM(stok_normal), 0) FROM produkdetail WHERE produk_id = produk.produk_id)`,
+                isOnline: produk.isOnline,
+                isAktif: produk.isAktif,
+                isHighlighted: produk.isHighlighted,
+                produkPreorder: produk.produkPreorder,
+                brand: produk.brand,
+                gender: produk.gender,
+                colors: sql<string>`GROUP_CONCAT(DISTINCT CONCAT(COALESCE(${warna.warna}, ${produkDetail.warnaId}), '|', COALESCE(${warna.kodeWarna}, '#cccccc')) SEPARATOR ',')`,
+                flashSaleId: sql<number>`(SELECT fs.id FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id WHERE fs.is_aktif = 1 AND fsd.produk_id = produk.produk_id AND ${now} BETWEEN fs.waktu_mulai AND fs.waktu_selesai AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`,
+                preOrderId: sql<number>`(SELECT po.pre_order_id FROM pre_order po INNER JOIN pre_order_detail pod ON po.pre_order_id = pod.pre_order_id WHERE po.is_aktif = 1 AND pod.produk_id = produk.produk_id AND po.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`,
+                flashSaleDiscount: sql<number>`(SELECT ck.diskon_flash_sale FROM customer_kategori ck WHERE ck.id = ${kategoriId} LIMIT 1)`,
+            })
+            .from(produk)
+            .leftJoin(produkDetail, eq(produk.produkId, produkDetail.produkId))
+            .leftJoin(warna, or(eq(produkDetail.warnaId, warna.warnaId), eq(produkDetail.warnaId, warna.warna)))
+            .where(whereClause)
+            .groupBy(produk.produkId)
+            .orderBy(orderBy || sql`SUM(${produkDetail.stokNormal}) DESC`)
+            .limit(limit)
+            .offset(offset)
+        ]);
 
-        if (limit) {
-            query = query.limit(limit) as any;
-        }
-
-        const data = await query;
-        return this.processProductData(data);
+        return {
+            data: this.processProductData(data),
+            total: Number(totalResult[0]?.count || 0)
+        };
     }
 
     /**
@@ -190,7 +195,7 @@ export class ProductService {
                 colors: sql<string>`GROUP_CONCAT(DISTINCT CONCAT(COALESCE(${warna.warna}, ${produkDetail.warnaId}), '|', COALESCE(${warna.kodeWarna}, '#cccccc')) SEPARATOR ',')`,
                 flashSaleId: sql<number>`(SELECT fs.id FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id WHERE fs.is_aktif = 1 AND fsd.produk_id = produk.produk_id AND ${now} BETWEEN fs.waktu_mulai AND fs.waktu_selesai AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`,
                 flashSaleDiscount: sql<number>`(SELECT ck.diskon_flash_sale FROM customer_kategori ck WHERE ck.id = ${kategoriId} LIMIT 1)`,
-            }).from(produk).innerJoin(produkDetail, eq(produk.produkId, produkDetail.produkId)).innerJoin(warna, or(eq(produkDetail.warnaId, warna.warnaId), eq(produkDetail.warnaId, warna.warna))).where(and(eq(produk.kategori, mainProduct.kategori), not(eq(produk.produkId, id)), eq(produk.isOnline, 1))).groupBy(produk.produkId).limit(8),
+            }).from(produk).innerJoin(produkDetail, eq(produk.produkId, produkDetail.produkId)).innerJoin(warna, or(eq(produkDetail.warnaId, warna.warnaId), eq(produkDetail.warnaId, warna.warna))).where(and(eq(produk.kategori, mainProduct.kategori), not(eq(produk.produkId, id)), eq(produk.isOnline, 1))).groupBy(produk.produkId).limit(5),
         ]);
 
         const stats = priceStats[0];

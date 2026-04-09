@@ -59,6 +59,13 @@ export interface Product {
     isFuring?: number | null;
 }
 
+export interface ProductListResponse {
+    data: Product[];
+    total: number;
+    page: number;
+    limit: number;
+}
+
 export interface ProductDetailResponse {
     product: Product;
     stats: {
@@ -91,10 +98,16 @@ export const productApi = {
             if (filters.brand?.length) params.append("brand", filters.brand.join(","));
             if (filters.gender?.length) params.append("gender", filters.gender.join(","));
             if (filters.search) params.append("search", filters.search);
+            
+            // New Pagination & Sorting Params
+            if (filters.page) params.append("page", filters.page.toString());
+            if (filters.limit) params.append("limit", filters.limit.toString());
+            if (filters.sort) params.append("sort", filters.sort);
+
             const qs = params.toString();
             if (qs) url += `?${qs}`;
         }
-        return apiClient<Product[]>(url);
+        return apiClient<ProductListResponse>(url);
     },
     getNewArrivals: () => apiClient<Product[]>("/api/products/new-arrivals"),
     getHighlights: () => apiClient<Product[]>("/api/products/highlights"),
