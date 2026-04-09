@@ -77,10 +77,11 @@ export default function SearchModal({
     }, [isMobile, isOpen]);
 
     const { data: highlights = [] } = useHighlights();
-    const { data: searchResults = [] } = useProducts(
+    const { data: searchResultsResponse } = useProducts(
         { search: debouncedSearch },
         { enabled: isSearching }
     );
+    const searchResults = searchResultsResponse?.data || [];
     const { data: categories = [] } = useCategories(undefined, 8);
     const { searches: recentSearches, addSearch, removeSearch, clearAll } = useRecentSearches();
 

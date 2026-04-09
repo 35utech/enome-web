@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { productApi, Product, ProductDetailResponse, Category, Color, Size } from "@/lib/api/product-api";
+import { productApi, Product, ProductDetailResponse, Category, Color, Size, ProductListResponse } from "@/lib/api/product-api";
 import { queryKeys } from "@/lib/query-keys";
 
 export type { Product, ProductDetailResponse, Category, Color, Size };
@@ -50,7 +50,7 @@ export function useSizes() {
 }
 
 export function useProducts(filters?: any, options?: any) {
-    return useQuery<Product[]>({
+    return useQuery<ProductListResponse>({
         queryKey: [...queryKeys.products.all, filters],
         queryFn: () => productApi.getAll(filters),
         placeholderData: keepPreviousData,

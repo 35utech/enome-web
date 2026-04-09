@@ -8,7 +8,6 @@ import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-    TooltipProvider,
 } from "@/components/ui/tooltip";
 import { Heart } from "lucide-react";
 import Link from 'next/link';
@@ -88,26 +87,14 @@ export default function ProductCard({ product, index }: ProductCardProps) {
             onMouseEnter={() => setHoverState('card')}
             onMouseLeave={() => setHoverState('none')}
         >
-            <m.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{
-                    opacity: 1,
-                    y: isCardHovered ? -6 : 0
-                }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="flex flex-col h-full bg-white transition-none"
-            >
+            <div className="flex flex-col h-full bg-white transition-transform duration-300 group-hover:-translate-y-1.5">
                 {/* Product Image - Taller Aspect Ratio */}
-                <div className="relative aspect-3/4 overflow-hidden bg-neutral-base-50 rounded-sm mb-4 transition-shadow duration-200 shadow-sm group-hover:shadow-xl">
+                <div className="relative aspect-3/4 overflow-hidden bg-neutral-base-50 rounded-sm mb-4 transition-shadow duration-300 shadow-sm group-hover:shadow-xl">
                     <Link
                         href={`/products/${product.id || 'batik-elegance-123'}`}
                         className="absolute inset-0 z-1"
                     >
-                        <m.div
-                            className="absolute inset-0 z-1"
-                            animate={{ scale: isCardHovered ? 1.05 : 1 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                        >
+                        <div className="absolute inset-0 z-1 transition-transform duration-500 group-hover:scale-105">
                             <FallbackImage
                                 src={product.image}
                                 alt={product.name}
@@ -115,7 +102,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
                                 className="object-cover"
                                 sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             />
-                        </m.div>
+                        </div>
                     </Link>
 
                     {/* Status Badges */}
@@ -222,7 +209,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
                     {/* Color Dots */}
                     {colors.length > 0 && (
                         <div
-                            className="flex flex-col items-end pt-10 pb-2 shrink-0 relative z-10"
+                            className="flex flex-col items-end pt-10 pb-2 shrink-0 relative z-10 group/colors"
                             onMouseEnter={(e) => {
                                 e.stopPropagation();
                                 setHoverState('colors');
@@ -233,44 +220,26 @@ export default function ProductCard({ product, index }: ProductCardProps) {
                             }}
                         >
                             <div className="h-6 flex items-center">
-                                <m.div
-                                    layout
-                                    className="flex items-center"
-                                    animate={{ gap: isColorsHovered ? 6 : 0 }}
-                                    transition={{ duration: 0.2, ease: "circOut" }}
-                                >
-                                    <AnimatePresence mode="popLayout">
-                                        {(isColorsHovered ? colors : colors.slice(0, 2)).map((color, cIdx) => (
-                                            <Tooltip key={`${color.name}-${cIdx}`} delayDuration={0}>
-                                                <TooltipTrigger asChild>
-                                                    <m.div
-                                                        layout
-                                                        initial={{ opacity: 0, scale: 0, x: -4 }}
-                                                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                                                        exit={{ opacity: 0, scale: 0, x: -4 }}
-                                                        transition={{
-                                                            type: "spring",
-                                                            stiffness: 500,
-                                                            damping: 35,
-                                                            delay: isColorsHovered ? cIdx * 0.01 : 0,
-                                                        }}
-                                                        whileHover={{ scale: 1.25, zIndex: 10 }}
-                                                        className="w-3.5 h-3.5 rounded-full ring-2 ring-white shadow-sm cursor-pointer shrink-0"
-                                                        style={{ backgroundColor: color.value }}
-                                                    />
-                                                </TooltipTrigger>
-                                                <TooltipContent className="bg-neutral-base-900 text-white border-none text-[10px] font-bold py-1 px-2 mb-1">
-                                                    {color.name}
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ))}
-                                    </AnimatePresence>
+                                <div className="flex items-center gap-0 group-hover/colors:gap-1.5 transition-all duration-300">
+                                    {(isColorsHovered ? colors : colors.slice(0, 2)).map((color, cIdx) => (
+                                        <Tooltip key={`${color.name}-${cIdx}`} delayDuration={0}>
+                                            <TooltipTrigger asChild>
+                                                <div
+                                                    className="w-3.5 h-3.5 rounded-full ring-2 ring-white shadow-sm cursor-pointer shrink-0 transition-transform hover:scale-125"
+                                                    style={{ backgroundColor: color.value }}
+                                                />
+                                            </TooltipTrigger>
+                                            <TooltipContent className="bg-neutral-base-900 text-white border-none text-[10px] font-bold py-1 px-2 mb-1">
+                                                {color.name}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    ))}
                                     {!isColorsHovered && colors.length > 2 && (
                                         <div className="w-3.5 h-3.5 rounded-full bg-neutral-base-100 ring-2 ring-white flex items-center justify-center text-[6px] font-bold text-neutral-base-500">
                                             +{colors.length - 2}
                                         </div>
                                     )}
-                                </m.div>
+                                </div>
                             </div>
                             <AnimatePresence>
                                 {isColorsHovered && colors.length > 2 && (
@@ -288,7 +257,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
                         </div>
                     )}
                 </Link>
-            </m.div >
-        </div >
+            </div>
+        </div>
     );
 }

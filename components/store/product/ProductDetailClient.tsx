@@ -16,6 +16,7 @@ import FallbackImage from "@/components/store/shared/FallbackImage";
 import { m, AnimatePresence } from "framer-motion";
 import { formatCurrency } from "@/lib/utils";
 import FloatingChat from "@/components/store/product/FloatingChat";
+import { ArrowRight } from "lucide-react";
 
 export function ProductDetailSkeleton() {
     return (
@@ -245,12 +246,22 @@ export default function ProductDetailClient({ productData, whatsappNomor }: { pr
                 {relatedProducts.length > 0 && (
                     <section className="py-8 md:py-20 border-t border-neutral-base-100">
                         <div className="w-full max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12">
-                            <div className="mb-6 md:mb-12 font-montserrat text-center md:text-left">
-                                <h2 className="text-[20px] md:text-[32px] text-neutral-base-900 font-bold tracking-tight">Rekomendasi Untuk Anda</h2>
-                                <p className="text-neutral-base-500 mt-1 md:mt-2 text-[12px] md:text-base leading-relaxed">Koleksi lainnya dari kategori {product.kategori}.</p>
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 md:mb-12">
+                                <div className="text-center md:text-left">
+                                    <h2 className="text-[20px] md:text-[32px] text-neutral-base-900 font-bold tracking-tight">Rekomendasi Untuk Anda</h2>
+                                    <p className="text-neutral-base-500 mt-1 md:mt-2 text-[12px] md:text-base leading-relaxed">Koleksi lainnya dari kategori {product.kategori}.</p>
+                                </div>
+                                {relatedProducts.length > 4 && (
+                                    <Link 
+                                        href={`/products?category=${product.kategori}`}
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-neutral-base-200 text-neutral-base-800 text-[13px] font-bold uppercase tracking-widest hover:bg-neutral-base-50 hover:border-neutral-base-300 transition-all group"
+                                    >
+                                        Lihat Semua <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                )}
                             </div>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
-                                {relatedProducts.map((p: any, idx: number) => {
+                                {relatedProducts.slice(0, 4).map((p: any, idx: number) => {
                                     const relColorArray = p.colors
                                         ? p.colors.split(",").map((c: string) => {
                                             const [name, value] = c.split("|");

@@ -4,7 +4,7 @@ import logger, { apiLogger } from "@/lib/logger";
 import { CustomerService } from "@/lib/services/customer-service";
 import { ProductService } from "@/lib/services/product-service";
 import { produk, produkDetail } from "@/lib/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, asc } from "drizzle-orm";
 
 /**
  * Mengambil daftar produk yang online/highlight.
@@ -29,14 +29,41 @@ export const GET = withOptionalAuth(async (request: NextRequest, context: any, s
         const brand = searchParams.get("brand")?.split(",").filter(Boolean);
         const gender = searchParams.get("gender")?.split(",").filter(Boolean);
         const search = searchParams.get("search") || undefined;
+        
+        // Pagination
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "9");
+        
+        // Sorting
+        const sort = searchParams.get("sort") || "newest";
 
         const kategoriId = await CustomerService.getKategoriId(session?.user?.id);
+        const priceColumn = CustomerService.getPriceColumn(kategoriId);
 
-        logger.debug("Products Fetch: Using kategoriId", { kategoriId, categories, priceRanges, colors, sizes, search });
+        logger.debug("Products Fetch: Using kategoriId", { kategoriId, page, limit, sort });
 
-        const processData = await ProductService.getProducts({
+        let orderBy: any;
+        switch (sort) {
+            case "price_asc":
+                orderBy = asc(priceColumn);
+                break;
+            case "price_desc":
+                orderBy = sql`${priceColumn} DESC`; // priceColumn is a subquery or min/max, using raw SQL for DESC is safer here
+                break;
+            case "name_asc":
+                orderBy = asc(produk.namaProduk);
+                break;
+            case "newest":
+                orderBy = sql`${produk.tglRilis} DESC, ${produk.produkId} DESC`;
+                break;
+            default:
+                orderBy = sql`SUM(${produkDetail.stokNormal}) DESC`;
+        }
+
+        const result = await ProductService.getProducts({
             kategoriId,
-            limit: 50,
+            page,
+            limit,
             categories,
             priceRanges,
             colors,
@@ -45,12 +72,16 @@ export const GET = withOptionalAuth(async (request: NextRequest, context: any, s
             gender,
             search,
             where: eq(produk.isOnline, 1),
-            // Urutkan berdasarkan stok terbanyak (sesuai logika legacy)
-            orderBy: sql`SUM(${produkDetail.stokNormal}) DESC`
+            orderBy
         });
 
-        logger.info("Products Fetch: Success", { count: processData.length });
-        return NextResponse.json(processData);
+        logger.info("Products Fetch: Success", { count: result.data.length, total: result.total });
+        return NextResponse.json({
+            data: result.data,
+            total: result.total,
+            page,
+            limit
+        });
     } catch (error: any) {
         apiLogger.error(request, error);
         return NextResponse.json(

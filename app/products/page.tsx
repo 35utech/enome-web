@@ -4,7 +4,7 @@ import { ProductService } from "@/lib/services/product-service";
 import { CategoryService } from "@/lib/services/category-service";
 import { CustomerService } from "@/lib/services/customer-service";
 import { queryKeys } from "@/lib/query-keys";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { produk } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-utils";
 import CONFIG from "@/lib/config";
@@ -15,6 +15,15 @@ export default async function ProductsPage(props: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
     const searchParams = await props.searchParams;
+
+    return (
+        <Suspense fallback={<ProductListSkeleton />}>
+            <ProductsContent searchParams={searchParams} />
+        </Suspense>
+    );
+}
+
+async function ProductsContent({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     const queryClient = new QueryClient();
 
     // 1. Get User Session & Category for Price Calculation
@@ -35,9 +44,17 @@ export default async function ProductsPage(props: {
     };
 
     // 3. Prefetch Data in Parallel
+    // Initial load: 1 page (9 items)
+    const initialParams = {
+        ...filters,
+        page: 1,
+        limit: CONFIG.PAGINATION.DEFAULT_LIMIT,
+        sort: "newest"
+    };
+
     await Promise.all([
         queryClient.prefetchQuery({
-            queryKey: [...queryKeys.products.all, filters],
+            queryKey: [...queryKeys.products.all, initialParams],
             queryFn: () => ProductService.getProducts({
                 kategoriId,
                 categories: filters.collection,
@@ -47,7 +64,9 @@ export default async function ProductsPage(props: {
                 gender: filters.gender,
                 priceRanges: filters.price,
                 search: filters.search,
-                limit: 100,
+                page: 1,
+                limit: CONFIG.PAGINATION.DEFAULT_LIMIT,
+                orderBy: sql`${produk.tglRilis} DESC, ${produk.produkId} DESC`, // matching "newest" sort
                 where: eq(produk.isOnline, 1),
             }),
         }),
@@ -70,10 +89,9 @@ export default async function ProductsPage(props: {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <Suspense fallback={<ProductListSkeleton />}>
-                <ProductsClient />
-            </Suspense>
+            <ProductsClient />
         </HydrationBoundary>
     );
 }
+
 
