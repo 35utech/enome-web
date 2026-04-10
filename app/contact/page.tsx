@@ -10,7 +10,7 @@ import BackButton from "@/components/store/shared/BackButton";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Hubungi Kami | ÉNOMÉ",
+    title: "Hubungi Kami",
     description: "Hubungi tim ÉNOMÉ untuk bantuan, pertanyaan, atau informasi lebih lanjut mengenai produk dan layanan kami.",
 };
 

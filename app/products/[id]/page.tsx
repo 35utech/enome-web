@@ -1,11 +1,26 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { Metadata } from "next";
+
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await props.params;
+    const session = await getSession();
+    const kategoriId = await CustomerService.getKategoriId(session?.user?.id);
+    const productData = await ProductService.getProductDetail(id, kategoriId);
+
+    if (!productData) {
+        return {
+            title: "Produk Tidak Ditemukan",
+        };
+    }
+
+    return {
+        title: productData.product.namaProduk,
+        description: productData.product.deskripsi,
+    };
+}
+
 import { getSession } from "@/lib/auth-utils";
 import { queryKeys } from "@/lib/query-keys";
-import { db } from "@/lib/db";
-import { customer } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { CONFIG } from "@/lib/config";
-import { getJakartaDate } from "@/lib/date-utils";
 import { ProductService } from "@/lib/services/product-service";
 import { CustomerService } from "@/lib/services/customer-service";
 import Navbar from "@/components/store/layout/Navbar";
@@ -14,9 +29,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { notFound } from "next/navigation";
 import { ConfigService } from "@/lib/services/config-service";
 
+export const revalidate = 3600; // Cache for 1 hour
+
+/* 
+export async function generateStaticParams() {
+    const { data } = await ProductService.getProducts({
+        kategoriId: 1, // Default category
+        limit: 50,
+        page: 1,
+    });
+
+    return data.map((p: any) => ({
+        id: p.produkId,
+    }));
+}
+*/
+
 export default async function ProductDetailPage(props: { params: Promise<{ id: string }> }) {
-    const { id: encodedId } = await props.params;
-    const id = decodeURIComponent(encodedId);
+    const { id } = await props.params;
     const session = await getSession();
     const queryClient = new QueryClient();
 

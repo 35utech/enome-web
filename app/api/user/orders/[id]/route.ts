@@ -89,7 +89,7 @@ export const GET = withAuth(async (
             .leftJoin(provinsi, eq(orders.provinsiKirim, provinsi.provinceId))
             .leftJoin(kota, eq(orders.kotaKirim, kota.cityId))
             .leftJoin(kecamatan, eq(orders.distrikKirim, kecamatan.subdistrictId))
-            .where(and(eq(orders.orderId, orderId), userCondition as any))
+            .where(and(eq(orders.orderId, orderId), userCondition as any, eq(orders.isDeleted, 0)))
             .limit(1);
 
         if (!order) {

@@ -96,6 +96,10 @@ export default function AddressSection({
                 isOpen={isSelectionModalOpen}
                 onClose={() => setIsSelectionModalOpen(false)}
                 onSelect={handleSelectAddress}
+                onAddNew={() => {
+                    setIsSelectionModalOpen(false);
+                    setIsAddAddressModalOpen(true);
+                }}
             />
 
             <AddAddressModal
@@ -106,7 +110,7 @@ export default function AddressSection({
                 }}
                 initialData={editData}
                 onSuccess={(newAddr) => {
-                    if (newAddr) {
+                    if (newAddr && newAddr.isPrimary === 1) {
                         setShippingForm({
                             ...shippingForm,
                             addressId: newAddr.id,

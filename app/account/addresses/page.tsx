@@ -1,4 +1,10 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Daftar Alamat",
+};
+
 import { getSession } from "@/lib/auth-utils";
 import { queryKeys } from "@/lib/query-keys";
 import { CustomerService } from "@/lib/services/customer-service";

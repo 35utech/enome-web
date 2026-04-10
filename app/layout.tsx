@@ -15,7 +15,6 @@ import { ConfigService } from "@/lib/services/config-service";
 import { siteConfig } from "@/lib/site-config";
 import { unstable_cache } from "next/cache";
 
-export const revalidate = 0;
 
 // Cached metadata getter to avoid database calls on every navigation
 const getCachedMetadata = unstable_cache(

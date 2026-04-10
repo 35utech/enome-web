@@ -17,6 +17,8 @@ import { m, AnimatePresence } from "framer-motion";
 import { formatCurrency } from "@/lib/utils";
 import FloatingChat from "@/components/store/product/FloatingChat";
 import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query-keys";
 
 export function ProductDetailSkeleton() {
     return (
@@ -92,6 +94,21 @@ export default function ProductDetailClient({ productData, whatsappNomor }: { pr
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // Real-time Background Sync for Stock & Price
+    const { data: syncData } = useQuery({
+        queryKey: queryKeys.products.sync(product.produkId),
+        queryFn: async () => {
+            const res = await fetch(`/api/products/${encodeURIComponent(product.produkId)}/sync`);
+            if (!res.ok) throw new Error("Failed to sync product data");
+            return res.json();
+        },
+        initialData: null,
+        refetchInterval: 60000, // Re-sync every minute to keep stock fresh
+    });
+
+    const activeStats = syncData?.stats || stats;
+    const activeMatrix = syncData?.variants || variants.matrix;
+
     const formatPriceRange = (min: any, max: any) => {
         const nMin = parseInt(min);
         const nMax = parseInt(max);
@@ -122,24 +139,24 @@ export default function ProductDetailClient({ productData, whatsappNomor }: { pr
 
     const infoProduct = {
         name: product.namaProduk,
-        price: formatPriceRange(stats.finalMinPrice, stats.finalMaxPrice),
-        originalPrice: (stats.finalMinPrice !== stats.baseMinPrice || stats.finalMaxPrice !== stats.baseMaxPrice)
-            ? formatPriceRange(stats.baseMinPrice, stats.baseMaxPrice)
+        price: formatPriceRange(activeStats.finalMinPrice, activeStats.finalMaxPrice),
+        originalPrice: (activeStats.finalMinPrice !== activeStats.baseMinPrice || activeStats.finalMaxPrice !== activeStats.baseMaxPrice)
+            ? formatPriceRange(activeStats.baseMinPrice, activeStats.baseMaxPrice)
             : undefined,
-        discountPercentage: stats.discountPercentage,
+        discountPercentage: activeStats.discountPercentage,
         description: product.deskripsi || "No description available.",
         colors: variants.colors,
         sizes: variants.sizes,
         types: variants.types,
         collection: product.kategori,
         detail: product.detail,
-        totalStock: stats.totalStock,
-        matrix: variants.matrix,
-        commission: stats.hasCommission ? formatPriceRange(stats.commissionMin, stats.commissionMax) : undefined,
-        hasCommission: stats.hasCommission,
-        isOnFlashSale: stats.isOnFlashSale,
-        isOnPreOrder: stats.isOnPreOrder || product.produkPreorder === 1,
-        flashSaleEndTime: stats.flashSaleEndTime,
+        totalStock: String(activeStats.totalStock),
+        matrix: activeMatrix,
+        commission: activeStats.hasCommission ? formatPriceRange(activeStats.commissionMin, activeStats.commissionMax) : undefined,
+        hasCommission: activeStats.hasCommission,
+        isOnFlashSale: activeStats.isOnFlashSale,
+        isOnPreOrder: activeStats.isOnPreOrder || product.produkPreorder === 1,
+        flashSaleEndTime: activeStats.flashSaleEndTime,
         jenisProduk: product.jenisProduk,
         jenisBahan: product.jenisBahan,
         isFuring: product.isFuring,

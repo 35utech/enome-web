@@ -1,5 +1,10 @@
 import { Suspense } from "react";
+import { Metadata } from "next";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+
+export const metadata: Metadata = {
+    title: "Jelajahi Produk",
+};
 import { ProductService } from "@/lib/services/product-service";
 import { CategoryService } from "@/lib/services/category-service";
 import { CustomerService } from "@/lib/services/customer-service";

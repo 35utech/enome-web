@@ -11,7 +11,7 @@ import BackButton from "@/components/store/shared/BackButton";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Informasi Pengiriman | ÉNOMÉ",
+    title: "Info Pengiriman",
     description: "Pelajari tata cara dan informasi pengiriman pesanan Anda di ÉNOMÉ.",
 };
 

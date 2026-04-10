@@ -1,4 +1,10 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Profil Saya",
+};
+
 import { getSession } from "@/lib/auth-utils";
 import { queryKeys } from "@/lib/query-keys";
 import { UserService } from "@/lib/services/user-service";
