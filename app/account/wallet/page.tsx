@@ -1,4 +1,10 @@
 import React from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Enome Wallet",
+};
+
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/store/layout/Navbar";
 import UserSidebar from "@/components/store/layout/UserSidebar";

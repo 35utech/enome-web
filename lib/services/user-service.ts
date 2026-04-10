@@ -167,7 +167,8 @@ export class UserService {
 
         const whereConditions = [
             userCondition as any,
-            notInArray(orders.statusOrder, CONFIG.ORDER_STATUS.EXCLUDED)
+            notInArray(orders.statusOrder, CONFIG.ORDER_STATUS.EXCLUDED),
+            eq(orders.isDeleted, 0)
         ];
 
         if (startDate) whereConditions.push(gte(orders.tglOrder, sql`${startDate}`));

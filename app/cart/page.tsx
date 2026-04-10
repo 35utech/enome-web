@@ -1,4 +1,9 @@
-import React from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Keranjang Belanja",
+};
+
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/store/layout/Navbar";
 import { queryKeys } from "@/lib/query-keys";

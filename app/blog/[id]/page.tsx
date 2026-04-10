@@ -1,4 +1,26 @@
 import { BlogService } from "@/lib/services/blog-service";
+import { Metadata } from "next";
+
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const params = await props.params;
+    const blogId = parseInt(params.id);
+
+    if (isNaN(blogId)) {
+        return { title: "Artikel Tidak Ditemukan" };
+    }
+
+    const post = await BlogService.getPublishedBlogById(blogId);
+
+    if (!post) {
+        return { title: "Artikel Tidak Ditemukan" };
+    }
+
+    return {
+        title: post.judul,
+        description: post.konten?.substring(0, 160).replace(/<[^>]*>/g, ""), // Strip HTML for description
+    };
+}
+
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
 import { notFound } from "next/navigation";

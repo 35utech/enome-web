@@ -11,12 +11,11 @@ import BackButton from "@/components/store/shared/BackButton";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Tentang ÉNOMÉ | Warisan Budaya Modern",
+    title: "Tentang Kami",
     description: "Kenali lebih dekat perjalanan ÉNOMÉ dalam melestarikan batik dan warisan budaya Indonesia melalui desain modern.",
 };
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 86400; // Cache for 24 hours
 
 /**
  * About Enome Page

@@ -1,4 +1,10 @@
 import React, { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Checkout",
+};
+
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/store/layout/Navbar";
 import { Loader2 } from "lucide-react";
