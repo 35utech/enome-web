@@ -13,12 +13,21 @@ import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
     const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+    const ogImage = `${siteConfig.url}${siteConfig.assets.ogImage}`;
+    
     return {
         title: "Info Pengiriman",
         description: description,
         openGraph: {
             title: "Info Pengiriman | ÉNOMÉ",
             description: description,
+            images: [ogImage],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: "Info Pengiriman | ÉNOMÉ",
+            description: description,
+            images: [ogImage],
         }
     };
 }
