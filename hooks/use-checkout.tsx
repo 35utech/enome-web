@@ -392,9 +392,9 @@ export function useCheckout() {
                 setPaymentAccountName(method.namaPemilik || "");
                 setPaymentAccountNumber(method.noRekening || "");
 
-                // Generate unique code if it's a bank transfer and not yet set
-                if (uniqueCode === 0) {
-                    const { min, max } = uniqueCodeConfig;
+                // Generate unique code if it's a bank transfer and not yet set or out of range
+                const { min, max } = uniqueCodeConfig;
+                if (uniqueCode === 0 || uniqueCode < min || uniqueCode > max) {
                     const randomCode = Math.floor(Math.random() * (max - min + 1)) + min;
                     setUniqueCode(randomCode);
                 }
@@ -404,7 +404,7 @@ export function useCheckout() {
             setPaymentAccountNumber("");
             setUniqueCode(0);
         }
-    }, [paymentMethod, paymentMethods]);
+    }, [paymentMethod, paymentMethods, uniqueCodeConfig, uniqueCode]);
 
     useEffect(() => {
         if (useWallet && remainingBill === 0) {
