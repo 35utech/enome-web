@@ -1,6 +1,7 @@
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
 import { ConfigService } from "@/lib/services/config-service";
+import { siteConfig } from "@/lib/site-config";
 import { db } from "@/lib/db";
 import { companyProfile } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -9,10 +10,17 @@ import BackButton from "@/components/store/shared/BackButton";
 
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Hubungi Kami",
-    description: "Hubungi tim ÉNOMÉ untuk bantuan, pertanyaan, atau informasi lebih lanjut mengenai produk dan layanan kami.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+    return {
+        title: "Hubungi Kami",
+        description: description,
+        openGraph: {
+            title: "Hubungi Kami | ÉNOMÉ",
+            description: description,
+        }
+    };
+}
 
 export default async function Page() {
     return <ContactInformasi />;

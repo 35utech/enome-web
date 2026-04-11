@@ -3,8 +3,9 @@ import { Metadata } from "next";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await props.params;
-    const session = await getSession();
-    const kategoriId = await CustomerService.getKategoriId(session?.user?.id);
+
+    // Use default category for metadata/SEO to avoid session dependency
+    const kategoriId = CONFIG.DEFAULT_KATEGORI_CUSTOMER_ID;
     const productData = await ProductService.getProductDetail(id, kategoriId);
 
     if (!productData) {
@@ -13,9 +14,17 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
         };
     }
 
+    // Fetch central description as fallback
+    const centralDescription = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+
     return {
         title: productData.product.namaProduk,
-        description: productData.product.deskripsi,
+        description: productData.product.deskripsi || centralDescription,
+        openGraph: {
+            title: productData.product.namaProduk,
+            description: productData.product.deskripsi || centralDescription,
+            images: productData.product.gambar ? [`${ASSET_URL}/img/produk/${productData.product.gambar}`] : [],
+        },
     };
 }
 
@@ -28,6 +37,9 @@ import ProductDetailClient from "@/components/store/product/ProductDetailClient"
 import { Skeleton } from "@/components/ui/skeleton";
 import { notFound } from "next/navigation";
 import { ConfigService } from "@/lib/services/config-service";
+import { siteConfig } from "@/lib/site-config";
+import { ASSET_URL } from "@/config/config";
+import CONFIG from "@/lib/config";
 
 export const revalidate = 3600; // Cache for 1 hour
 

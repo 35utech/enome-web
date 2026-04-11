@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
                     photo: picture || "",
                     urlphoto: picture || "",
                     updatephoto: "",
+                    authenticatedBy: "google",
                 });
 
                 const insertedUserId = userResult.insertId;
@@ -261,6 +262,7 @@ export async function POST(request: NextRequest) {
             id: currentUser.id,
             email: currentUser.email,
             name: currentUser.nama,
+            authenticatedBy: currentUser.authenticatedBy,
         });
 
         // Log to activity table

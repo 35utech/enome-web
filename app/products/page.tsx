@@ -2,9 +2,17 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
-export const metadata: Metadata = {
-    title: "Jelajahi Produk",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+    return {
+        title: "Jelajahi Produk",
+        description: description,
+        openGraph: {
+            title: "Jelajahi Produk | ÉNOMÉ",
+            description: description,
+        }
+    };
+}
 import { ProductService } from "@/lib/services/product-service";
 import { CategoryService } from "@/lib/services/category-service";
 import { CustomerService } from "@/lib/services/customer-service";
@@ -12,6 +20,8 @@ import { queryKeys } from "@/lib/query-keys";
 import { eq, sql } from "drizzle-orm";
 import { produk } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-utils";
+import { ConfigService } from "@/lib/services/config-service";
+import { siteConfig } from "@/lib/site-config";
 import CONFIG from "@/lib/config";
 import ProductsClient from "@/components/store/product/ProductsClient";
 import ProductListSkeleton from "@/components/store/product/ProductListSkeleton";
