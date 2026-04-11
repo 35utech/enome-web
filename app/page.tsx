@@ -9,12 +9,21 @@ import { siteConfig } from "@/lib/site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
   const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+  const ogImage = `${siteConfig.url}${siteConfig.assets.ogImage}`;
+  
   return {
     title: "Beranda",
     description: description,
     openGraph: {
       title: "Beranda | ÉNOMÉ",
       description: description,
+      images: [ogImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Beranda | ÉNOMÉ",
+      description: description,
+      images: [ogImage],
     }
   };
 }

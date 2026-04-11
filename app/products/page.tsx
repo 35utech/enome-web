@@ -4,12 +4,21 @@ import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query
 
 export async function generateMetadata(): Promise<Metadata> {
     const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+    const ogImage = `${siteConfig.url}${siteConfig.assets.ogImage}`;
+    
     return {
         title: "Jelajahi Produk",
         description: description,
         openGraph: {
             title: "Jelajahi Produk | ÉNOMÉ",
             description: description,
+            images: [ogImage],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: "Jelajahi Produk | ÉNOMÉ",
+            description: description,
+            images: [ogImage],
         }
     };
 }
