@@ -40,7 +40,7 @@ function CourierGroup({
     );
 
     // State for expansion - managed correctly at the top of this component
-    const [isExpanded, setIsExpanded] = useState(isCourierSelected || groupIdx === 0);
+    const [isExpanded, setIsExpanded] = useState(isCourierSelected);
 
     // Sync with selection changes
     useEffect(() => {

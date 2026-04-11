@@ -155,13 +155,13 @@ export default function AddressSection({
                                 }}
                                 className="text-[10px] md:text-[12px] font-bold uppercase tracking-widest text-neutral-base-500 hover:text-amber-800 transition-colors bg-white px-3.5 md:px-4 py-2 rounded-xl border border-neutral-base-100 shadow-sm active:scale-95"
                             >
-                                Ubah
+                                Edit alamat
                             </button>
                             <button
                                 onClick={() => setIsSelectionModalOpen(true)}
                                 className="text-[10px] md:text-[12px] font-bold uppercase tracking-widest text-neutral-base-500 hover:text-amber-800 transition-colors bg-white px-3.5 md:px-4 py-2 rounded-xl border border-neutral-base-100 shadow-sm active:scale-95"
                             >
-                                Ganti
+                                Gunakan alamat lain
                             </button>
                         </div>
                     </div>
