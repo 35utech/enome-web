@@ -156,6 +156,7 @@ export async function POST(request: NextRequest) {
                 photo: "",
                 urlphoto: "",
                 updatephoto: "",
+                authenticatedBy: "manual",
             });
 
             const insertedUserId = userResult.insertId;

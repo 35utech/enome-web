@@ -171,6 +171,7 @@ export const user = mysqlTable("user", {
     lastActivity: timestamp("last_activity").notNull().defaultNow().onUpdateNow(),
     gender: int("gender").notNull().default(1),
     brithdate: date("brithdate"),
+    authenticatedBy: varchar("authenticated_by", { length: 10 }),
 });
 
 export const activityLogin = mysqlTable("activity_login", {

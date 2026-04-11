@@ -1,5 +1,6 @@
 import { BlogService } from "@/lib/services/blog-service";
 import { ConfigService } from "@/lib/services/config-service";
+import { siteConfig } from "@/lib/site-config";
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
 import { ASSET_URL } from "@/config/config";
@@ -10,10 +11,17 @@ import BackButton from "@/components/store/shared/BackButton";
 
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Tentang Kami",
-    description: "Kenali lebih dekat perjalanan ÉNOMÉ dalam melestarikan batik dan warisan budaya Indonesia melalui desain modern.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+    return {
+        title: "Tentang Kami",
+        description: description,
+        openGraph: {
+            title: "Tentang Kami | ÉNOMÉ",
+            description: description,
+        }
+    };
+}
 
 export const revalidate = 86400; // Cache for 24 hours
 

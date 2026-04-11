@@ -7,6 +7,7 @@ interface User {
     id: number;
     email: string;
     name: string;
+    authenticatedBy?: "google" | "manual";
 }
 
 interface AuthResponse {

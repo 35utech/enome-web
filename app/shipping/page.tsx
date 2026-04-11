@@ -1,5 +1,6 @@
 import { BlogService } from "@/lib/services/blog-service";
 import { ConfigService } from "@/lib/services/config-service";
+import { siteConfig } from "@/lib/site-config";
 import Navbar from "@/components/store/layout/Navbar";
 import Footer from "@/components/store/layout/Footer";
 import { ASSET_URL } from "@/config/config";
@@ -10,10 +11,17 @@ import BackButton from "@/components/store/shared/BackButton";
 
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Info Pengiriman",
-    description: "Pelajari tata cara dan informasi pengiriman pesanan Anda di ÉNOMÉ.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const description = await ConfigService.get("META_DESCRIPTION", siteConfig.description);
+    return {
+        title: "Info Pengiriman",
+        description: description,
+        openGraph: {
+            title: "Info Pengiriman | ÉNOMÉ",
+            description: description,
+        }
+    };
+}
 
 /**
  * Shipping Information Page

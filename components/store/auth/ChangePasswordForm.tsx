@@ -9,6 +9,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useAuth } from "@/hooks/use-auth";
 
 const changePasswordSchema = z.object({
     newPassword: z.string().min(6, "Password minimal 6 karakter"),
@@ -27,6 +28,8 @@ export default function ChangePasswordForm() {
     });
 
     const [isFocused, setIsFocused] = useState<string | null>(null);
+    const { user } = useAuth();
+    const isGoogleAuth = user?.authenticatedBy === "google";
 
     const changePasswordMutation = useChangePassword();
 
@@ -61,6 +64,41 @@ export default function ChangePasswordForm() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-[24px] md:rounded-[32px] p-6 sm:p-8 md:p-12 border border-neutral-base-100 shadow-sm transition-all duration-300 hover:shadow-md"
         >
+            {isGoogleAuth && (
+                <m.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-8 p-5 bg-blue-50/50 rounded-[20px] border border-blue-100/50 space-y-3"
+                >
+                    <div className="flex items-center gap-3 text-neutral-base-900">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                <path
+                                    fill="#4285F4"
+                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                />
+                                <path
+                                    fill="#34A853"
+                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                />
+                                <path
+                                    fill="#FBBC05"
+                                    d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"
+                                />
+                                <path
+                                    fill="#EA4335"
+                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                                />
+                            </svg>
+                        </div>
+                        <span className="text-[13px] font-black uppercase tracking-wider">Akun Terhubung Google</span>
+                    </div>
+                    <p className="text-[14px] text-neutral-base-500 font-medium leading-relaxed">
+                        Anda mendaftar menggunakan akun Google. Jika Anda ingin login secara manual nantinya, Anda bisa menetapkan password baru di sini.
+                    </p>
+                </m.div>
+            )}
+
             <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-16">
                 {/* Header Info */}
                 <div className="lg:w-1/3 space-y-4">
@@ -73,15 +111,6 @@ export default function ChangePasswordForm() {
                         <h3 className="text-[20px] md:text-[24px] font-black text-[#111827] leading-tight">Ubah Password</h3>
                         <p className="text-[14px] leading-relaxed text-neutral-base-500 font-medium">
                             Jaga keamanan akun Anda dengan memperbarui password secara rutin. Gunakan kombinasi yang kuat dan unik.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                            <ShieldCheck className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <p className="text-[12px] font-bold text-blue-700 leading-tight">
-                            Password minimal 6 karakter.
                         </p>
                     </div>
                 </div>
