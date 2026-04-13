@@ -112,7 +112,10 @@ export default function ProductDetailClient({ productData, whatsappNomor }: { pr
     const formatPriceRange = (min: any, max: any) => {
         const nMin = parseInt(min);
         const nMax = parseInt(max);
-        if (!nMax || nMin === nMax) return formatCurrency(nMin);
+        
+        if (isNaN(nMin)) return "";
+        if (!nMax || isNaN(nMax) || nMin === nMax) return formatCurrency(nMin);
+        
         return `${formatCurrency(nMin)} - ${formatCurrency(nMax)}`;
     };
 
