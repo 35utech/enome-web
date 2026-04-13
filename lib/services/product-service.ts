@@ -295,11 +295,14 @@ export class ProductService {
             }).from(produkDetail).where(eq(produkDetail.produkId, id)),
             db.select({
                 color: sql<string>`COALESCE(${warna.warna}, ${produkDetail.warnaId})`,
+                colorValue: sql<string>`COALESCE(${warna.kodeWarna}, '#cccccc')`,
                 size: produkDetail.size,
                 variant: produkDetail.variant,
                 stock: produkDetail.stokNormal,
                 price: priceColumn,
                 basePrice: produkDetail.hargaJual,
+                image: produkDetail.gambar,
+                colorId: produkDetail.warnaId,
             }).from(produkDetail).leftJoin(warna, or(eq(produkDetail.warnaId, warna.warnaId), eq(produkDetail.warnaId, warna.warna))).where(eq(produkDetail.produkId, id)),
              db.select({
                 flashSaleId: sql<number>`(SELECT fs.id FROM flash_sale fs INNER JOIN flash_sale_detail fsd ON fs.id = fsd.flash_sale_id WHERE fs.is_aktif = 1 AND fsd.produk_id = ${id} AND ${now} BETWEEN fs.waktu_mulai AND fs.waktu_selesai AND fs.customer_kategori_id LIKE ${"%" + kategoriId + "%"} LIMIT 1)`,
@@ -320,6 +323,10 @@ export class ProductService {
         return {
             stats: {
                 totalStock: Number(stats.totalStock || 0),
+                minPrice: Number(stats.minPrice || 0),
+                maxPrice: Number(stats.maxPrice || 0),
+                baseMinPrice: Number(stats.baseMinPrice || 0),
+                baseMaxPrice: Number(stats.baseMaxPrice || 0),
                 finalMinPrice,
                 finalMaxPrice,
                 isOnFlashSale,
