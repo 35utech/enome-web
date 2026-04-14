@@ -57,12 +57,13 @@ export default function TrackingManifest({ awb, courier, phone, showTitle = fals
     }
 
     const allManifest = [...(trackingData?.manifest || [])].reverse();
-    const hasMoreOriginal = allManifest.length > 3;
+    const itemsToGroup = isCollapsible && !isExpanded ? allManifest.slice(0, 2) : allManifest;
+    const hasMore = allManifest.length > 2;
     
     // Grouping logic
-    const groupedManifest = allManifest.reduce((groups: any[], item: any) => {
+    const displayedGroups = itemsToGroup.reduce((groups: any[], item: any) => {
         const date = item.manifest_date;
-        let group = groups.find(g => g.date === date);
+        let group = groups.find((g: any) => g.date === date);
         if (!group) {
             group = { date, items: [] };
             groups.push(group);
@@ -70,9 +71,6 @@ export default function TrackingManifest({ awb, courier, phone, showTitle = fals
         group.items.push(item);
         return groups;
     }, []);
-
-    const displayedGroups = isCollapsible && !isExpanded ? groupedManifest.slice(0, 1) : groupedManifest;
-    const hasMore = groupedManifest.length > 1 || (groupedManifest[0]?.items?.length > 3);
 
     const getStatusIcon = (desc: string) => {
         const d = desc.toLowerCase();
@@ -180,7 +178,7 @@ export default function TrackingManifest({ awb, courier, phone, showTitle = fals
                         </div>
                     ))}
 
-                    {isCollapsible && (groupedManifest.length > 1 || groupedManifest[0]?.items?.length > 3) && (
+                    {isCollapsible && hasMore && (
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
                             className="w-full py-4 border-2 border-dashed border-neutral-base-100 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] text-neutral-base-500 hover:text-neutral-base-900 hover:border-neutral-base-300 hover:bg-neutral-base-50 transition-all active:scale-[0.98] flex items-center justify-center gap-3 font-montserrat"
