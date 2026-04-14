@@ -136,7 +136,7 @@ export default function ProductsClient() {
                                 <h2 className="font-montserrat text-[20px] sm:text-[25px] font-bold text-neutral-base-900 tracking-tight">Produk</h2>
                                 <Sheet>
                                     <SheetTrigger asChild>
-                                        <button className="flex items-center gap-2 border border-neutral-base-200 px-4 py-2 text-[13px] font-bold shadow-sm hover:bg-neutral-base-50 transition-colors uppercase tracking-widest font-montserrat">
+                                        <button suppressHydrationWarning className="flex items-center gap-2 border border-neutral-base-200 px-4 py-2 text-[13px] font-bold shadow-sm hover:bg-neutral-base-50 transition-colors uppercase tracking-widest font-montserrat">
                                             <SlidersHorizontal className="w-[14px] h-[14px]" />
                                             Filter
                                         </button>
