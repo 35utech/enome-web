@@ -186,7 +186,9 @@ export default function Navbar() {
                                                 <User className="w-5 h-5 text-neutral-base-600" />
                                             </div>
                                             <div className="text-left hidden lg:block font-montserrat">
-                                                <p className="text-[13px] font-bold text-neutral-base-900 leading-none truncate max-w-[100px] mb-1">{user?.name}</p>
+                                                <p className="text-[13px] font-bold text-neutral-base-900 leading-none mb-1">
+                                                    {user?.name?.split(" ").slice(0, 2).join(" ")}
+                                                </p>
                                                 <p className="text-[10px] text-neutral-base-400 font-bold uppercase tracking-widest flex items-center gap-1">
                                                     Akun <ChevronDown className="w-2.5 h-2.5" />
                                                 </p>
@@ -325,7 +327,9 @@ export default function Navbar() {
                                             <User className="w-5 h-5 text-neutral-base-400" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-neutral-base-900">{user?.name}</p>
+                                            <p className="text-sm font-bold text-neutral-base-900">
+                                                {user?.name}
+                                            </p>
                                             <p className="text-[10px] text-neutral-base-400 font-bold uppercase tracking-widest">{user?.email}</p>
                                         </div>
                                     </div>
