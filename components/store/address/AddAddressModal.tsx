@@ -32,7 +32,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { m, AnimatePresence } from "framer-motion";
-import { cn, joinAddress } from "@/lib/utils";
+import { cn, joinAddress, toTitleCase } from "@/lib/utils";
 import { queryKeys } from "@/lib/query-keys";
 import {
     Command,
@@ -433,7 +433,12 @@ export default function AddAddressModal({ open, onOpenChange, initialData, onSuc
                                             aria-expanded={villageOpen}
                                             className="w-full h-14 bg-neutral-base-50/30 border-neutral-base-100/60 rounded-[20px] px-6 font-bold text-[14px] justify-between hover:bg-neutral-base-50 transition-all border shadow-none"
                                         >
-                                            {formData.kelurahan || "Pilih Kelurahan / Desa"}
+                                            <span className={cn(
+                                                "line-clamp-1 text-left",
+                                                !formData.kelurahan ? "text-neutral-base-300" : "text-neutral-base-900"
+                                            )}>
+                                                {formData.kelurahan ? toTitleCase(formData.kelurahan) : "Pilih Kelurahan / Desa"}
+                                            </span>
                                             {isLoadingVillages ? (
                                                 <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin opacity-50" />
                                             ) : (
@@ -474,7 +479,9 @@ export default function AddAddressModal({ open, onOpenChange, initialData, onSuc
                                                                         formData.kelurahan === v.villageName ? "opacity-100" : "opacity-0"
                                                                     )}
                                                                 />
-                                                                {v.villageName}
+                                                                <span className="text-[13px] font-bold text-neutral-base-900">
+                                                                    {toTitleCase(v.villageName)}
+                                                                </span>
                                                             </div>
                                                             <span className="text-[10px] text-neutral-base-400 font-bold">{v.zipCode}</span>
                                                         </CommandItem>
