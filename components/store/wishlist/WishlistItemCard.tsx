@@ -9,6 +9,8 @@ import { ASSET_URL } from "@/config/config";
 import { WishlistItem } from "@/lib/api/user-api";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCurrency } from "@/lib/utils";
+import { useSoldOutLabel } from "@/hooks/use-config";
+
 
 interface WishlistItemCardProps {
     item: WishlistItem;
@@ -19,6 +21,8 @@ interface WishlistItemCardProps {
 }
 
 const WishlistItemCard = ({ item, idx, isRemoving, onRemove, formatPriceRange }: WishlistItemCardProps) => {
+    const soldOutLabel = useSoldOutLabel();
+
     const parseColors = (colors: string | null) => {
         if (!colors) return [];
         return colors.split(",").map(c => {
@@ -77,7 +81,7 @@ const WishlistItemCard = ({ item, idx, isRemoving, onRemove, formatPriceRange }:
                     {stock === 0 && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10 pointer-events-none">
                             <span className="text-white text-[9px] font-bold uppercase tracking-widest">
-                                Sold Out
+                                {soldOutLabel}
                             </span>
                         </div>
                     )}

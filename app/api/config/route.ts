@@ -3,7 +3,7 @@ import { ConfigService } from "@/lib/services/config-service";
 import logger from "@/lib/logger";
 import { revalidateTag } from "next/cache";
 
-const WHITELISTED_KEYS = ["packing_fee", "biaya_packing", "whatsapp_admin", "whatsapp_nomor", "batas_pembayaran", "origin_city", "kecamatan", "origin_name", "code_uniq_payment_min", "code_uniq_payment_max"];
+const WHITELISTED_KEYS = ["packing_fee", "biaya_packing", "whatsapp_admin", "whatsapp_nomor", "batas_pembayaran", "origin_city", "kecamatan", "origin_name", "code_uniq_payment_min", "code_uniq_payment_max", "label_sold_out"];
 
 export async function GET(request: NextRequest) {
     try {

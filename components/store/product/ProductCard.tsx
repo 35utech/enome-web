@@ -16,6 +16,8 @@ import { useWishlist, useToggleWishlist } from "@/hooks/use-wishlist";
 import { useCartItems } from "@/hooks/use-cart-items";
 import { CartItem } from "@/lib/api/cart-api";
 import { cn } from "@/lib/utils";
+import { useSoldOutLabel } from "@/hooks/use-config";
+
 
 interface Color {
     name: string;
@@ -51,6 +53,8 @@ export default function ProductCard({ product, index }: ProductCardProps) {
     const colors = product.colors || [];
     const { isAuthenticated } = useAuth();
     const router = useRouter();
+    const soldOutLabel = useSoldOutLabel();
+
 
     const { data: wishlistData } = useWishlist();
     const toggleWishlist = useToggleWishlist();
@@ -128,7 +132,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
                     {realStock === 0 && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10 pointer-events-none">
                             <span className="text-white text-[9px] font-bold uppercase tracking-widest">
-                                {qtyInCart > 0 && qtyInCart >= (Number(product.totalStock) || 0) ? "In Cart" : "Sold Out"}
+                                {qtyInCart > 0 && qtyInCart >= (Number(product.totalStock) || 0) ? "In Cart" : soldOutLabel}
                             </span>
                         </div>
                     )}

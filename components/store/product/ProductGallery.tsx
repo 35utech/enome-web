@@ -3,6 +3,8 @@
 import FallbackImage from "@/components/store/shared/FallbackImage";
 import { m } from "framer-motion";
 import { Zap } from "lucide-react";
+import { useSoldOutLabel } from "@/hooks/use-config";
+
 
 interface ProductGalleryProps {
     images: string[];
@@ -12,6 +14,8 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ images, isSoldOut, isOnFlashSale, isOnPreOrder }: ProductGalleryProps) {
+    const soldOutLabel = useSoldOutLabel();
+
     return (
         <div className="flex flex-col gap-4 md:gap-8 w-full min-w-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
@@ -48,7 +52,7 @@ export default function ProductGallery({ images, isSoldOut, isOnFlashSale, isOnP
                                     {isSoldOut && (
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10 pointer-events-none">
                                             <span className="text-white text-[12px] md:text-[14px] font-bold uppercase tracking-widest font-montserrat">
-                                                Sold Out
+                                                {soldOutLabel}
                                             </span>
                                         </div>
                                     )}

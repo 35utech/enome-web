@@ -24,6 +24,8 @@ import { useWishlist, useToggleWishlist } from "@/hooks/use-wishlist";
 import { useCartItems } from "@/hooks/use-cart-items";
 import { useAddToCart } from "@/hooks/use-add-to-cart";
 import { useFlashSaleTimer } from "@/hooks/use-flash-sale-timer";
+import { useSoldOutLabel } from "@/hooks/use-config";
+
 import { Share2, Link as LinkIcon, Facebook, Instagram } from "lucide-react";
 import {
     findMatrixCombination,
@@ -85,6 +87,8 @@ export default function ProductInfo({
     selectedSize,
     setSelectedSize
 }: ProductInfoProps) {
+    const soldOutLabel = useSoldOutLabel();
+
     // -- Local State --
     const [quantity, setQuantity] = useState(1);
     const [openAccordion, setOpenAccordion] = useState<string | null>("details");
@@ -444,7 +448,7 @@ export default function ProductInfo({
                                 }}
                                 disabled={isOutOfStock}
                                 className={`relative flex flex-col items-center gap-1 group transition-opacity ${isOutOfStock ? "opacity-40 cursor-not-allowed" : "opacity-100"}`}
-                                aria-label={`Select ${color.name} ${isOutOfStock ? "(Sold Out)" : ""}`}
+                                aria-label={`Select ${color.name} ${isOutOfStock ? `(${soldOutLabel})` : ""}`}
                             >
                                 <span
                                     className={`w-7 h-7 md:w-8 md:h-8 rounded-full border border-neutral-base-200 transition-all flex items-center justify-center ${selectedColor === color.id ? "ring-2 ring-offset-2 ring-neutral-base-900 scale-110 shadow-md" : "hover:scale-110 shadow-sm"
@@ -455,7 +459,7 @@ export default function ProductInfo({
                                     {isOutOfStock && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500 rotate-45"></div></div>}
                                 </span>
                                 {isOutOfStock && (
-                                    <span className="text-[9px] font-bold text-red-500 uppercase tracking-wider">Sold Out</span>
+                                    <span className="text-[9px] font-bold text-red-500 uppercase tracking-wider">{soldOutLabel}</span>
                                 )}
                             </button>
                         );
