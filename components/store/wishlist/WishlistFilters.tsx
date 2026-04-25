@@ -4,6 +4,8 @@ import React from "react";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SearchInput from "@/components/store/shared/SearchInput";
+import { useSoldOutLabel } from "@/hooks/use-config";
+
 
 interface WishlistFiltersProps {
     searchQuery: string;
@@ -34,6 +36,8 @@ const WishlistFilters = ({
     clearFilters,
     sortOptions
 }: WishlistFiltersProps) => {
+    const soldOutLabel = useSoldOutLabel();
+
     return (
         <div className="space-y-4 mb-4 md:mb-8">
             {/* Search + Sort Row */}
@@ -96,7 +100,7 @@ const WishlistFilters = ({
                                     : "bg-white text-neutral-base-500 border-neutral-base-100 hover:border-rose-300"
                             )}
                         >
-                            Sold Out
+                            {soldOutLabel}
                         </button>
 
                         {/* Separator */}
